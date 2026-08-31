@@ -6,14 +6,14 @@
 - **name:** Social Links
 - **purpose:** Let an interested visitor reach Javi's social channels
   (Instagram, LinkedIn) through one consistent, reusable link group presented
-  wherever the site offers a contact/identity touchpoint.
+  in the Hero and Contact views.
 
 ## Cohesive Functional Responsibility
 
 Provide the reusable social channel link group — the Instagram/LinkedIn
 icon+label pairing and the mechanism by which a visitor opens each channel —
-as one consistent device instantiated across the Hero, Contact, and
-persistent-nav placements.
+as one consistent device instantiated across the Hero and Contact
+placements.
 
 ## Functional Boundary
 
@@ -23,9 +23,8 @@ persistent-nav placements.
   group.
 - The observable mechanism by which a visitor opens each social channel from
   the group.
-- Keeping the group's identity and behavior consistent wherever it is
-  instantiated — Hero, Contact, and persistent nav (desktop inline + mobile
-  overlay).
+- Keeping the group's identity and behavior consistent across its two
+  instantiations — Hero and Contact.
 
 ### Excluded
 
@@ -33,10 +32,10 @@ persistent-nav placements.
   `hero-presentation`.
 - The Contact view's overall composition hosting the group — owned by
   `email-contact`.
-- The persistent nav's own structure, other nav destinations, and
-  mobile-overlay mechanics hosting the group — owned by `section-navigation`.
-  Social-links owns the group itself in all three placements; each host owns
-  only its own compositional placement.
+- The persistent nav and its mobile overlay — do not host the social link
+  group; nav destinations and structure remain entirely `section-navigation`'s,
+  with no social-links instantiation inside it.
+- The About view — does not get its own instantiation of the group.
 - Any motion/animation behavior applied to the link group — owned by
   cross-cutting `motion-interaction`.
 - Resolving/rendering label text into the visitor's active language — owned
@@ -51,8 +50,6 @@ persistent-nav placements.
   active language; the localization mechanism itself is not owned here.
 - **`hero-presentation`** — hosts the group's Hero-view placement.
 - **`email-contact`** — hosts the group's Contact-view placement.
-- **`section-navigation`** — hosts the group's persistent-nav placement;
-  catalog relationship states `section-navigation` "enables" `social-links`.
 - **`motion-interaction`** — cross-cutting; applies to social-links elements
   per catalog relationship, but defines the motion behavior itself elsewhere.
 
@@ -62,14 +59,17 @@ persistent-nav placements.
   contact channels (email, social) so an interested visitor can reach
   Javi" — the social portion specifically; the email portion is realized by
   `email-contact`.
-- Catalog relationship: `section-navigation` "enables" `social-links` (among
-  others).
-- No other Feature-to-Feature relationship is recorded on the `social-links`
-  catalog entry itself; the dependencies above are inferred from
-  `section-navigation`'s and `motion-interaction`'s recorded relationships,
-  this conversation's confirmation of the nav-placement boundary, and Project
-  UX's Screens/UI Components description of shared Hero/Contact/nav
-  co-location.
+- **Unresolved conflict, flagged not fixed here:** the `social-links` Feature
+  Catalog entry's responsibility text still names a "nav placement," and its
+  recorded relationship "`section-navigation` enables `social-links`" was the
+  basis for a nav-hosting dependency this Definition no longer carries.
+  Requires review by `feature-catalog-organization`.
+- **Unresolved conflict, flagged not fixed here:** Project UX's "Persistent
+  nav" UI Component (`project-ux.md`) still lists social icons (Instagram,
+  LinkedIn) as part of nav. Requires review by `project-ux`.
+- The Hero/Contact dependencies above are inferred from shared view
+  co-location and the sibling Feature Definitions' (`hero-presentation`,
+  `email-contact`) own exclusions naming `social-links`.
 
 ## Pending (out of scope for this phase)
 
