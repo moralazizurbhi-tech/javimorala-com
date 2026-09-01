@@ -25,25 +25,31 @@ Feature status in the Feature Catalog).
 - Establish the Content Data Layer's locale-keyed content file structure, format left to
   Implementation (**Confirmed dependency** — Project Architecture: "specific file format
   left to implementation").
-- Build the App Shell mounting empty Hero/About/Contact slots in fixed order (**Confirmed
-  dependency** — Project Architecture, Component Relationships).
-- Extend App Shell's composer role to also host Section Nav and instantiate Social Link
-  Group twice (**Derived infrastructure** — established by `section-navigation`'s and
-  `social-links`' own Technical Designs as a local resolution of an Architecture naming
-  gap; broader than Project Architecture's literal System Structure text, which names App
-  Shell as composer of Hero/About/Contact and host of the language-override control only).
+- Build the App Shell mounting empty Hero/About/Contact slots in fixed order, and hosting
+  the language-override control per Architecture's own text (**Confirmed dependency** —
+  Project Architecture, Component Relationships). Extending App Shell's composer role
+  beyond this explicit Architecture text — to also host Section Nav and instantiate
+  Social Link Group twice — is Feature-level composition work, not infrastructure; see
+  Phase 2. An earlier draft of this Plan miscategorized that extension as Phase 0
+  infrastructure, contradicting this Plan's own Readiness Issue 2.
 
 ### Phase 1 — Foundational Shared Layers
 
-**Confirmed dependency** ordering, internal to this phase:
+**Confirmed dependency**: both foundational layers depend only on Phase 0 outputs, and
+on no other Feature-internal component — this corrects an earlier claim that
+`content-localization` depends on the Animation Layer; `content-localization`'s own
+Technical Design Dependencies section names only Content Data Layer and Language
+Override Control, no Animation Layer.
 
-1. `motion-interaction` (Animation Layer: Motion Mode Resolver, Section/Page-level Motion
-   Provider, Micro-Interaction Motion Provider) — first; its Technical Design declares no
-   dependency on any other Feature-internal component.
-2. `content-localization` (Locale Layer: Locale Detection, Locale Fallback Resolution,
-   Persisted Override State, Active Language Resolution, Override Signal Handling,
-   Resolved Content Broadcast) — second; its Technical Design declares a dependency on the
-   Animation Layer for content-swap transitions, and on Phase 0's Content Data Layer.
+- `motion-interaction` (Animation Layer: Motion Mode Resolver, Section/Page-level Motion
+  Provider, Micro-Interaction Motion Provider) — depends on nothing Feature-internal.
+- `content-localization` (Locale Layer: Locale Detection, Locale Fallback Resolution,
+  Persisted Override State, Active Language Resolution, Override Signal Handling,
+  Resolved Content Broadcast) — depends only on Phase 0's Content Data Layer.
+
+**Planning decision**: no internal ordering is imposed between these two — both are
+independent, parallelizable workstreams within Phase 1. An earlier draft of this Plan
+sequenced them, unsupported by either Technical Design.
 
 ### Phase 2 — Remaining Features
 
@@ -61,6 +67,10 @@ Design's Cross-Component Relationships / explicit "no dependency" declarations:
   Layer, Animation Layer, Styling System.
 - `language-override` → content-localization's Locale Layer (override-signal interface),
   App Shell hosting (Phase 0).
+
+`social-links`' and `section-navigation`'s composition into App Shell — extending its
+composer role beyond Project Architecture's literal text, per those Features' own
+Technical Designs — is realized within this phase, not Phase 0.
 
 **Planning decision**: no build order is imposed among these six. Nothing in any
 Technical Design justifies sequencing one ahead of another; the Feature Catalog's
@@ -122,7 +132,7 @@ to Task Catalog.
   Animation Layer + Styling System.
 - `language-override` → content-localization's Locale Layer (override-signal interface) +
   App Shell hosting.
-- `content-localization` → Content Data Layer + Animation Layer.
+- `content-localization` → Content Data Layer.
 - `motion-interaction` → none (Feature-internal); externally assumes an architectural
   capability (reduced-motion preference readable at load).
 - No dependency, in either direction, among any pair of the six Phase 2 Features

@@ -24,10 +24,15 @@ verifiable outcomes — not a mechanical mirror of each Feature's Technical Comp
   implemented and mounted within the same implementation task. Composition
   relationships introduced or extended at Feature level are represented as separate
   integration tasks. This is why Hero/About/Email Contact Device stay single
-  implementation tasks (their slots are Architecture-original), while Social Link
-  Group/Section Nav/Language Override Control split into a standalone implementation
-  task plus a separate integration task (their composition into App Shell was proposed
-  at Feature Technical Design level, extending Architecture).
+  implementation tasks (their slots are Architecture-original), and why Language
+  Override Control also folds its App Shell hosting into its own implementation task
+  (T-026) — Project Architecture's System Structure explicitly names App Shell as its
+  host, so no Feature-level extension is involved, unlike Social Link Group and Section
+  Nav, whose composition into App Shell was proposed at Feature Technical Design level,
+  extending Architecture, and so stay split into a standalone implementation task plus a
+  separate integration task. An earlier draft of this catalog split Language Override
+  Control the same way (T-026 + a since-removed T-032), inconsistent with this rule's
+  own stated purpose.
 - **T-040–043 are explicitly verification type**, not component implementation — they
   check behavior across already-composed Features, matching the Implementation Plan's
   Phase 3 bullets one-to-one.
@@ -102,7 +107,7 @@ verifiable outcomes — not a mechanical mirror of each Feature's Technical Comp
   outputs: App Shell mounting Hero/About/Contact in fixed order (no other composed children yet)
   completionCriteria:
     - Hero, About, Contact compose in fixed order; no client-side router.
-    - Does not pre-declare slots for Section Nav, Social Link Group, or Language Override Control — see mounting rule above; those are Feature-level composition extensions, scoped to T-030–T-032.
+    - Does not pre-declare slots for Section Nav or Social Link Group — see mounting rule above; their App Shell composition is a Feature-level extension, scoped to T-030 and T-031. Language Override Control's hosting is Architecture-original and is built and mounted together at T-026.
   enablesCommitments: none
   readiness: Ready
 
@@ -161,7 +166,7 @@ verifiable outcomes — not a mechanical mirror of each Feature's Technical Comp
     - Override Signal Handling entry point exists and is independently callable/testable without Language Override Control existing yet.
   realizesCommitments: content-localization Commitments 1–6
   readiness: Ready
-  note: Corrects an earlier draft's T-011/T-012 dependency, which came from motion-interaction's feature-catalog relationship line rather than content-localization's own Technical Design (which names only Content Data Layer and Language Override Control). Also flags that the persisted Implementation Plan's Phase 1 sequencing claim ("content-localization... second, since its Technical Design declares a dependency on the Animation Layer") is unsupported by the primary source — not corrected here, out of this skill's artifact ownership; recommend a plan-organization/implementation-strategy refinement.
+  note: Corrects an earlier draft's T-011/T-012 dependency, which came from motion-interaction's feature-catalog relationship line rather than content-localization's own Technical Design (which names only Content Data Layer and Language Override Control). This also surfaced a matching error in the Implementation Plan's Phase 1 sequencing claim, since reconciled by a 2026-09-01 plan-organization pass — Phase 1 no longer sequences content-localization after motion-interaction.
 
 ### Implementation — Feature Components
 
@@ -246,13 +251,14 @@ verifiable outcomes — not a mechanical mirror of each Feature's Technical Comp
 - id: T-026
   name: Language Override Control Component
   type: implementation
-  objective: Present exactly two language options, reflect the active language, and signal Locale Layer on selection of the non-active option, as a standalone unit not yet hosted anywhere (hosting is Feature-level composition — T-032).
-  references: language-override/technical-design.md
-  dependencies: T-002, T-012, T-013 (Planning-derived execution ordering against T-013 — see T-013's note; Locale Layer owns the signal interface, so it's built first, though the two Features' Technical Designs describe this as a bidirectional service collaboration, not a stated build order)
-  inputs: active-language read from Locale Layer (T-013); Micro-Interaction feedback (T-012); styling tokens (T-002)
-  outputs: Language Override Control component (unhosted)
+  objective: Present exactly two language options, reflect the active language, signal Locale Layer on selection of the non-active option, and mount into App Shell as a persistent, fixed-position element across all three views — per Architecture's own text naming App Shell as its host.
+  references: language-override/technical-design.md; project-architecture.md (System Structure: App Shell hosts the manual language-override control)
+  dependencies: T-002, T-004, T-012, T-013 (T-013 dependency is Planning-derived execution ordering — see T-013's note; Locale Layer owns the signal interface, so it's built first, though the two Features' Technical Designs describe this as a bidirectional service collaboration, not a stated build order)
+  inputs: active-language read from Locale Layer (T-013); Micro-Interaction feedback (T-012); styling tokens (T-002); App Shell (T-004, Architecture-original host)
+  outputs: Language Override Control component, mounted in App Shell
   completionCriteria:
-    - Control implemented and independently testable against Locale Layer's exposed read/signal interface, without App Shell.
+    - Control implemented and independently testable against Locale Layer's exposed read/signal interface.
+    - Mounted and reachable from Hero/About/Contact views without overlapping Section Nav's own presentation.
   realizesCommitments: language-override Commitments 1–4 (Commitment 5 realized jointly with T-013's Persisted Override State)
   readiness: Ready — language-override/ux.md has no Pending marker (unlike its five sibling Feature UX docs); no readiness constraint applies.
 
@@ -284,19 +290,6 @@ verifiable outcomes — not a mechanical mirror of each Feature's Technical Comp
   composesCommitments: section-navigation Commitments 1–5 (availability and exclusivity only become meaningfully checkable once mounted; component-internal logic already realized at T-024/T-025)
   readiness: Constrained — Readiness Issue 2 (same nav/social-icons contradiction as T-030). Readiness Issue 1's viewport-threshold gap also affects this mounting's responsive behavior.
 
-- id: T-032
-  name: Host Language Override Control in App Shell
-  type: integration
-  objective: Mount the built Language Override Control into App Shell as a persistent, fixed-position element across all three views.
-  references: language-override/technical-design.md (App Shell hosts it, per Architecture)
-  dependencies: T-004, T-026
-  inputs: App Shell (T-004); Language Override Control component (T-026)
-  outputs: Language Override Control hosted in App Shell
-  completionCriteria:
-    - Control mounted and reachable from Hero/About/Contact views without overlapping Section Nav's own presentation.
-  composesCommitments: none new (pure mounting; language-override's Commitments already realized at T-026)
-  readiness: Ready — no readiness issue affects this mounting.
-
 ### Verification
 
 - id: T-040
@@ -317,20 +310,20 @@ verifiable outcomes — not a mechanical mirror of each Feature's Technical Comp
   type: verification
   objective: Confirm an override signal produces a complete, non-mixed-language update with no scroll side-effect, regardless of any accompanying motion transition.
   references: content-localization/contract.md; motion-interaction/contract.md; language-override/contract.md
-  dependencies: T-032, T-013, T-011, T-012
-  inputs: composed Language Override Control (via T-032) triggering Locale Layer (T-013) while Animation Layer (T-011, T-012) is active
+  dependencies: T-026, T-013, T-011, T-012
+  inputs: composed and mounted Language Override Control (T-026) triggering Locale Layer (T-013) while Animation Layer (T-011, T-012) is active
   outputs: verification record
   completionCriteria:
     - No mixed-language state observable during or after a switch; no reload/navigation; no scroll-position change.
   validatesCommitments: content-localization Commitments 4, 5, 6; motion-interaction Commitment 8; language-override Commitment 3
-  readiness: Ready — all four dependencies (T-032, T-013, T-011, T-012) are themselves Ready; a direct result of the T-013 dependency correction.
+  readiness: Ready — all four dependencies (T-026, T-013, T-011, T-012) are themselves Ready; a direct result of the T-013 dependency correction.
 
 - id: T-042
   name: Verify Reduced-Motion Functional Equivalence Across All Consuming Features
   type: verification
   objective: Confirm every consuming Feature reaches the same functional outcomes under Reduced Motion Mode as under Standard Mode.
   references: motion-interaction/contract.md Commitment 7
-  dependencies: T-010, T-011, T-012, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-030, T-031, T-032
+  dependencies: T-010, T-011, T-012, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-030, T-031
   inputs: fully composed page with Motion Mode Resolver forced to Reduced
   outputs: verification record
   completionCriteria:
@@ -353,7 +346,7 @@ verifiable outcomes — not a mechanical mirror of each Feature's Technical Comp
 
 ## Coverage and DAG Checks
 
-- 22 tasks; every unique stable identifier appears exactly once.
+- 21 tasks; every unique stable identifier appears exactly once.
 - Every task has one execution objective; every task references at least one approved artifact.
 - Dependency graph is a strict DAG: Infrastructure → Implementation → Integration →
   Verification, plus the intra-tier edges T-010→T-011/T-012, T-024→T-025, T-003→T-013,
@@ -361,16 +354,22 @@ verifiable outcomes — not a mechanical mirror of each Feature's Technical Comp
 - All 11 Technical Components across the 8 Features are covered (hero-presentation,
   about-narrative, social-links, email-contact, content-localization, language-override
   — 1 each; section-navigation — 2; motion-interaction — 3), plus 4 infrastructure tasks,
-  3 integration tasks, and 4 verification tasks matching the Implementation Plan's Phase
+  2 integration tasks, and 4 verification tasks matching the Implementation Plan's Phase
   3 bullets one-to-one.
 - Consistency with the Implementation Plan: phase-to-tier mapping holds (Phase 0 →
   Infrastructure, Phase 1 → Foundational Implementation, Phase 2 → Feature
-  Implementation + Integration, Phase 3 → Verification). One discrepancy found and
-  flagged, not silently corrected: the Implementation Plan's Phase 1 states
-  content-localization is sequenced after motion-interaction due to an Animation Layer
-  dependency; content-localization's own Technical Design does not declare that
-  dependency. Recommend a plan-organization or implementation-strategy refinement to
-  reconcile.
+  Implementation + Integration, Phase 3 → Verification). Both discrepancies previously
+  found between this catalog and the Implementation Plan's Phase 0/Phase 1 text have
+  since been reconciled by a plan-organization pass (2026-09-01): Phase 1's internal
+  sequencing claim was removed, and Phase 0's premature App-Shell-extension bullet was
+  moved to Phase 2, matching how this catalog already modeled the work (T-030, T-031 as
+  `integration` type, not folded into T-004).
+- This same pass also corrected an internal inconsistency in this catalog: T-032 (Host
+  Language Override Control in App Shell) has been merged into T-026, since App Shell's
+  role as its host is Architecture-original (named directly in project-architecture.md's
+  System Structure), unlike Social Link Group's and Section Nav's App Shell composition,
+  which genuinely extends Architecture at Feature Technical Design level and so
+  correctly stays split into separate integration tasks (T-030, T-031).
 - Both Readiness Issues from the Implementation Plan are represented as explicit
   `readiness: Constrained` fields on every task they affect (T-020, T-021, T-022, T-023,
   T-024, T-025 for Readiness Issue 1; T-030, T-031 for Readiness Issue 2), and propagate
