@@ -1,0 +1,58 @@
+@use '../styles/tokens' as tokens;
+@use '../styles/mixins' as mixins;
+
+// Full-screen treatment is an implementation-level placeholder — exact
+// full-screen-vs-slide-in treatment remains Pending per
+// section-navigation/ux.md (Readiness Issue 1). position:fixed only
+// covers the viewport visually; it never touches the underlying page's
+// own scroll capability (Commitment 5).
+.mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  background: tokens.$color-bg;
+}
+
+.mobile-nav-overlay__dismiss {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid tokens.$color-accent;
+  border-radius: 999px;
+  background: none;
+  color: tokens.$color-text;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mobile-nav-overlay__list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mobile-nav-overlay__link {
+  @include mixins.type-display;
+  border: none;
+  background: none;
+  color: tokens.$color-text;
+  font-size: 1.75rem;
+  cursor: pointer;
+}
+
+.mobile-nav-overlay__link:hover,
+.mobile-nav-overlay__link:focus-visible {
+  color: tokens.$color-accent;
+}
