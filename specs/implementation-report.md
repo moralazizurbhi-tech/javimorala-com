@@ -2,15 +2,15 @@
 
 ## Progress Summary
 
-15 of 21 Task Catalog tasks complete (T-001–T-004, T-010–T-013,
-T-020–T-026). Phase 0 (Infrastructure) and Phase 1 (Foundational Shared
-Layers) are fully complete, reaching the Implementation Plan's M1
-milestone. All seven Phase 2 Feature Component tasks (T-020–T-026) are
-now also complete — the Implementation Plan's M2 milestone ("all six
-remaining Features built against the Phase 0/1 substrate") is not yet
-fully reached, since M2 requires the two Integration tasks (T-030, T-031)
-that compose Social Link Group and Section Nav into App Shell, and neither
-has started. No Integration or Verification tier task has started.
+17 of 21 Task Catalog tasks complete (T-001–T-004, T-010–T-013,
+T-020–T-026, T-030–T-031). Phase 0 (Infrastructure), Phase 1 (Foundational
+Shared Layers), and Phase 2 (Remaining Features, including both App-Shell
+composition tasks) are now all complete per implemented work, reaching the
+Implementation Plan's M2 milestone ("all six remaining Features built
+against the Phase 0/1 substrate") — though see Known Issues: T-030 and
+T-031 exist only on two independent, unmerged branches, so no single
+checkout yet contains both compositions together. No Verification tier
+task has started.
 
 ## Completed Work
 
@@ -217,11 +217,36 @@ has started. No Integration or Verification tier task has started.
   reverted to the exact prior 469-module baseline). Build and lint both
   pass throughout.
 
+- T-030 — Compose Social Link Group into App Shell (integration)
+  Mounts the standalone Social Link Group component (T-022) twice: alongside
+  Hero Section in the #hero slot, and alongside Email Contact Device in the
+  #contact slot. Completion criteria verified: both instantiations are the
+  same `<SocialLinkGroup />` import with no per-instantiation variation
+  (Contract Commitment 2, structurally guaranteed by using one component
+  definition, not two). Build (471 modules) and lint both pass; preview-server
+  smoke check returned HTTP 200.
+
+- T-031 — Compose Section Nav into App Shell (integration)
+  Mounts the standalone Section Nav component (T-024, hosting Mobile Nav
+  Overlay per T-025) as an App-Shell-level sibling to the Hero/About/Contact
+  sections, not nested inside any one of them, since Section Nav is itself
+  `position: fixed` and targets all three sections by id. Completion criteria
+  verified: `.section-nav`'s fixed positioning (top-left) confirmed in
+  compiled CSS with no overlap against `.language-override`'s fixed
+  positioning (bottom-right); the presentation-form mutual-exclusivity
+  breakpoint pair (`.section-nav__inline`/`.section-nav__trigger`, one 768px
+  `@media` override each) remains intact and unduplicated post-mount; no
+  scroll-blocking CSS introduced (`overflow:hidden` — 0 matches). Build (473
+  modules) and lint both pass; preview-server smoke check returned HTTP 200.
+
 ## Pending Work
 
-- T-030, T-031 — two Integration tasks (dependencies now satisfied: T-030
-  needs T-004 + T-022; T-031 needs T-004 + T-024 + T-025)
-- T-040 through T-043 — four Verification tasks
+- T-040 through T-043 — four Verification tasks, none started. T-041's
+  dependencies (T-026, T-013, T-011, T-012) are all complete and merged to
+  main; it is independently Ready. T-040, T-042, T-043 depend on T-030
+  and/or T-031, which are implemented but exist only on unmerged branches
+  (see Known Issues) — not reliably executable until at least one merge
+  reconciles that.
 
 (Full definitions, dependencies, and readiness status are authoritative in Task Catalog;
 not duplicated here beyond this index.)
@@ -303,6 +328,14 @@ T-024 (committed at de4fa7d, branch worktree-t-026-language-override-control):
 T-025 (committed at 5a658d7, branch worktree-t-026-language-override-control):
 - src/components/MobileNavOverlay.jsx, MobileNavOverlay.scss (new)
 - src/components/SectionNav.jsx (modified: hosts <MobileNavOverlay />, replacing the inert trigger)
+
+T-030 (committed at 24f24de, branch worktree-t-030-social-link-group-composition,
+pushed, not merged):
+- src/components/AppShell.jsx (modified: mounts <SocialLinkGroup /> in #hero and #contact)
+
+T-031 (committed at 30e4b30, branch worktree-t-031-section-nav-composition,
+pushed, not merged):
+- src/components/AppShell.jsx (modified: mounts <SectionNav /> as an App-Shell-level sibling)
 
 ## Implementation Decisions
 
@@ -411,6 +444,13 @@ T-025 (committed at 5a658d7, branch worktree-t-026-language-override-control):
   then reverted — confirmed byte-identical via `git diff --stat` and a
   rebuild returning to the exact prior module count and asset hashes, both
   times.
+- T-031 mounted Section Nav as an App-Shell-level sibling (alongside
+  LanguageOverrideControl) rather than nested inside a section — required by
+  its own `position: fixed` styling and its need to target all three sections
+  by id; mirrors T-026's precedent for App-Shell-level fixed-position elements.
+- T-030 and T-031 were each branched independently, directly from the same
+  pre-existing main commit (4600ba1), not stacked one on the other, since
+  neither Task depends on the other per the Task Catalog.
 
 ## Known Issues
 
@@ -463,6 +503,19 @@ against `main`'s own Task Catalog state requires this branch to be merged
 first — a decision outside this Skill's and this session's authority, same
 situation the prior report flagged for T-010–T-013's branch (since
 resolved by an out-of-session merge).
+
+New: T-030 and T-031 were each implemented on their own branch
+(worktree-t-030-social-link-group-composition,
+worktree-t-031-section-nav-composition), both forked independently from
+`main` at commit 4600ba1, both pushed to origin, neither merged. Because
+both modify `src/components/AppShell.jsx` and neither branch is based on
+the other, no single checkout currently contains both compositions (Social
+Link Group ×2 AND Section Nav) together — merging one will likely conflict
+against the other in `AppShell.jsx` (the two additions are adjacent,
+non-overlapping lines, so resolution should be mechanical, but performing
+that merge/resolution is outside this Skill's and this session's
+authority). This must be resolved before T-040, T-042, or T-043 — all of
+which require the full composed App Shell — can execute.
 
 ## Execution Evidence
 
@@ -635,6 +688,27 @@ Final full-tree verification (this report's own session, current HEAD
 origin/worktree-t-026-language-override-control..HEAD` → empty (fully
 pushed); `npm run build` → 469 modules, succeeds; `npm run lint` → no
 findings, exit 0.
+
+T-030:
+- npm run build → 471 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings, exit 0 (pass)
+- grep src/components/AppShell.jsx for SocialLinkGroup → 2 JSX call sites
+  (lines 19, 26), same import (pass)
+- preview-server smoke check → HTTP 200
+- git show --stat 24f24de → 1 file changed, 7 insertions, 2 deletions
+
+T-031:
+- npm run build → 473 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings, exit 0 (pass)
+- grep dist/assets/*.css for .section-nav__inline/.section-nav__trigger →
+  complementary display:none/flex and inline-flex/none pair present, one
+  @media (width>=768px) override each, unduplicated (pass)
+- grep dist/assets/*.css for overflow:hidden → 0 matches (pass)
+- grep dist/assets/*.css for position:fixed selectors → .section-nav
+  (top:1rem;left:1rem), .language-override (bottom:1rem;right:1rem) — no
+  overlap (pass)
+- preview-server smoke check → HTTP 200
+- git show --stat 30e4b30 → 1 file changed, 7 insertions
 
 ---
 
