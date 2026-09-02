@@ -1,0 +1,4 @@
+// Entry point for the shared Styling System. Components consume tokens and
+// mixins through this partial rather than reaching into individual files.
+@forward 'tokens';
+@forward 'mixins';

@@ -1,0 +1,18 @@
+// Shared design tokens.
+// Per project-ux.md UX Constraints: dark-only (no light theme/toggle), a single
+// restrained accent colour (no additional accents), and a two-tier typography
+// contrast (bold display / calm body) preserved globally.
+
+// Colour — dark/near-black base, off-white text, one accent.
+$color-bg: #0d0b12;
+$color-text: #f5f3f7;
+$color-accent: #a855f7;
+
+// Typography — two-tier contrast: bold/tight display face vs. calm body face.
+$font-family-display: system-ui, 'Segoe UI', Roboto, sans-serif;
+$font-weight-display: 700;
+$letter-spacing-display: -0.02em;
+
+$font-family-body: system-ui, 'Segoe UI', Roboto, sans-serif;
+$font-weight-body: 400;
+$letter-spacing-body: normal;

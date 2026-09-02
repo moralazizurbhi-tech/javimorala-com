@@ -1,0 +1,15 @@
+@use './styles/tokens';
+@use './styles/mixins';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: tokens.$color-bg;
+  color: tokens.$color-text;
+  @include mixins.type-body;
+}
