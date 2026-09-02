@@ -2,9 +2,11 @@
 
 ## Progress Summary
 
-4 of 21 Task Catalog tasks complete (T-001, T-002, T-003, T-004). All 4 Infrastructure
-tasks are now complete; no Implementation, Integration, or Verification tier task has
-started.
+8 of 21 Task Catalog tasks complete (T-001–T-004, T-010–T-013). Phase 0
+(Infrastructure) and Phase 1 (Foundational Shared Layers — Animation Layer's
+three components and the Locale Layer) are now both fully complete, reaching
+the Implementation Plan's M1 milestone. No Feature Component, Integration, or
+Verification tier task has started.
 
 ## Completed Work
 
@@ -35,13 +37,52 @@ started.
   Group/Language Override Control slots correctly not pre-declared. Build and lint
   both pass.
 
+- T-010 — Motion Mode Resolver (implementation)
+  Reads the visitor's reduced-motion preference exactly once, at module load,
+  via `window.matchMedia`, and exposes it as a fixed value for the remainder
+  of the visit through `useMotionMode()`. Completion criteria verified: no
+  re-evaluation mechanism exists (grep across src/ finds `matchMedia` used
+  exactly once, no `addEventListener`/`MediaQueryList` anywhere). Build and
+  lint both pass.
+
+- T-011 — Section/Page-level Motion Provider (implementation)
+  Exposes `SectionEntry` (bold fade+rise on first viewport entry per
+  section, no replay — via framer-motion's `viewport={{once:true}}`) and
+  `OverlayTransition` (bold fade+rise on every nav-overlay open/close, no
+  suppression — via `AnimatePresence` mount/unmount). Both consult T-010's
+  Motion Mode and collapse to an instant state change in Reduced Mode.
+  Completion criteria verified: exposes an application interface for both
+  event types; once-per-visit gate applies only to `SectionEntry` (no
+  persisted state exists in `OverlayTransition` at all). Build, lint, and an
+  esbuild bundle-check of the still-unmounted module all pass.
+
+- T-012 — Micro-Interaction Motion Provider (implementation)
+  Exposes `MicroInteraction`, applying a restrained scale(1.04)+opacity(0.85)
+  shift via `whileHover`/`whileFocus`/`whileTap`, reverting on release.
+  Completion criteria verified: no gating state exists (no persisted flags,
+  purely declarative variants — every occurrence produces feedback). Build,
+  lint, and an esbuild bundle-check both pass.
+
+- T-013 — Locale Layer (implementation)
+  Wires react-i18next + i18next-browser-languagedetector with detector order
+  `[localStorage, navigator]` as the single ordered Active Language
+  Resolution decision, `load:'languageOnly'` + `supportedLngs:['en','es']` +
+  `fallbackLng:'en'` for deterministic fallback, and `import.meta.glob` over
+  T-003's six content files for resources. Exposes `useLocaleContent`,
+  `setActiveLanguage`, and `useActiveLanguage`. Completion criteria verified:
+  resolution is one library-config decision, not split custom logic;
+  `setActiveLanguage` is a standalone function callable without T-026
+  existing. Lint passes; a temporary smoke-check import in App.jsx confirmed
+  `import.meta.glob` resolves correctly under Vite's real build pipeline (51
+  modules transformed vs. the 17-module baseline), then was reverted via
+  `git checkout` before committing — a final rebuild returned to the exact
+  17-module baseline, confirming App.jsx carries no residual change.
+
 ## Pending Work
 
-- T-010 — Motion Mode Resolver (depends on T-001, now unblocked)
-- T-011 — Section/Page-level Motion Provider (depends on T-010)
-- T-012 — Micro-Interaction Motion Provider (depends on T-010)
-- T-013 — Locale Layer (depends on T-003, now unblocked)
-- T-020 through T-026 — seven Feature Component tasks (Constrained/Ready per catalog)
+- T-020 through T-026 — seven Feature Component tasks (all dependencies on
+  T-010–T-013 now satisfied; Constrained/Ready per catalog's own readiness
+  annotations — Readiness Issue 1 still applies to six of them)
 - T-030, T-031 — two Integration tasks
 - T-040 through T-043 — four Verification tasks
 
@@ -65,13 +106,34 @@ T-002 (committed at 7a3db20):
 - src/main.jsx (modified: import updated to ./index.scss)
 - package.json, package-lock.json (modified: sass devDependency added)
 
-T-003 (working-tree changes, not yet committed):
+T-003 (committed at 740514c15008da77766d6e8ba086466989f8d32b — correction:
+previously listed as uncommitted working-tree changes):
 - src/content/en/hero.json, src/content/en/about.json, src/content/en/contact.json (new)
 - src/content/es/hero.json, src/content/es/about.json, src/content/es/contact.json (new)
 
-T-004 (working-tree changes, not yet committed):
+T-004 (committed at 740514c15008da77766d6e8ba086466989f8d32b — correction:
+previously listed as uncommitted working-tree changes):
 - src/components/AppShell.jsx (new)
 - src/App.jsx (modified: renders <AppShell />)
+
+T-010 (committed at 184f0be899346b36b5d562f59205a7b509cbeb50, branch
+worktree-t-010-motion-mode-resolver):
+- src/animation/motionMode.js (new)
+
+T-011 (committed at f3213333d85f6852a77af415e70dca19c9ac90fb, branch
+worktree-t-010-motion-mode-resolver):
+- src/animation/sectionPageMotion.jsx (new)
+- package.json, package-lock.json (modified: framer-motion dependency added)
+
+T-012 (committed at 8a3ecf9d93d14cb5c9786b3144f7d2a72331c688, branch
+worktree-t-010-motion-mode-resolver):
+- src/animation/microInteraction.jsx (new)
+
+T-013 (committed at 9baccccccab8d68e95583280ab0b9bc245c59bab, branch
+worktree-t-010-motion-mode-resolver):
+- src/locale/localeLayer.js (new)
+- package.json, package-lock.json (modified: i18next, react-i18next,
+  i18next-browser-languagedetector dependencies added)
 
 ## Implementation Decisions
 
@@ -102,15 +164,48 @@ T-004 (working-tree changes, not yet committed):
   satisfying "compose in fixed order."
 - T-004 applied no layout/visual CSS to the shell — visual treatment remains deferred
   per the Implementation Plan's Readiness Issue 1.
+- T-010 read the reduced-motion preference via raw `window.matchMedia` at module
+  load rather than framer-motion's own `useReducedMotion` hook, because that hook
+  stays subscribed to live OS preference changes — which would violate Contract
+  Commitment 6 AC2 (no mid-visit change without a reload).
+- T-011 chose bold-treatment values (24px rise, 0.6s, custom ease) as an
+  implementation-level placeholder — no Technical Design or UX spec fixes exact
+  timing for this Feature, paralleling T-002's colour placeholders.
+- T-011 interpreted "invoking the Provider's application interface" as
+  mounting/rendering `SectionEntry`/`OverlayTransition` as React wrapper
+  components (declarative), rather than an imperative call, as the natural fit
+  for React + framer-motion idioms.
+- T-012 implemented only the scale+opacity half of UX's "scale plus an
+  opacity/colour shift" pattern; the colour-shift half is left to each
+  consuming component's own styling, since final accent/hover colours remain
+  an open detailed-visual-design decision (same deferral as T-002).
+- T-013 chose localStorage (via the language detector's cache) as the concrete
+  Persisted Override State storage technology — explicitly left to
+  Implementation by the Technical Design.
+- T-013's `setActiveLanguage` no-ops on any language outside {en, es} rather
+  than throwing, so an eventual miscalled signal can never move the active
+  language outside the Contract's exhaustive two-language set.
 
 ## Known Issues
 
-None identified against completed work (T-001–T-004). The Implementation Plan's two
-flagged Readiness Issues (detailed visual design left Pending in five Feature UX Specs;
-Persistent nav/social-icons contradiction) remain open upstream — not resolved here, not
-blocking T-001–T-004, but will affect T-020–T-025, T-030, T-031, and downstream
-verification tasks per Task Catalog's own readiness annotations. T-002's exact final
-accent/typography values remain open to that same deferred detailed-visual-design pass.
+Carried forward, unresolved: the Implementation Plan's two flagged Readiness
+Issues (detailed visual design left Pending in five Feature UX Specs;
+Persistent nav/social-icons contradiction) remain open upstream — not
+resolved here, not blocking T-001–T-004 or T-010–T-013, but will affect
+T-020–T-026, T-030, T-031, and downstream verification tasks per Task
+Catalog's own readiness annotations. T-002's exact final accent/typography
+values remain open to that same deferred detailed-visual-design pass.
+
+New observation: T-011's and T-012's exact motion timing values (rise
+distance, duration, scale, opacity) are likewise implementation-level
+placeholders pending detailed visual design — distinct from Readiness Issue
+1, which the Implementation Plan does not name `motion-interaction` under.
+
+New observation: T-010 through T-013 exist only on branch
+worktree-t-010-motion-mode-resolver (pushed to origin), not yet merged to
+main. This report is committed on that same branch; reconciling it against
+main's Task Catalog requires that branch to be merged first — a decision
+outside this Skill's and this session's authority.
 
 ## Execution Evidence
 
@@ -133,16 +228,55 @@ T-003:
 - All 6 JSON files parse via JSON.parse (pass)
 - npm run build → unaffected, still succeeds (pass)
 - npm run lint (oxlint) → no findings (pass)
-- git status --short → src/content/ untracked (not yet committed)
+- git status --short (at the time) → src/content/ untracked (not yet committed)
+- Correction: subsequently committed at 740514c15008da77766d6e8ba086466989f8d32b
 
 T-004:
 - npm run build → succeeds; built bundle contains "hero"/"about"/"contact" exactly
   once each (pass)
 - npm run lint (oxlint) → no findings (pass)
 - grep -riE "react-router|createBrowserRouter|<Router" src package.json → no matches
-- git status --short → src/App.jsx modified, src/components/ untracked (not yet
-  committed)
+- git status --short (at the time) → src/App.jsx modified, src/components/
+  untracked (not yet committed)
+- Correction: subsequently committed at 740514c15008da77766d6e8ba086466989f8d32b
+
+T-010:
+- npm run build → succeeds (unreferenced module, not yet imported by any
+  consumer; pass)
+- npm run lint (oxlint, project-wide and single-file) → no findings (pass)
+- grep across src/ for "matchMedia|addEventListener|MediaQueryList" →
+  matchMedia appears exactly twice (guard check + read), both in
+  motionMode.js; no listener anywhere
+- git show --stat 184f0be → 1 file changed, 14 insertions
+
+T-011:
+- npm run build → succeeds (pass)
+- npm run lint (oxlint, project-wide and explicit single-file pass) → no
+  findings (pass)
+- npx esbuild --bundle (react/framer-motion externalized) → resolves with no
+  syntax/reference errors; temp output deleted (pass)
+- git show --stat f321333 → 3 files changed, 112 insertions
+
+T-012:
+- npm run build → succeeds (pass)
+- npm run lint (oxlint, project-wide and single-file) → no findings (pass)
+- npx esbuild --bundle → resolves with no syntax/reference errors; temp
+  output deleted (pass)
+- git show --stat 8a3ecf9 → 1 file changed, 42 insertions
+
+T-013:
+- npx oxlint src/locale/localeLayer.js → no findings (pass)
+- npm run build with a temporary smoke-check import in App.jsx → succeeds,
+  51 modules transformed (vs. 17-module baseline), confirming
+  import.meta.glob resolves under Vite (pass)
+- git checkout -- src/App.jsx → confirmed reverted (byte-identical to
+  pre-edit content)
+- npm run build (post-revert) → 17 modules, identical asset hashes to the
+  pre-T-013 baseline (pass)
+- npm run lint → no findings (pass)
+- git show --stat 9bacccc → 3 files changed, 161 insertions, 2 deletions
 
 ---
 
-*Created: 2026-09-02*
+*Created: 2026-09-01*
+*Last updated: 2026-09-02*
