@@ -1,0 +1,63 @@
+@use '../styles/tokens' as tokens;
+@use '../styles/mixins' as mixins;
+
+// Presentation-form selection (Commitment 3) is CSS-driven: exactly one of
+// .section-nav__inline / .section-nav__trigger is ever visible, guaranteed
+// structurally by this single breakpoint rather than JS state — no runtime
+// path can show both or neither. The 768px threshold, positioning, and
+// visual treatment are all implementation-level placeholders — the real
+// device-class threshold remains Pending per section-navigation/ux.md
+// (Readiness Issue 1).
+$nav-breakpoint: 768px;
+
+.section-nav {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 40;
+}
+
+.section-nav__inline {
+  display: none;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: $nav-breakpoint) {
+    display: flex;
+  }
+}
+
+.section-nav__link {
+  @include mixins.type-body;
+  padding: 0;
+  border: none;
+  background: none;
+  color: tokens.$color-text;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.section-nav__link:hover,
+.section-nav__link:focus-visible {
+  color: tokens.$color-accent;
+}
+
+.section-nav__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid tokens.$color-accent;
+  border-radius: 999px;
+  background: tokens.$color-bg;
+  color: tokens.$color-text;
+  font-size: 1.25rem;
+  cursor: pointer;
+
+  @media (min-width: $nav-breakpoint) {
+    display: none;
+  }
+}
