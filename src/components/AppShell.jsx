@@ -2,15 +2,18 @@ import AboutSection from './AboutSection.jsx'
 import EmailContactDevice from './EmailContactDevice.jsx'
 import HeroSection from './HeroSection.jsx'
 import LanguageOverrideControl from './LanguageOverrideControl.jsx'
-import SocialLinkGroup from './SocialLinkGroup.jsx'
+import SectionNav from './SectionNav.jsx'
 
 // Composes the three domain sections in fixed order (Introduction, Personal
 // Narrative, Connection), per project-architecture.md's System Structure and
 // Component Relationships. No client-side router — single continuous page.
-// Social Link Group (built standalone at T-022) is instantiated twice here,
-// alongside Hero Section and Email Contact Device, per social-links'
-// Technical Design — same component definition both times, no
-// per-instantiation variation (Contract Commitment 2).
+// Contact slot still awaits its social-links-owned element (Social Link
+// Group, built standalone at T-022, mounted here at T-030).
+// Section Nav (built standalone at T-024/T-025) mounts as an App-Shell-level
+// sibling to the sections, not nested inside any one of them — it targets
+// all three via their fixed ids and is itself `position: fixed`, so it must
+// stay reachable regardless of which section is in view (section-navigation's
+// Technical Design: composed alongside Hero/About/Contact, not by one of them).
 function AppShell() {
   return (
     <div id="app-shell">
@@ -25,6 +28,7 @@ function AppShell() {
         <EmailContactDevice />
         <SocialLinkGroup />
       </section>
+      <SectionNav />
       <LanguageOverrideControl />
     </div>
   )
