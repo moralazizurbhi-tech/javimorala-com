@@ -2,11 +2,15 @@
 
 ## Progress Summary
 
-8 of 21 Task Catalog tasks complete (T-001–T-004, T-010–T-013). Phase 0
-(Infrastructure) and Phase 1 (Foundational Shared Layers — Animation Layer's
-three components and the Locale Layer) are now both fully complete, reaching
-the Implementation Plan's M1 milestone. No Feature Component, Integration, or
-Verification tier task has started.
+15 of 21 Task Catalog tasks complete (T-001–T-004, T-010–T-013,
+T-020–T-026). Phase 0 (Infrastructure) and Phase 1 (Foundational Shared
+Layers) are fully complete, reaching the Implementation Plan's M1
+milestone. All seven Phase 2 Feature Component tasks (T-020–T-026) are
+now also complete — the Implementation Plan's M2 milestone ("all six
+remaining Features built against the Phase 0/1 substrate") is not yet
+fully reached, since M2 requires the two Integration tasks (T-030, T-031)
+that compose Social Link Group and Section Nav into App Shell, and neither
+has started. No Integration or Verification tier task has started.
 
 ## Completed Work
 
@@ -78,12 +82,145 @@ Verification tier task has started.
   `git checkout` before committing — a final rebuild returned to the exact
   17-module baseline, confirming App.jsx carries no residual change.
 
+- T-026 — Language Override Control Component (implementation)
+  Presents exactly two language options, reflects the active language read
+  from Locale Layer, and signals Locale Layer on selection of the non-active
+  option; mounted as a persistent, fixed-corner element in App Shell.
+  Completion criteria verified: `SUPPORTED_LANGUAGES` (exported from
+  localeLayer.js, not duplicated) mapped unconditionally so both options are
+  always offered/selectable; identical-selection guard checked before
+  calling `setActiveLanguage`; trigger label and each option's
+  `aria-current` derive from the same `useActiveLanguage()` source Locale
+  Layer uses for content resolution; grep across src/ confirms zero
+  reload/navigation calls. Menu expand/collapse reuses `useMotionMode`
+  directly (not via a Motion Provider component) to settle instantly under
+  reduced motion. Build and lint both pass; bundle grep confirms all four
+  `language-override*` CSS classes compiled in.
+
+- T-020 — Hero Section Component (implementation)
+  Composes headline/tagline, wordmark centerpiece, and passive scroll cue as
+  one coordinated arrival unit, mounted in App Shell's Hero slot. Completion
+  criteria verified: all three elements are static children of one
+  `SectionEntry` wrapper — completeness (Commitment 1) holds structurally,
+  never independently rendered or asset-weight-gated; scroll cue has no
+  click handler at all, so it structurally cannot trigger scroll/navigation
+  (Commitment 3 AC2); content sourced via `useLocaleContent('hero')` with no
+  language-mutation call in the component (Commitment 2). Build (461
+  modules) and lint both pass; bundle grep confirms all four Hero CSS
+  classes and both placeholder content strings compiled in.
+  Not verified/explicitly open: Commitment 4 (device-class-appropriate
+  treatment) — only a fluid-type CSS baseline exists, not a distinct
+  per-device-class composition, consistent with this Task's own Constrained
+  readiness.
+
+- T-021 — About Section Component (implementation)
+  Composes the intro hook and bio content as one continuous, blended
+  narrative unit, mounted in App Shell's About slot. Completion criteria
+  verified: hook and bio are static siblings inside one `SectionEntry`
+  wrapper, source-ordered hook-then-bio (Commitment 1); bio renders as one
+  undifferentiated `<p>`, no labeled sub-sections (Commitment 2 AC4); no
+  expand/collapse/tab state exists anywhere (Commitment 5); grep confirms no
+  `<button>`/`<a>`/CTA or project-listing markup (Commitment 4); content
+  sourced via `useLocaleContent('about')` with no language-mutation call
+  (Commitment 6). Build (463 modules) and lint both pass.
+  Not verified/explicitly open: Commitment 2 AC1–AC3 (genuine
+  professional+personal substance) and Commitment 3 (hook/body depth
+  asymmetry) — the placeholder content carries no real narrative weight, so
+  these remain content-authoring requirements, not implementation gaps.
+
+- T-022 — Social Link Group Component (implementation)
+  Builds one reusable component exposing independent Instagram/LinkedIn
+  triggers, as a standalone unit — not mounted anywhere (mounting is
+  T-030's job). Completion criteria verified: two independent
+  `<a target="_blank" rel="noopener noreferrer">` elements with no shared
+  state, no form/backend call, and locale/session-independent constant
+  hrefs (Commitments 1 and 3, both structural). A new
+  src/content/{en,es}/social.json namespace supplies the accessible-name
+  text via the existing `useLocaleContent('social')`, requiring no change
+  to localeLayer.js — confirmed against i18next's source that
+  `getResourceBundle` reads its resource store directly, bypassing the `ns`
+  allowlist. Verified independent of App Shell via a temporary smoke-check
+  import in App.jsx (mirroring T-013's precedent): built with the component
+  actually mounted (467 modules, component markup present in the built
+  CSS/JS), then reverted — App.jsx confirmed byte-identical via `git diff`
+  and a rebuild returning to the exact prior 465-module baseline with
+  identical asset hashes. Lint passes throughout.
+  Not in this Task's realized-commitments scope: Commitment 2
+  (cross-instantiation consistency) — only meaningfully checkable once
+  mounted twice; validated at T-043 per the Task Catalog.
+
+- T-023 — Email Contact Device Component (implementation)
+  Presents the single primary email-initiation trigger doubling as the
+  Contact view's sign-off message, mounted in App Shell's Contact slot.
+  Completion criteria verified: sign-off text is the trigger `<button>`'s
+  own children — one element, no rendering path separates them
+  (Commitment 4). Address-exposure guard (Commitment 2): the destination
+  address is split into separate constants and joined only inside the
+  click handlers, never written to a DOM attribute/text node — confirmed
+  by grepping the built bundle, where the joined address string
+  (`javi@example.com`) appears nowhere in dist/ while the split parts do.
+  Primary trigger uses `window.location.href = 'mailto:...'` — native,
+  client-side only, no form/backend (Commitment 1; grep confirms no
+  `fetch`/`XMLHttpRequest`/`<form>`). No-client fallback (Commitment 3) is
+  a persistently visible `navigator.clipboard.writeText` control, not a
+  rendered address, keeping Commitment 2's guard holding in the
+  fallback-active state too. Build (467 modules) and lint both pass;
+  preview-server smoke check returned HTTP 200.
+
+- T-024 — Section Nav Component (implementation)
+  Owns the canonical three-destination structure and selects exactly one
+  presentation form (inline or overlay-hosting trigger) per viewport, as a
+  standalone unit — not mounted anywhere (App Shell composition is T-031's
+  job) and, at the point this Task closed, not yet hosting Mobile Nav
+  Overlay (completed immediately after by T-025 in the same session).
+  Completion criteria verified: one canonical array of three
+  {id, targetId} entries targets App Shell's fixed section ids via
+  `document.getElementById`, never importing Hero/About/Contact's own
+  components (Commitment 1). Presentation-form mutual exclusivity
+  (Commitment 3) is CSS-driven, not JS-state-driven: `.section-nav__inline`
+  and `.section-nav__trigger` are a complementary `display:none`/`flex`
+  pair around one 768px breakpoint — verified by inspecting the compiled
+  CSS rules directly (base + single `@media` override for each), a
+  stronger guarantee than tracked JS state. `position:fixed` keeps it
+  available regardless of scroll position (Commitment 2); grep confirms no
+  scroll-blocking/locking mechanism anywhere (Commitment 5). Scroll-anchor
+  invocation uses `scrollIntoView`, consulting `useMotionMode` directly for
+  a reduced-motion fallback. New src/content/{en,es}/nav.json namespace,
+  same zero-code-change pattern as T-022. Verified independent of App
+  Shell via the same temporary smoke-check-and-revert technique (471
+  modules mounted, confirmed both CSS display rules and all three
+  destination targets in the built output; reverted to the exact prior
+  469-module baseline). Build and lint both pass throughout.
+
+- T-025 — Mobile Nav Overlay Component (implementation)
+  Owns the overlay's Closed/Open lifecycle and its selection/dismiss
+  behavior, hosted by Section Nav — replacing T-024's inert trigger
+  placeholder with a fully-wired one. Completion criteria verified:
+  Open/Closed state is a plain `useState` owned entirely inside
+  MobileNavOverlay; Section Nav supplies only the destination structure
+  (as a prop, not duplicated) and a `scrollAnchor` callback, never
+  rendering the overlay panel or knowing its open state. Selection performs
+  the scroll-anchor request and the Closed transition in the same handler,
+  batched by React into one action (Commitment 4 AC2); the dismiss control
+  only ever calls `setIsOpen(false)`, with no code path reaching `onSelect`
+  (Commitment 4 AC3, structurally guaranteed). Mobile Nav Overlay never
+  calls `scrollIntoView`/`getElementById` itself — only Section Nav's
+  callback does, preserving single ownership of scroll-anchoring across
+  both presentation forms (Commitment 1). Uses T-011's `OverlayTransition`
+  for open/close motion and T-012's `MicroInteraction` on each destination
+  link. No scroll-blocking mechanism exists despite the full-screen visual
+  treatment — confirmed by grepping the built CSS for `overflow:hidden`
+  (zero matches), so free scroll remains valid in every nav state
+  (Commitment 5). Verified via the same temporary smoke-check-and-revert
+  technique (473 modules mounted, overlay CSS and the still-intact
+  section-nav__trigger breakpoint pair present in the compiled output;
+  reverted to the exact prior 469-module baseline). Build and lint both
+  pass throughout.
+
 ## Pending Work
 
-- T-020 through T-026 — seven Feature Component tasks (all dependencies on
-  T-010–T-013 now satisfied; Constrained/Ready per catalog's own readiness
-  annotations — Readiness Issue 1 still applies to six of them)
-- T-030, T-031 — two Integration tasks
+- T-030, T-031 — two Integration tasks (dependencies now satisfied: T-030
+  needs T-004 + T-022; T-031 needs T-004 + T-024 + T-025)
 - T-040 through T-043 — four Verification tasks
 
 (Full definitions, dependencies, and readiness status are authoritative in Task Catalog;
@@ -135,6 +272,38 @@ worktree-t-010-motion-mode-resolver):
 - package.json, package-lock.json (modified: i18next, react-i18next,
   i18next-browser-languagedetector dependencies added)
 
+T-026 (committed at a2f3282, branch worktree-t-026-language-override-control):
+- src/components/LanguageOverrideControl.jsx, LanguageOverrideControl.scss (new)
+- src/components/AppShell.jsx (modified: mounts <LanguageOverrideControl />)
+- src/locale/localeLayer.js (modified: exports SUPPORTED_LANGUAGES)
+
+T-020 (committed at 71e17f3, branch worktree-t-026-language-override-control):
+- src/components/HeroSection.jsx, HeroSection.scss (new)
+- src/components/AppShell.jsx (modified: mounts <HeroSection /> in #hero)
+- src/content/en/hero.json, src/content/es/hero.json (modified: placeholder headline/tagline)
+
+T-021 (committed at b43e9d1, branch worktree-t-026-language-override-control):
+- src/components/AboutSection.jsx, AboutSection.scss (new)
+- src/components/AppShell.jsx (modified: mounts <AboutSection /> in #about)
+- src/content/en/about.json, src/content/es/about.json (modified: placeholder hook/bio)
+
+T-022 (committed at 3b51b05, branch worktree-t-026-language-override-control):
+- src/components/SocialLinkGroup.jsx, SocialLinkGroup.scss (new, unmounted)
+- src/content/en/social.json, src/content/es/social.json (new)
+
+T-023 (committed at 7742230, branch worktree-t-026-language-override-control):
+- src/components/EmailContactDevice.jsx, EmailContactDevice.scss (new)
+- src/components/AppShell.jsx (modified: mounts <EmailContactDevice /> in #contact)
+- src/content/en/contact.json, src/content/es/contact.json (modified: placeholder sign-off/fallback)
+
+T-024 (committed at de4fa7d, branch worktree-t-026-language-override-control):
+- src/components/SectionNav.jsx, SectionNav.scss (new, unmounted)
+- src/content/en/nav.json, src/content/es/nav.json (new)
+
+T-025 (committed at 5a658d7, branch worktree-t-026-language-override-control):
+- src/components/MobileNavOverlay.jsx, MobileNavOverlay.scss (new)
+- src/components/SectionNav.jsx (modified: hosts <MobileNavOverlay />, replacing the inert trigger)
+
 ## Implementation Decisions
 
 - T-001 scaffolded via `npm create vite@latest -- --template react` into a temp
@@ -185,27 +354,115 @@ worktree-t-010-motion-mode-resolver):
 - T-013's `setActiveLanguage` no-ops on any language outside {en, es} rather
   than throwing, so an eventual miscalled signal can never move the active
   language outside the Contract's exhaustive two-language set.
+- T-026's Language Override Control holds no locale/override state of its own —
+  only reads Locale Layer's active locale and forwards selection signals,
+  directly reflecting the Feature's Definition/Context boundary.
+- T-026's identical-selection no-op is a guard inside the component (compare
+  selection to reflected active language before signaling), not delegated to
+  Locale Layer, satisfying Commitment 4 at the interaction point.
+- T-026 chose bottom-right fixed-corner placement as a documented
+  implementation-level placeholder — Section Nav's own layout (T-024/T-031)
+  wasn't built yet at the time, so definitive non-overlap couldn't be confirmed.
+- T-020's wordmark is a typographic placeholder ("JM"), since no Task in the
+  Task Catalog produces the real Styling System wordmark asset.
+- T-020 and T-021's headline/tagline and hook/bio copy are explicitly flagged
+  provisional placeholder text — "actual copy" is excluded from every
+  upstream Feature phase (Definition through Technical Design) for both
+  Features and isn't resolved by any planning artifact, so real copy
+  authoring remains an open item for the site owner.
+- T-022's destination URLs (`CHANGE_ME`) and T-023's destination address
+  (`javi@example.com`) are likewise placeholders pending Javi's real profile
+  handles/address — not something Implementation can supply.
+- T-022's visible label is the untranslated brand name; only the accessible
+  name (aria-label) is locale-resolved, since brand names aren't normally
+  translated but the descriptive accessible text meaningfully differs by
+  locale.
+- T-023's address-exposure technique (split constants joined only inside
+  click handlers, never written to the DOM) is a proportionate, non-
+  cryptographic technique — the Technical Design deliberately left the
+  concrete technique undecided, and a stronger (e.g. cryptographic) scheme
+  would be over-engineering beyond what the Constraint asks for.
+- T-023's no-client fallback is copy-to-clipboard rather than reveal-as-text,
+  specifically because Commitment 2 AC2 requires the non-plain-text-exposure
+  guard to hold in the fallback-active state too — a revealed plain-text
+  address would have violated that.
+- T-024's presentation-form mutual exclusivity (Commitment 3) is implemented
+  as a pure CSS breakpoint pair rather than JS-tracked viewport state — a
+  stronger structural guarantee (no runtime path can show both or neither),
+  consistent with this project's established preference for structural
+  guarantees over tracked state.
+- T-024 and T-026 both reuse `useMotionMode` directly (not only through a
+  Motion Provider component) for decisions the two Providers' own primitives
+  don't cover — container-level expand/collapse (T-026) and scroll-anchor
+  behavior (T-024).
+- T-024's 768px device-class breakpoint is an implementation-level
+  placeholder — the real threshold remains Pending per
+  section-navigation/ux.md (Readiness Issue 1).
+- T-025 models Open/Closed state entirely inside Mobile Nav Overlay (not
+  lifted into Section Nav), per the Technical Design's explicit exclusive
+  ownership assignment — Section Nav's role stays limited to supplying the
+  destination structure and the scroll-anchor callback.
+- T-025 uses `role="dialog"` without `aria-modal="true"` on the overlay,
+  deliberately: true modal semantics imply background inertness/
+  scroll-trapping, which would contradict Commitment 5's explicit
+  requirement that free scroll never be blocked in any nav state.
+- T-022's and T-024's independent, App-Shell-free operation was verified via
+  a temporary smoke-check import in App.jsx (mirroring T-013's precedent),
+  then reverted — confirmed byte-identical via `git diff --stat` and a
+  rebuild returning to the exact prior module count and asset hashes, both
+  times.
 
 ## Known Issues
 
-Carried forward, unresolved: the Implementation Plan's two flagged Readiness
-Issues (detailed visual design left Pending in five Feature UX Specs;
-Persistent nav/social-icons contradiction) remain open upstream — not
-resolved here, not blocking T-001–T-004 or T-010–T-013, but will affect
-T-020–T-026, T-030, T-031, and downstream verification tasks per Task
-Catalog's own readiness annotations. T-002's exact final accent/typography
-values remain open to that same deferred detailed-visual-design pass.
+Carried forward, partially resolved: the Implementation Plan's two flagged
+Readiness Issues (detailed visual design left Pending in five Feature UX
+Specs; Persistent nav/social-icons contradiction) remain open upstream —
+not resolved here. Readiness Issue 1 affected T-020–T-025's visual/layout
+closure (see per-task notes below); Readiness Issue 2 still affects the
+not-yet-started T-030/T-031. T-002's exact final accent/typography values
+remain open to that same deferred detailed-visual-design pass.
 
-New observation: T-011's and T-012's exact motion timing values (rise
-distance, duration, scale, opacity) are likewise implementation-level
-placeholders pending detailed visual design — distinct from Readiness Issue
-1, which the Implementation Plan does not name `motion-interaction` under.
+Carried forward: T-011's and T-012's exact motion timing values (rise
+distance, duration, scale, opacity) are implementation-level placeholders
+pending detailed visual design.
 
-New observation: T-010 through T-013 exist only on branch
-worktree-t-010-motion-mode-resolver (pushed to origin), not yet merged to
-main. This report is committed on that same branch; reconciling it against
-main's Task Catalog requires that branch to be merged first — a decision
-outside this Skill's and this session's authority.
+Carried forward, now resolved: T-010 through T-013 existed only on branch
+worktree-t-010-motion-mode-resolver at the time of the prior report entry.
+That branch's commits (184f0be, f321333, 8a3ecf9, 9bacccc) are now present
+on `main`'s own history (confirmed via `main`'s git log at the start of
+this session), so that specific concern no longer applies — though see the
+new branch-state observation below, which raises the same kind of concern
+for this session's work.
+
+New: T-020–T-025 each leave specific Contract Commitments explicitly
+unclaimed, not because of an implementation defect but because they depend
+on content, assets, or decisions this session had no authority or
+information to supply:
+- T-020 (Hero) — Commitment 4 (device-class-appropriate treatment): only a
+  fluid-type CSS baseline exists.
+- T-021 (About) — Commitment 2 AC1–AC3 (genuine dual-dimension substance)
+  and Commitment 3 (hook/body depth asymmetry): placeholder content carries
+  no real narrative weight.
+- T-022 (Social Links) — real Instagram/LinkedIn profile URLs: currently
+  `CHANGE_ME` placeholders.
+- T-023 (Email Contact) — real destination address: currently
+  `javi@example.com` placeholder.
+- T-024 (Section Nav) / T-025 (Mobile Nav Overlay) — exact device-class
+  threshold and full-screen-vs-slide-in visual treatment: both Pending per
+  section-navigation/ux.md.
+- All of the above five Features' exact layout/visual closure is also
+  covered by the pre-existing Readiness Issue 1.
+
+New: this session's seven task commits (T-026, T-020, T-021, T-022, T-023,
+T-024, T-025) all live on branch `worktree-t-026-language-override-control`
+— a single branch carrying six Tasks beyond its namesake, rather than one
+branch per Task, since this was one continuous session rather than
+separate `EnterWorktree`/`ExitWorktree` cycles per Task. All seven are
+pushed to origin; none are merged to `main`. Reconciling this report
+against `main`'s own Task Catalog state requires this branch to be merged
+first — a decision outside this Skill's and this session's authority, same
+situation the prior report flagged for T-010–T-013's branch (since
+resolved by an out-of-session merge).
 
 ## Execution Evidence
 
@@ -275,6 +532,109 @@ T-013:
   pre-T-013 baseline (pass)
 - npm run lint → no findings (pass)
 - git show --stat 9bacccc → 3 files changed, 161 insertions, 2 deletions
+
+T-026:
+- npm run build → 461 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings, exit 0 (pass)
+- grep bundle for language-override__menu/__trigger/__option/--reduced →
+  all four classes present in dist/assets/*.js (pass)
+- preview-server smoke check → HTTP 200
+- git show --stat a2f3282 → 4 files changed, 146 insertions, 1 deletion
+
+T-020:
+- npm run build → 461 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings (pass)
+- grep bundle for hero__wordmark/__headline/__tagline/__scroll-cue → all
+  four classes present in compiled CSS (pass)
+- grep bundle for "Javi Morala"/"Tagline pending" → both content strings
+  present (pass)
+- grep src/components/HeroSection.jsx for scrollIntoView/scrollTo → no
+  matches (pass — scroll cue structurally inert)
+- preview-server smoke check → HTTP 200
+- git show --stat 71e17f3 → 5 files changed, 92 insertions, 5 deletions
+
+T-021:
+- npm run build → 463 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings (pass)
+- grep src/components/AboutSection.jsx for button/<a/onClick/tabs/expand/
+  collapse → no matches (pass — no CTA/gating markup)
+- grep bundle for "Hook pending"/"Bio pending" → both content strings
+  present (pass)
+- grep src/components/AboutSection.jsx for section-navigation/email-contact/
+  social-links → no matches (pass)
+- preview-server smoke check → HTTP 200
+- git show --stat b43e9d1 → 5 files changed, 68 insertions, 5 deletions
+
+T-022:
+- npm run build (component unmounted) → 465 modules; grep for
+  "social-links__trigger" in dist/assets/*.js → 0 matches (confirms
+  unmounted) (pass)
+- npm run lint (oxlint) → no findings (pass)
+- temporary smoke-check import in App.jsx → npm run build → 467 modules;
+  grep confirms "social-links__trigger" present in both JS and CSS output
+  (pass)
+- git diff --stat src/App.jsx (post-revert) → empty (confirms
+  byte-identical revert)
+- npm run build (post-revert) → 465 modules, identical asset hashes to
+  pre-smoke-check baseline (pass)
+- npm run lint (post-revert) → no findings (pass)
+- git show --stat 3b51b05 → 4 files changed, 73 insertions
+
+T-023:
+- npm run build → 467 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings (pass)
+- grep dist/ for "javi@example.com" (the joined address) → 0 matches
+  (pass — address never appears as a literal string)
+- grep dist/assets/*.js for "javi" and "example.com" separately → both
+  present (expected, not a violation — confirms the split-parts technique)
+- grep dist/assets/*.js for "mailto:" → present (expected)
+- grep src/components/EmailContactDevice.jsx for fetch/XMLHttpRequest/
+  axios/<form → no matches (pass)
+- grep src/components/EmailContactDevice.jsx for section-navigation/
+  SocialLink/SectionNav → no matches (pass)
+- preview-server smoke check → HTTP 200
+- git show --stat 7742230 → 5 files changed, 123 insertions, 5 deletions
+
+T-024:
+- npm run build (component unmounted) → 469 modules (pass)
+- npm run lint (oxlint) → no findings (pass)
+- grep dist/assets/*.js for hero/about/contact target ids → all three
+  present (13-14 occurrences each) (pass)
+- temporary smoke-check import in App.jsx → npm run build → 471 modules;
+  grep dist/assets/*.css confirms
+  `.section-nav__inline{display:none}` / `@media (width>=768px){display:flex}`
+  and `.section-nav__trigger{display:inline-flex}` /
+  `@media (width>=768px){display:none}` — exactly the complementary pair
+  (pass)
+- grep src/components/SectionNav.jsx for scroll-blocking patterns
+  (overflow:hidden/preventDefault/scroll-lock) → no matches (pass)
+- git diff --stat src/App.jsx (post-revert) → empty
+- npm run build (post-revert) → 469 modules, identical asset hashes to
+  pre-smoke-check baseline (pass)
+- npm run lint (post-revert) → no findings (pass)
+- git show --stat de4fa7d → 4 files changed, 134 insertions
+
+T-025:
+- npm run build (hosted, App Shell-unmounted) → 469 modules, identical
+  hashes to T-024's post-revert baseline (pass)
+- npm run lint (oxlint) → no findings (pass)
+- temporary smoke-check import in App.jsx → npm run build → 473 modules;
+  grep dist/assets/*.css confirms `.mobile-nav-overlay*` rules compiled in,
+  and `.section-nav__trigger`'s breakpoint pair (base
+  display:inline-flex, single `@media (width>=768px){display:none}`
+  override) still intact and unduplicated (pass)
+- grep dist/assets/*.css for "overflow:hidden" → 0 matches (pass — no
+  scroll-blocking mechanism despite full-screen overlay treatment)
+- git diff --stat src/App.jsx (post-revert) → empty
+- npm run build (post-revert) → 469 modules, identical asset hashes
+- npm run lint (post-revert) → no findings (pass)
+- git show --stat 5a658d7 → 3 files changed, 147 insertions, 15 deletions
+
+Final full-tree verification (this report's own session, current HEAD
+5a658d7): `git status --short` → clean; `git log
+origin/worktree-t-026-language-override-control..HEAD` → empty (fully
+pushed); `npm run build` → 469 modules, succeeds; `npm run lint` → no
+findings, exit 0.
 
 ---
 
