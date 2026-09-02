@@ -1,0 +1,32 @@
+@use '../styles/tokens' as tokens;
+@use '../styles/mixins' as mixins;
+
+// Layout/visual treatment is a structural placeholder, not final visual
+// design — exact layout, mobile mechanism, and background-texture treatment
+// all remain Pending per about-narrative/ux.md (Readiness Issue 1), same
+// deferral Hero Section's own placeholder styling already flagged.
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+.about__hook {
+  @include mixins.type-display;
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  color: tokens.$color-text;
+}
+
+.about__bio {
+  @include mixins.type-body;
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: tokens.$color-text;
+  opacity: 0.9;
+  white-space: pre-line;
+}
