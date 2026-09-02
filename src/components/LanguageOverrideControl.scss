@@ -1,0 +1,77 @@
+@use '../styles/tokens' as tokens;
+@use '../styles/mixins' as mixins;
+
+// Fixed-corner placement, distinct from any corner Section Nav (T-024/T-031,
+// still unbuilt) may end up using — an implementation-level placeholder per
+// this Feature's UX Constraint against overlapping nav.
+.language-override {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+}
+
+.language-override__trigger {
+  @include mixins.type-body;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid tokens.$color-accent;
+  border-radius: 999px;
+  background: tokens.$color-bg;
+  color: tokens.$color-text;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.language-override__menu {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0 0 0.5rem;
+  padding: 0.375rem;
+  list-style: none;
+  border: 1px solid tokens.$color-accent;
+  border-radius: 0.75rem;
+  background: tokens.$color-bg;
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+
+  &.is-expanded {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  // Motion Mode Resolver reports reduced: expand/collapse settles instantly.
+  &.language-override__menu--reduced {
+    transition: none;
+  }
+}
+
+.language-override__option {
+  @include mixins.type-body;
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: tokens.$color-text;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+
+  &[aria-current='true'] {
+    color: tokens.$color-accent;
+    font-weight: 600;
+  }
+}

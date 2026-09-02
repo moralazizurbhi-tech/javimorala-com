@@ -59,4 +59,4 @@ export function setActiveLanguage(language) {
   i18next.changeLanguage(language);
 }
 
-export { i18next };
+export { i18next, SUPPORTED_LANGUAGES };
