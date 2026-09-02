@@ -2,15 +2,20 @@
 
 ## Progress Summary
 
-17 of 21 Task Catalog tasks complete (T-001–T-004, T-010–T-013,
-T-020–T-026, T-030–T-031). Phase 0 (Infrastructure), Phase 1 (Foundational
-Shared Layers), and Phase 2 (Remaining Features, including both App-Shell
-composition tasks) are now all complete per implemented work, reaching the
+20 of 21 Task Catalog tasks complete (T-001–T-004, T-010–T-013,
+T-020–T-026, T-030–T-031, T-040, T-041, T-043). Phase 0 (Infrastructure),
+Phase 1 (Foundational Shared Layers), and Phase 2 (Remaining Features,
+including both App-Shell composition tasks) are complete, reaching the
 Implementation Plan's M2 milestone ("all six remaining Features built
-against the Phase 0/1 substrate") — though see Known Issues: T-030 and
-T-031 exist only on two independent, unmerged branches, so no single
-checkout yet contains both compositions together. No Verification tier
-task has started.
+against the Phase 0/1 substrate"). Phase 3 (Integration Verification) is
+substantially executed: T-040, T-041, T-043 Completed; T-042 remains
+open — executed, but did not fully satisfy its completion criteria (see
+Known Issues). Correction to the prior entry (Confirmed via `main`'s own
+git log, merge commits 63efaf2/e71575a): T-030 and T-031 are now both
+merged to `main` — the "two independent, unmerged branches" state this
+report previously flagged no longer exists. However, that merge
+introduced a real regression, found and fixed this session on an
+as-yet-unmerged branch (see Known Issues).
 
 ## Completed Work
 
@@ -239,14 +244,68 @@ task has started.
   scroll-blocking CSS introduced (`overflow:hidden` — 0 matches). Build (473
   modules) and lint both pass; preview-server smoke check returned HTTP 200.
 
+- T-040 — Verify Section-Navigation × Motion-Interaction Scroll Integrity (verification)
+  Confirmed structurally: destination-activation scroll-anchoring
+  (`SectionNav.scrollAnchor` → `scrollIntoView`) and the nav-overlay's bold
+  motion transition (`OverlayTransition`, CSS `transform`/`opacity` only)
+  write to disjoint properties with no shared state, so one cannot
+  interfere with the other. `MobileNavOverlay.handleSelect` batches
+  close+anchor in one handler (Commitment 4 AC2); the dismiss control's
+  only call is `setIsOpen(false)`, with no code path reaching `onSelect`
+  (AC3). Grepped all of `src/` and both nav stylesheets for scroll-blocking
+  patterns (`overflow`, `touch-action`, `document.body.style`,
+  `preventDefault` on wheel/touchmove) — zero matches; compiled CSS
+  confirms 0 occurrences of `overflow:hidden`. Build (475 modules) and
+  lint clean; preview-server smoke check HTTP 200.
+
+- T-041 — Verify Language-Switch × Motion × Content-Broadcast Integration (verification)
+  Confirmed structurally: `useLocaleContent`/`useActiveLanguage` wrap
+  react-i18next's `useTranslation`, which uses React's
+  `useSyncExternalStore` subscribed to i18next's `'languageChanged'` event
+  (confirmed directly in `node_modules/react-i18next/src/useTranslation.js`
+  and `defaults.js`) — React's own anti-tearing primitive, guaranteeing
+  every consumer commits the new language in the same render pass (no
+  mixed-language state possible). Grepped `src/components` — no component
+  caches locale text in local state. `window.location` is invoked only
+  inside `EmailContactDevice`'s explicit mailto handler, never on the
+  language-switch path. `scrollIntoView` exists only inside `SectionNav`'s
+  own destination-click handler. Motion providers key exclusively off
+  `useMotionMode()`, with zero coupling to locale state. Build (475
+  modules) and lint clean.
+
+- T-043 — Verify Social Link Group Cross-Instantiation Consistency (verification)
+  Confirmed structurally: both `<SocialLinkGroup />` mounts in
+  `AppShell.jsx` (Hero, Contact) are the same import with zero props —
+  `CHANNELS` is a single module-scope constant, so no per-instance
+  divergence is possible in triggers, destinations, or behavior
+  (Commitment 2 AC1–AC3). Grepped `src/` for any placement-conditional
+  (`#hero`/`#contact`-scoped) styling or logic touching Social Link Group —
+  zero matches. Build and lint clean; exactly 2 `<SocialLinkGroup` call
+  sites confirmed via grep.
+
+- Prerequisite fix (not a Task Catalog ID) — restored missing
+  `SocialLinkGroup` import in `AppShell.jsx`
+  Merging T-030 and T-031 independently (both from the same base commit)
+  dropped the `SocialLinkGroup` import while keeping its two JSX call
+  sites, leaving `AppShell.jsx` referencing an undefined identifier —
+  confirmed via oxlint's `jsx-no-undef` warning and a bare, unimported
+  `SocialLinkGroup` identifier surviving minification in the built bundle.
+  This crashed the whole component tree on render (uncaught
+  `ReferenceError`, no error boundary), which would have prevented
+  `LanguageOverrideControl` — a sibling in the same `AppShell` — from ever
+  mounting, blocking T-041's (and T-040's, T-042's, T-043's) ability to
+  execute against the real composed app. User-authorized minimal one-line
+  fix applied; `npm run build`/`npm run lint` clean after.
+
 ## Pending Work
 
-- T-040 through T-043 — four Verification tasks, none started. T-041's
-  dependencies (T-026, T-013, T-011, T-012) are all complete and merged to
-  main; it is independently Ready. T-040, T-042, T-043 depend on T-030
-  and/or T-031, which are implemented but exist only on unmerged branches
-  (see Known Issues) — not reliably executable until at least one merge
-  reconciles that.
+- T-042 — Verify Reduced-Motion Functional Equivalence Across All
+  Consuming Features (verification) — executed this session; two of three
+  completion-criteria clauses pass (section reveal, nav-overlay toggle
+  both reach their expected end state without needing motion to play),
+  but the micro-interaction-feedback clause has a specific, evidenced gap
+  — see Known Issues. Task remains open; not resolved as Complete. No
+  further Task Catalog tasks are pending — this is the last open item.
 
 (Full definitions, dependencies, and readiness status are authoritative in Task Catalog;
 not duplicated here beyond this index.)
@@ -336,6 +395,14 @@ pushed, not merged):
 T-031 (committed at 30e4b30, branch worktree-t-031-section-nav-composition,
 pushed, not merged):
 - src/components/AppShell.jsx (modified: mounts <SectionNav /> as an App-Shell-level sibling)
+
+Prerequisite fix (committed at 3a64b76, branch
+worktree-t-041-language-switch-verification, pushed, not merged):
+- src/components/AppShell.jsx (modified: added missing
+  `import SocialLinkGroup from './SocialLinkGroup.jsx'`)
+
+T-040, T-041, T-043 generated no new artifacts — pure verification,
+evidence only.
 
 ## Implementation Decisions
 
@@ -451,6 +518,18 @@ pushed, not merged):
 - T-030 and T-031 were each branched independently, directly from the same
   pre-existing main commit (4600ba1), not stacked one on the other, since
   neither Task depends on the other per the Task Catalog.
+- The AppShell missing-import fix was treated as a blocking-defect fix,
+  not new functionality — applied as the smallest possible change (one
+  import line) rather than also updating the file's now-stale comment
+  describing Social Link Group as "still awaits its mount," since that
+  comment cleanup was out of scope for what was authorized.
+- T-040/T-041/T-042/T-043 verification was performed via source-level
+  static analysis and direct inspection of library internals
+  (react-i18next's `useSyncExternalStore`/`languageChanged` wiring,
+  framer-motion's variant structure), not live browser interaction — no
+  test-automation framework (vitest/playwright/jsdom) is installed in this
+  project, consistent with the precedent T-013/T-022/T-024 already
+  established for this codebase.
 
 ## Known Issues
 
@@ -504,18 +583,49 @@ first — a decision outside this Skill's and this session's authority, same
 situation the prior report flagged for T-010–T-013's branch (since
 resolved by an out-of-session merge).
 
-New: T-030 and T-031 were each implemented on their own branch
+Resolved (previously flagged as an open concern): T-030 and T-031 were
+each implemented on their own branch
 (worktree-t-030-social-link-group-composition,
-worktree-t-031-section-nav-composition), both forked independently from
-`main` at commit 4600ba1, both pushed to origin, neither merged. Because
-both modify `src/components/AppShell.jsx` and neither branch is based on
-the other, no single checkout currently contains both compositions (Social
-Link Group ×2 AND Section Nav) together — merging one will likely conflict
-against the other in `AppShell.jsx` (the two additions are adjacent,
-non-overlapping lines, so resolution should be mechanical, but performing
-that merge/resolution is outside this Skill's and this session's
-authority). This must be resolved before T-040, T-042, or T-043 — all of
-which require the full composed App Shell — can execute.
+worktree-t-031-section-nav-composition), forked independently from `main`
+at commit 4600ba1. Both are now merged to `main` (merge commits 63efaf2,
+e71575a, confirmed via `main`'s own git log at the start of this session),
+so this specific concern no longer applies.
+
+New, partially resolved: merging T-030 and T-031 independently left
+`AppShell.jsx` referencing `SocialLinkGroup` in two JSX call sites with no
+corresponding import — confirmed via oxlint's `jsx-no-undef` warning and a
+bare, unimported `SocialLinkGroup` identifier surviving minification in
+the built bundle prior to the fix. This crashes the whole component tree
+on render (uncaught `ReferenceError`, no error boundary present anywhere),
+which would have prevented `LanguageOverrideControl` — a sibling in the
+same `AppShell` — from ever mounting, blocking every Verification-tier
+Task that needs the real composed app. Found and fixed this session
+(commit 3a64b76), but the fix lives only on branch
+`worktree-t-041-language-switch-verification` — as of `main`'s current
+HEAD, the composed app is still broken until this branch merges.
+
+New, open: T-042's verification found that `MicroInteraction`'s
+`reducedVariants` make its `rest`/`active` states identical, and no
+component anywhere in the project defines a CSS `:active` fallback, so
+press/tap feedback is imperceptible in Reduced Motion Mode for every
+interactive element that uses `MicroInteraction`. Additionally, 4 of 7
+`MicroInteraction`-wrapped element types (Social Link Group's trigger;
+Language Override Control's trigger and menu options; Email Contact's
+clipboard fallback) have no CSS `:hover`/`:focus-visible` fallback either,
+so those specifically get zero perceptible feedback of any kind on hover
+or press in Reduced Mode (only the native browser focus ring remains, for
+keyboard focus only — no stylesheet sets `outline:none`). This is a real
+gap against motion-interaction Contract Commitment 7 AC1 ("feedback being
+perceptible... still occurs, using minimized or no motion"). Fixing it
+needs CSS/JS changes across already-completed T-022, T-023, T-024, and
+T-026 — outside this session's verification-only authority; belongs to a
+future Task or decision.
+
+New: this session's work (T-040, T-041, T-043 Completed; T-042 attempted;
+the AppShell import fix) all lives on branch
+`worktree-t-041-language-switch-verification`, forked from `main` after
+the T-030/T-031 merge, pushed to origin, not merged — the same recurring
+unmerged-branch pattern every prior session's report has flagged.
 
 ## Execution Evidence
 
@@ -709,6 +819,71 @@ T-031:
   overlap (pass)
 - preview-server smoke check → HTTP 200
 - git show --stat 30e4b30 → 1 file changed, 7 insertions
+
+AppShell fix:
+- npm run lint (before fix) → jsx-no-undef warning ×2 (SocialLinkGroup not defined)
+- grep -o "SocialLinkGroup" dist/assets/*.js (before fix) → 2 bare identifier
+  occurrences (would ReferenceError at runtime)
+- npm run build / npm run lint (after fix) → 475 modules, clean; no findings
+- grep -c "social-links__trigger" dist/assets/*.css and *.js (after fix) →
+  1 each, confirming SocialLinkGroup now resolves via the real import
+  (the bare "SocialLinkGroup" identifier no longer appears verbatim post-fix
+  since minification can now safely rename a properly-imported local binding)
+- git show --stat 3a64b76 → 1 file changed, 1 insertion
+
+T-040:
+- npm run build → 475 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings (pass)
+- grep SectionNav.scss/MobileNavOverlay.scss for overflow/scroll-behavior/
+  touch-action/position:fixed → only position:fixed on the components'
+  own containers, no scroll-blocking rules (pass)
+- grep src/ for document.body.style/preventDefault/wheel/touchmove/
+  scrollTo( → no matches (pass)
+- grep compiled CSS for overflow:hidden → 0 matches (pass)
+- grep compiled CSS for position:fixed selectors → .section-nav
+  (top:1rem;left:1rem), .mobile-nav-overlay (inset:0),
+  .language-override (bottom:1rem;right:1rem) — no scroll-relevant overlap
+- preview-server smoke check → HTTP 200
+
+T-041:
+- npm run build → 475 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings (pass)
+- Read node_modules/react-i18next/src/useTranslation.js and defaults.js
+  directly → confirmed useSyncExternalStore(subscribe, getSnapshot,
+  getSnapshot) subscribed via i18n.on(bindI18n, ...) with default
+  bindI18n: 'languageChanged'
+- grep src/components for useLocaleContent/useState/useActiveLanguage →
+  no component seeds locale-dependent text into local useState
+- grep src/ for scrollTo|scrollIntoView|window\.location|history\. →
+  window.location appears only in EmailContactDevice's mailto handler;
+  scrollIntoView appears only in SectionNav's own handler; neither is
+  reachable from the language-switch path
+- grep src/ for #hero|#contact-scoped selectors touching locale/motion →
+  no matches
+
+T-042:
+- Read sectionPageMotion.jsx/microInteraction.jsx reduced-variant
+  definitions → SectionEntry/OverlayTransition's reducedVariants collapse
+  hidden==visible (content always visible, no animation dependency);
+  MicroInteraction's reducedVariants collapse rest==active (scale:1,
+  opacity:1 both — zero visual difference)
+- grep :hover|:focus|:active|--reduced across all 7 component .scss files
+  → tabulated per-element CSS-fallback coverage: 3 of 7 MicroInteraction-
+  wrapped elements (section-nav__link, mobile-nav-overlay__link,
+  email-contact__trigger) have a :hover/:focus-visible fallback; 4 of 7
+  (social-links__trigger, language-override__trigger,
+  language-override__option, email-contact__fallback) have none; 0 of 7
+  have any :active fallback anywhere in the project
+- grep src/styles/*.scss src/components/*.scss src/index.scss for outline
+  → no matches (native focus ring never suppressed)
+- npm run build/lint (unchanged from T-041's state) → clean
+
+T-043:
+- npm run build → 475 modules, succeeds (pass)
+- npm run lint (oxlint) → no findings (pass)
+- grep -c "<SocialLinkGroup" src/components/AppShell.jsx → 2
+- grep src/ for #hero|#contact-scoped selectors/logic touching
+  SocialLinkGroup/.social-links → no matches
 
 ---
 
