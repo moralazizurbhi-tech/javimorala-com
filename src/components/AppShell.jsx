@@ -3,6 +3,7 @@ import EmailContactDevice from './EmailContactDevice.jsx'
 import HeroSection from './HeroSection.jsx'
 import LanguageOverrideControl from './LanguageOverrideControl.jsx'
 import SectionNav from './SectionNav.jsx'
+import SocialLinkGroup from './SocialLinkGroup.jsx'
 
 // Composes the three domain sections in fixed order (Introduction, Personal
 // Narrative, Connection), per project-architecture.md's System Structure and
