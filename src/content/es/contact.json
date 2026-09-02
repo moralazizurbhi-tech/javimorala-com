@@ -1,1 +1,5 @@
-{}
+{
+  "signOff": "Despedida pendiente — texto provisional. Envíame un correo.",
+  "fallbackLabel": "¿No se abre tu cliente de correo? Copia mi dirección.",
+  "fallbackCopied": "¡Dirección copiada!"
+}
