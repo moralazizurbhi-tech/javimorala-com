@@ -436,4 +436,4 @@ FodyWeavers.xsd
 # IA folders
 .claude
 CLAUDE.md
-raw_outputs/
+raw_inputs/
