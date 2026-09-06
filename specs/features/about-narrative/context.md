@@ -28,8 +28,6 @@ Design's "show, don't just tell" principle.
 - Conveying Javi's authentic personal/professional identity, in depth,
   beyond the Hero's first impression.
 - Visually grounding that identity with one or two personal photos.
-- Conveying background/experience over time via a skills/experience
-  timeline.
 - Surfacing, briefly and without overshadowing, that the site was built
   through AI-assisted development.
 - Holding all of the above together as one coherent problem/moment, not
@@ -65,14 +63,14 @@ Design's "show, don't just tell" principle.
 
 ## Known Dependencies
 
-- **`content-localization`** — narrative, timeline, and note text depend
-  on this Feature being resolved in the right language.
+- **`content-localization`** — narrative and note text depend on this
+  Feature being resolved in the right language.
 - **`section-navigation`** — enables reaching this screen; not part of
   this Feature's own composition.
 - **`motion-interaction`** — governs any reveal/motion applied to this
   Feature's elements.
-- **`accessibility`** — cross-cutting; applies to text, photos, and
-  timeline elements.
+- **`accessibility`** — cross-cutting; applies to text and photo
+  elements.
 
 ---
 

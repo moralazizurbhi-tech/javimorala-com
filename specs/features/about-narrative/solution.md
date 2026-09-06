@@ -6,9 +6,9 @@
 
 ### Functional Objective
 
-Present Javi's authentic personal/professional identity — narrative text,
-one or two personal photos, and a skills/experience timeline — together
-with a small, subordinate note that the site was built through
+Present Javi's authentic personal/professional identity — narrative text
+and one or two personal photos — together with a small, subordinate note
+that the site was built through
 AI-assisted development, as one coherent, fully static composition,
 resolving the depth-of-identity problem identified in Feature Context.
 
@@ -17,17 +17,14 @@ resolving the depth-of-identity problem identified in Feature Context.
 ### Behaviours
 
 - The visitor is presented the complete About Narrative composition —
-  narrative text, photo(s), skills/timeline, and the AI-assisted-
-  development note — as static content requiring no interaction to
-  access; nothing is hidden behind an interactive trigger.
-- Narrative text, timeline entries, and the AI note render in the
-  visitor's active language, as resolved by `content-localization`; this
-  Feature does not decide language or reactively re-render on a later
-  language change.
+  narrative text, photo(s), and the AI-assisted-development note — as
+  static content requiring no interaction to access; nothing is hidden
+  behind an interactive trigger.
+- Narrative text and the AI note render in the visitor's active language,
+  as resolved by `content-localization`; this Feature does not decide
+  language or reactively re-render on a later language change.
 - Photos are presented simultaneously (not toggled, paged, or enlarged on
   interaction) if two are used.
-- The skills/experience timeline is static content, read top to bottom,
-  with no expand/filter interaction.
 
 ### Flows
 
@@ -41,9 +38,9 @@ resolving the depth-of-identity problem identified in Feature Context.
 
 ### Rules
 
-- All four content pieces (narrative text, photo(s), skills/timeline, AI
-  note) are always presented together as one composition; none is
-  conditionally shown or hidden.
+- All three content pieces (narrative text, photo(s), AI note) are
+  always presented together as one composition; none is conditionally
+  shown or hidden.
 - The AI-assisted-development note is always positioned after or
   alongside the narrative — never before it — preserving its subordinate
   role.
@@ -70,21 +67,21 @@ directly and statically; no interactive substates.
 
 #### Included
 
-- Composing narrative text, photo(s), skills/timeline, and the AI note
-  together as one static, always-fully-visible composition.
+- Composing narrative text, photo(s), and the AI note together as one
+  static, always-fully-visible composition.
 - The ordering rule keeping the AI note after/alongside the narrative,
   never before it.
 
 #### Excluded
 
-- Any interactive/stateful behavior on photos or timeline (carousel,
-  lightbox, expand, filter).
+- Any interactive/stateful behavior on photos (carousel, lightbox,
+  expand, filter).
 - Entrance/reveal motion, timing, sequencing — owned by
   `motion-interaction`.
 - Specific visual/device treatments and exact positional layout — owned
   by Feature UX/UI.
-- Actual narrative copy, note wording, final photo assets, and timeline
-  entries — content, decided in UX's "Content and Assets."
+- Actual narrative copy, note wording, and final photo assets — content,
+  decided in UX's "Content and Assets."
 - Nav behavior.
 - Reactive re-render on runtime language change.
 

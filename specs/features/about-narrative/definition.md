@@ -13,9 +13,9 @@
 ## Cohesive Functional Responsibility
 
 Present Javi's identity authentically, in his own voice, as self-expression
-rather than persuasion toward any particular audience — narrative text, one
-or two personal photos, and a skills/experience timeline — together with a
-small, low-key mention of the site's AI-assisted development process, kept
+rather than persuasion toward any particular audience — narrative text and
+one or two personal photos — together with a small, low-key mention of the
+site's AI-assisted development process, kept
 subordinate to the narrative. The Feature owns composing these pieces into
 one cohesive Personal Narrative screen moment; it does not own the photos'
 final selection/production, the narrative's or note's exact copy, or any
@@ -28,13 +28,10 @@ element's detailed visual/interaction styling.
 - Presenting Javi's personal/professional narrative text, in his own voice.
 - Presenting one or two personal photos of Javi — placeholder imagery until
   final photos are decided.
-- Presenting a skills/experience timeline element, as personal identity
-  content — not a work/project showcase.
 - Presenting the AI-assisted-development note as a minor, subordinate
   element alongside or after the narrative.
-- Coordinating narrative text, photo(s), skills/timeline, and the AI note
-  into one cohesive screen moment (composition, ordering, relative
-  prominence).
+- Coordinating narrative text, photo(s), and the AI note into one cohesive
+  screen moment (composition, ordering, relative prominence).
 
 ### Excluded
 
@@ -43,16 +40,14 @@ element's detailed visual/interaction styling.
 - Any direct-contact or presence-link content/CTAs — owned by
   `direct-contact` / `presence-links`.
 - Any work/project catalog or portfolio showcase — excluded project-wide
-  (Project Design's Design Constraints); the skills/timeline element
-  describes Javi's background, not a listing of built projects.
+  (Project Design's Design Constraints).
 - Any motion/animation/scroll-reveal behavior applied to this screen's
   elements — owned by cross-cutting `motion-interaction`.
 - Resolving/rendering text into the visitor's active language — owned by
   `content-localization`.
-- Actual narrative copy, note wording, final photo assets, and
-  skills/timeline content, plus detailed visual composition/interaction
-  specification — belong to later phases (Feature Context/UX/UI), not
-  Definition.
+- Actual narrative copy, note wording, and final photo assets, plus
+  detailed visual composition/interaction specification — belong to later
+  phases (Feature Context/UX/UI), not Definition.
 
 ## Acknowledged Functional Dependencies
 
@@ -80,9 +75,9 @@ element's detailed visual/interaction styling.
 ## Pending (out of scope for this phase)
 
 - Final photo selection/assets (placeholders meanwhile), narrative copy,
-  AI-note wording, and skills/timeline content — resolved with an
-  authoritative value (or explicit Pending marker) in the Feature UX
-  Specification's "Content and Assets" section, once the Feature is Closed.
+  and AI-note wording — resolved with an authoritative value (or explicit
+  Pending marker) in the Feature UX Specification's "Content and Assets"
+  section, once the Feature is Closed.
 - Detailed visual/positional relationship among narrative, photos,
   skills/timeline, and the AI note — UX/UI phases.
 - Also pending, per the same skill boundary: use cases, acceptance

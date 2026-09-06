@@ -7,23 +7,23 @@
 ### Commitment 1 — Composition Completeness
 
 Relationship to Solution: resolves the Behaviour ("complete... composition
-... requiring no interaction to access") and Rule ("all four content
+... requiring no interaction to access") and Rule ("all three content
 pieces... always presented together... none conditionally shown or
 hidden... no content piece requires a visitor action... to become
 visible"). Resolves the depth-of-identity problem in Feature Context.
 
 **Acceptance Criteria**
 
-- AC1: The rendered composition presents all four content pieces —
-  narrative text, photo(s), skills/timeline, and the AI-assisted-
-  development note — without requiring any visitor interaction.
-- AC2: No valid rendered state exists with only a subset of the four
+- AC1: The rendered composition presents all three content pieces —
+  narrative text, photo(s), and the AI-assisted-development note —
+  without requiring any visitor interaction.
+- AC2: No valid rendered state exists with only a subset of the three
   pieces.
 
 **Validation Scenarios**
 
 - Scenario — Standard render
-  - Success Condition: all four pieces are present and visible without
+  - Success Condition: all three pieces are present and visible without
     any visitor interaction.
   - Failure Condition: one or more pieces is missing, or requires an
     interaction (click, hover, expand) to become visible.
@@ -91,27 +91,6 @@ interaction) if two are used."
     interaction.
   - Failure Condition: the interaction triggers a toggle, paging, or
     enlargement of the photo.
-
-### Commitment 5 — Static Timeline Presentation
-
-Relationship to Solution: resolves the Behaviour that "the
-skills/experience timeline is static content, read top to bottom, with
-no expand/filter interaction."
-
-**Acceptance Criteria**
-
-- AC1: All timeline entries are present in the rendered composition
-  without requiring interaction.
-- AC2: No visitor interaction changes which timeline entries are visible
-  or reveals additional detail not already rendered.
-
-**Validation Scenarios**
-
-- Scenario — Visitor interacts with the timeline
-  - Success Condition: the set of visible timeline entries and their
-    visible detail remain unchanged after the interaction.
-  - Failure Condition: the interaction expands, filters, or otherwise
-    changes the visible timeline content.
 
 ---
 
