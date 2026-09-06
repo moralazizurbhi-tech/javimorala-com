@@ -100,9 +100,69 @@ Existing identity, from Project UX's Screens.
   6. "This site itself is one small example of that — built with
      AI-assisted development, with more of my time spent directing and
      thinking than typing every line."
-- **Narrative text (Spanish, Euskera)** — Pending: authoritative
-  translated values not yet confirmed; resolved via
-  `content-localization`'s authoring process before launch.
+- **Narrative text (Spanish)** — Confirmed, verbatim:
+  1. "Soy Javi. Me gusta crear cosas. El software es una de las formas
+     en las que lo hago, pero probablemente no la forma más interesante
+     de describirme."
+  2. "Soy ingeniero informático de formación, y llevo varios años
+     construyendo software de manera profesional. Por el camino, me he
+     dado cuenta de que lo que más disfruto no es necesariamente
+     escribir el código en sí. Es todo lo que lo rodea: pensar en qué
+     podría existir, explorar diferentes enfoques, experimentar con
+     ideas y, finalmente, hacer algo real."
+  3. "Me atraen las cosas que no resultan del todo familiares. Ideas
+     nuevas, enfoques poco habituales, experiencias modernas — cualquier
+     cosa que me haga parar y pensar: ¿por qué no hacerlo de otra
+     manera?"
+  4. "Esa forma de pensar también me acompaña fuera de la tecnología. Me
+     gusta aprender cosas que no sé, y encontrar nuevas formas de crear.
+     Ahora mismo, por ejemplo, estoy aprendiendo a coser. No porque
+     tenga nada que ver con el software, sino porque hacer algo con las
+     manos es otro tipo de resolución de problemas, y eso me gusta."
+  5. "La tecnología en sí está cambiando de una manera muy parecida. La
+     IA está transformando cómo se construye el software, y no creo que
+     la pregunta interesante sea si deberíamos usarla. La pregunta
+     interesante es qué se vuelve posible cuando crear software ya no
+     depende tanto de escribir cada línea nosotros mismos. Me interesa
+     ese cambio. Menos tiempo dedicado a la mecánica de programar. Más
+     tiempo pensando, explorando, dirigiendo y creando. Probablemente
+     ahí es donde quiero seguir avanzando."
+  6. "Esta misma web es un pequeño ejemplo de eso — construida con
+     desarrollo asistido por IA, dedicando más tiempo a dirigir y
+     pensar que a escribir cada línea."
+- **Narrative text (Euskera)** — Confirmed, verbatim (lower-confidence
+  draft; flagged for native review before launch, since Project
+  Architecture requires all three languages to be authored directly by
+  Javi Morala, not machine-translated):
+  1. "Javi naiz. Gauzak sortzea gustatzen zait. Softwarea horretarako
+     erabiltzen dudan bide bat da, baina agian ez da ni deskribatzeko
+     modurik interesgarriena."
+  2. "Informatika ingeniaria naiz jatorriz, eta azken urteotan softwarea
+     modu profesionalean eraikitzen aritu naiz. Bidean konturatu naiz
+     gehien gustatzen zaidana ez dela nahitaez kodea idaztea bera.
+     Inguruan dagoen guztia da: zer egon liteke pentsatzea, ikuspegi
+     desberdinak esploratzea, ideiekin esperimentatzea eta azkenean
+     zerbait erreala sortzea."
+  3. "Ez oso ezagunak diren gauzek erakartzen naute. Ideia berriak,
+     ikuspegi ez-ohikoak, esperientzia modernoak — geldiarazi eta
+     pentsarazten nauen edozer: zergatik ez egin bestela?"
+  4. "Pentsamolde hori teknologiatik kanpo ere jarraitzen dit. Ez
+     dakidan zerbait ikastea gustatzen zait, eta sortzeko modu berriak
+     topatzea. Orain, adibidez, josten ikasten ari naiz. Ez
+     softwarearekin zerikusirik duelako, baizik eta eskuekin zerbait
+     egiteak beste era bateko arazo-konponketa delako, eta hori
+     gustatzen zait."
+  5. "Teknologia bera ere antzeko modu batean ari da aldatzen. Adimen
+     artifizialak softwarea nola eraikitzen den aldatzen ari da, eta ez
+     dut uste galdera interesgarria erabili behar dugun ala ez denik.
+     Galdera interesgarria da zer bihurtzen den posible software
+     sortzeak lerro bakoitza geuk idaztearen hain menpekoa izateari
+     uzten dionean. Aldaketa horrek interesatzen nau. Denbora gutxiago
+     programatzearen mekanikan. Denbora gehiago pentsatzen, esploratzen,
+     zuzentzen eta sortzen. Hortik jarraitu nahi dut, ziurrenik."
+  6. "Webgune hau bera horren adibide txiki bat da — adimen
+     artifizialaren laguntzaz garatua, denbora gehiago zuzentzen eta
+     pentsatzen emanez, lerro bakoitza idazten baino."
 - **Personal photos** — Confirmed: two photos. Pending: actual image
   assets — placeholders meanwhile, per Feature Context.
 
