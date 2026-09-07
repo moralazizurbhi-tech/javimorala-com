@@ -10,6 +10,7 @@
   arrival — headline/tagline and the entry scroll cue that carries the
   impression into further exploration — as one cohesive moment.
   **realizes:** `hero-presentation`
+  **relationships:** hosts `presence-links`
   **lifecycle:** Approved for Development
 
 - **id:** `about-narrative`
@@ -18,7 +19,10 @@
   voice, as self-expression — the personal narrative content — together
   with a small, low-key mention of the site's AI-assisted development
   process, kept subordinate to the narrative.
-  **realizes:** `about-narrative`, `ai-assisted-development-note`
+  **realizes:** `about-narrative` (also carries the AI-Assisted Development
+  Note — excluded from the Capability Catalog as not an independent
+  capability, folded into this Feature's content per
+  `capability-catalog.md`'s Excluded section)
   **lifecycle:** Approved for Development
 
 - **id:** `direct-contact`
@@ -27,6 +31,7 @@
   reach Javi directly through an external channel (e.g. email), with no
   on-site form or data collection.
   **realizes:** `direct-contact`
+  **relationships:** hosts `presence-links`
   **lifecycle:** Approved for Development
 
 - **id:** `presence-links`
@@ -64,7 +69,7 @@
   control.
   **realizes:** `section-navigation`
   **relationships:** enables `hero-presentation`, `about-narrative`,
-  `direct-contact`, `presence-links`; hosts `language-override`
+  `direct-contact`; hosts `language-override`
   **lifecycle:** Approved for Development
 
 ### Cross-Cutting
