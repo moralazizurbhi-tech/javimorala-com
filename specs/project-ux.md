@@ -20,7 +20,8 @@ and "contact" are scroll destinations within one continuous page, never
 separate routes.
 
 Information hierarchy: the first screen is minimal (a short, bold,
-multi-line headline plus a scroll invitation, nothing else). The identity
+multi-line headline, a scroll invitation, and a light presence-links
+glimpse). The identity
 screen is the richest: an informal personal greeting, a narrative
 biography, then a row of parallel highlight cards. The closing screen is
 compact: a direct contact call-to-action, presence links, and a brief
@@ -57,12 +58,12 @@ Preserve / Evolve / Replace / Discard:
 - Scroll cue on the first screen → Evolve (expanded into a more prominent,
   more motion-forward feel across the whole experience, not just the
   entrance)
-- Repeated presence links across multiple sections → Discarded as a
-  Decision here — Project Design already scopes "Presence links" to the
-  Connection domain specifically; carrying the reference's repetition
-  forward would redefine that domain assignment, which is out of this
-  phase's authority. Flagged rather than silently dropped or silently
-  copied.
+- Repeated presence links across multiple sections → Evolve — Project
+  Design now assigns "Presence links" to both the Introduction and
+  Connection domains (revised from a Connection-only scoping after this
+  Analysis first flagged the reference's repetition); carried forward
+  here as a light-touch glimpse at Introduction, kept secondary to the
+  Hero moment, with the full presentation remaining at Connection.
 - Three-card "skills pitch" pattern → Discarded as a confirmed Decision,
   per explicit confirmation — left open for the Feature-level UI phase,
   with the self-expression-vs-persuasion tension recorded so it isn't
@@ -91,13 +92,18 @@ rather than adopted a skills-pitch framing for the identity screen.
 ## Screens
 
 - Introduction — first impression; minimal content, a short expressive
-  headline and a cue inviting the visitor to continue.
+  headline, a cue inviting the visitor to continue, and a light,
+  secondary glimpse of presence links.
 - Personal Narrative — Javi's identity in his own voice; internal
   composition left open for the Feature-level UI phase.
 - Connection — direct contact and presence links, plus a closing moment.
 
 ## Screen Composition
 
+- Introduction screen — shared by "Hero presentation" and "Presence
+  links." Hero presentation is the dominant, primary content — headline/
+  tagline, mark, and scroll cue; presence links are a minor, secondary
+  element, consistent with its role on the Connection screen.
 - Personal Narrative screen — shared by the "About narrative" and
   "AI-assisted development note" capabilities. About narrative is the
   dominant, primary content; the AI-assisted development note is a minor,
@@ -149,7 +155,8 @@ rather than adopted a skills-pitch framing for the identity screen.
   decided at Feature level.
 - Presence Links — a list/row of links to Javi's external profiles,
   distinct from the Contact CTA/Mechanism; a first-level element on the
-  Connection screen.
+  Connection screen, and a secondary, minor element on the Introduction
+  screen.
 
 ## Visual Foundations
 
