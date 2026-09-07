@@ -8,11 +8,12 @@ accessible to visitors regardless of ability. A deliberately modern,
 alternative, experimental character is the defining creative thread of the
 whole experience — not a decorative layer, but the core statement, carried
 consistently through Introduction, Personal Narrative, and Connection: the
-three functional domains that first make a high-impact impression, then
-express who Javi is in his own voice as self-expression (including a
+three functional domains that first make a high-impact impression — with
+a first, light-touch glimpse of his broader online presence alongside it —
+then express who Javi is in his own voice as self-expression (including a
 small, low-key note on the AI-assisted development behind the site), and
-finally let an interested visitor both reach him directly and discover more
-about him through his broader online presence — with that same
+finally let an interested visitor both reach him directly and discover
+more fully about him through his broader online presence — with that same
 experimental character held to the very end. The site's own execution,
 where motion and interaction are a deliberate part of that character rather
 than incidental polish, is the primary evidence of Javi's design,
@@ -51,8 +52,10 @@ statically-authored effort.
   development, without making it a headline feature.
 - **Direct contact** (Connection domain) — a direct way to reach Javi (e.g.
   email).
-- **Presence links** (Connection domain) — links to Javi's broader online
-  presence (social/professional profiles), distinct from direct contact.
+- **Presence links** (Introduction, Connection domains) — links to Javi's
+  broader online presence (social/professional profiles), distinct from
+  direct contact; appears both at the first-impression moment and again
+  at the closing Connection moment.
 
 ## Functional Principles
 
