@@ -27,7 +27,7 @@ Composition's static output without altering it.
   the background mark, unless reduced-motion is active.
 - Read the reduced-motion platform signal directly; when active, skip the
   entrance sequence to its end-state and never begin the ambient drift
-  (Commitment 7).
+  (Commitment 10).
 
 **Owned Concepts**
 
@@ -82,7 +82,7 @@ Composition's static output without altering it.
 
 - Commitment 2 → entrance sequencing, once-per-visit guard via Motion
   Playback Store.
-- Contributes to Commitment 7 → reduced-motion handling for the entrance
+- Contributes to Commitment 10 → reduced-motion handling for the entrance
   and the ambient drift.
 
 ### Motion Playback Store
@@ -192,7 +192,7 @@ direct-navigation-arrival immediate-reveal behavior (Contract Commitment
   and do not apply per-piece scroll-triggered animation for that arrival.
 - Read the reduced-motion platform signal directly; when active, every
   piece reaches its revealed state directly, without the scroll-triggered
-  or direct-arrival animation (Commitment 7).
+  or direct-arrival animation (Commitment 10).
 
 **Owned Concepts**
 
@@ -251,7 +251,7 @@ direct-navigation-arrival immediate-reveal behavior (Contract Commitment
 
 - Commitment 1 → viewport-intersection reveal, direct-arrival immediate
   reveal, Motion Playback Store's revealed-piece set.
-- Contributes to Commitment 7 → reduced-motion handling for both reveal
+- Contributes to Commitment 10 → reduced-motion handling for both reveal
   paths.
 
 ### Nav Transition Styles
@@ -303,7 +303,7 @@ without any code dependency on Section Navigation's own component.
 - Must not require Section Navigation's own component code to import,
   reference, or otherwise become aware of this stylesheet.
 - Must resolve to no transition (an instant value) under
-  `prefers-reduced-motion: reduce`, satisfying Commitment 7 for this
+  `prefers-reduced-motion: reduce`, satisfying Commitment 10 for this
   specific transition without any JavaScript.
 - Cannot itself define the indicator's base visual anatomy — that
   remains Pending, owned by Section Navigation's own UI Definition; this
@@ -327,7 +327,7 @@ without any code dependency on Section Navigation's own component.
 - Commitment 3 → the logomark-icon presence transition.
 - Contributes to Commitment 4 → transitions whatever indicator-value
   change Section Navigation's own anatomy exposes.
-- Contributes to Commitment 7 → reduced-motion handling via native media
+- Contributes to Commitment 10 → reduced-motion handling via native media
   query.
 
 ### Nav Progress Overlay
@@ -349,7 +349,7 @@ Navigation's own component.
   render a fill reflecting it, updating as scroll position changes.
 - Read the reduced-motion platform signal directly; when active, the fill
   still reflects accurate progress at all times, without a smoothing/
-  animated interpolation between values (Commitment 7).
+  animated interpolation between values (Commitment 10).
 
 **Owned Concepts**
 
@@ -396,7 +396,7 @@ Navigation's own component.
 **Contract Traceability**
 
 - Commitment 4 → the progress component of the merged indicator.
-- Contributes to Commitment 7 → reduced-motion handling (accurate value,
+- Contributes to Commitment 10 → reduced-motion handling (accurate value,
   no animated smoothing).
 
 ### CTA Interaction Motion
@@ -424,7 +424,7 @@ Contact Composition's static CTA anchor without altering it.
   encoding or the anchor's accessible name.
 - Read the reduced-motion platform signal directly; when active, register
   interaction with a discrete, non-animated visual change instead of the
-  sweep (Commitment 7).
+  sweep (Commitment 10).
 
 **Owned Concepts**
 
@@ -478,7 +478,161 @@ Contact Composition's static CTA anchor without altering it.
 - Commitment 5 → the hover gradient-sweep.
 - Commitment 6 → the touch-equivalent momentary sweep, input-capability
   detection.
-- Contributes to Commitment 7 → reduced-motion handling.
+- Contributes to Commitment 10 → reduced-motion handling.
+
+### Secondary Interaction Feedback Styles
+
+**Purpose**
+
+Realize the shared hover/focus/touch feedback treatment for Section
+Navigation's nav links, Presence Links (both placements), and the
+Language Switcher's trigger and options (Contract Commitments 7, 8, 9's
+feedback ACs) — as a CSS-only mechanism, with zero code dependency on any
+of those Features' own components.
+
+**Responsibilities**
+
+- Provide an SCSS stylesheet partial that targets each of these
+  Features' existing, already-approved anchor/button elements from
+  outside, applying the gradient-fill treatment on `:hover` and
+  `:focus-visible`.
+- Gate the `:hover` treatment behind a `(hover: hover) and (pointer:
+  fine)` media feature, and apply the same visual treatment on `:active`
+  for touch/coarse-pointer input — satisfying the touch-equivalent
+  requirement (Commitment 6 AC1) without any JavaScript input-capability
+  detection, unlike CTA Interaction Motion's sweep (which needs to
+  distinguish sustained-hover from momentary-tap explicitly; this
+  treatment does not, since a static fill looks correct held or tapped).
+- Disable the fill's transition duration (an instant value) under
+  `prefers-reduced-motion: reduce`, natively, without JavaScript.
+
+**Owned Concepts**
+
+- The shared gradient-fill hover/focus/active treatment and its
+  media-feature-gated hover/touch branching.
+
+**Collaborations**
+
+- Section Navigation Composition, Presence Link Group Composition, and
+  Language Switcher Component (all external) — this stylesheet targets
+  each one's existing, already-public DOM from outside; none of those
+  components import or become aware of this stylesheet, consistent with
+  the same "no dependency on motion-interaction" pattern Nav Transition
+  Styles already establishes for Section Navigation.
+- Styling System (external, Project Architecture) — supplies the accent
+  gradient token this treatment reuses.
+
+**Dependencies**
+
+- Section Navigation Composition's, Presence Link Group Composition's, and
+  Language Switcher Component's DOM — external, read-only.
+- Styling System — external.
+
+**Constraints**
+
+- Must not require any of the three target components' own code to
+  import, reference, or otherwise become aware of this stylesheet.
+- Must resolve to an instant fill (no transition) under
+  `prefers-reduced-motion: reduce`.
+- Must apply the identical treatment wherever it targets — both nav
+  links, both Presence Link placements, and every switcher option — one
+  ruleset, not per-instance variants (Feature Solution's Rule).
+
+**Design Decisions**
+
+1. Realized as a single shared CSS-only mechanism across three different
+   Features' elements, rather than three separate per-Feature
+   stylesheets or a JS-driven component. Rationale: the same pattern Nav
+   Transition Styles already established (an external stylesheet
+   targeting a stable public DOM contract) extends cleanly here since
+   the underlying elements are, in every case, plain anchors/buttons with
+   no state this Feature needs to read — a single shared partial avoids
+   duplicating the same three declarations three times, without
+   introducing any new dependency direction.
+2. Hover/touch branching handled via `(hover: hover)`/`:active` media
+   features and pseudo-classes rather than the input-capability-detection
+   JavaScript CTA Interaction Motion uses. Rationale: CTA Interaction
+   Motion needs JS because its sweep must not sustain indefinitely on a
+   touch "sticky hover"; a static fill has no such failure mode, so the
+   simpler CSS-only mechanism fully satisfies Commitments 7 and
+   8/9's feedback ACs with no added script.
+
+**Contract Traceability**
+
+- Commitment 7 → nav link hover/focus/touch feedback.
+- Commitment 8 → Presence Link hover/focus/touch feedback, identical at
+  both placements.
+- Contributes to Commitment 9 → the switcher trigger's and each option's
+  hover/focus/touch feedback (the dropdown's open/close transition itself
+  is Switcher Dropdown Transition's concern, below).
+- Contributes to Commitment 10 → reduced-motion handling via native media
+  query.
+
+### Switcher Dropdown Transition
+
+**Purpose**
+
+Realize the Language Switcher's dropdown open/close transition (Contract
+Commitment 9's AC1/AC2), targeting its existing open/closed state from
+outside, with zero code dependency on Language Override's own component.
+
+**Responsibilities**
+
+- Provide an SCSS stylesheet partial that targets the `data-state="open"`/
+  `"closed"` attribute the Accessible Primitives Layer (Radix UI) already
+  applies to Language Switcher Component's trigger/content elements by
+  convention, and applies a fade + slight vertical translation whenever
+  that attribute changes, rather than an instant show/hide.
+- Disable the transition (resolving directly to the open or closed
+  end-state) under `prefers-reduced-motion: reduce`, natively, without
+  JavaScript.
+
+**Owned Concepts**
+
+- The open/close transition's timing/property declarations (exact values
+  Implementation-level, per Feature UI's qualitative pacing guidance).
+
+**Collaborations**
+
+- Language Switcher Component (external, `language-override`) — this
+  stylesheet targets its existing, already-public open/closed state
+  exposure; Language Override's own component neither imports nor is
+  aware of this stylesheet, the same pattern Nav Transition Styles
+  establishes for Section Navigation.
+- Styling System (external, Project Architecture).
+
+**Dependencies**
+
+- Language Switcher Component's open/closed state exposure — external,
+  read-only.
+- Styling System — external.
+
+**Constraints**
+
+- Must not require Language Override's own component code to import,
+  reference, or otherwise become aware of this stylesheet.
+- Must resolve to an instant state change under `prefers-reduced-motion:
+  reduce`.
+- Cannot alter Language Override's own selection, persistence, or
+  no-op behavior — presentation-layer transition only.
+
+**Design Decisions**
+
+1. Realized as an SCSS/CSS-only mechanism targeting Language Override's
+   existing public open/closed state exposure, rather than a React
+   component Language Override would need to compose or a new shared
+   store. Rationale: identical reasoning to Nav Transition Styles — the
+   open/closed state already exists and already changes (Language
+   Override's own dropdown already opens/closes functionally); this
+   stylesheet only adds a transition on top of a state change that
+   already fires, requiring no JavaScript coordination between the two
+   Features.
+
+**Contract Traceability**
+
+- Commitment 9 → the dropdown's open and close transitions.
+- Contributes to Commitment 10 → reduced-motion handling via native media
+  query.
 
 ## Cross-Component Relationships
 
@@ -501,18 +655,29 @@ Contact Composition's static CTA anchor without altering it.
   shared tokens only; no dependency on Section Navigation's component.
 - CTA Interaction Motion → Direct Contact Composition (external): depends
   outward, wraps its CTA anchor's static output, never the reverse.
+- Secondary Interaction Feedback Styles → Section Navigation Composition,
+  Presence Link Group Composition, Language Switcher Component (all
+  external): targets each one's existing DOM from outside; none of those
+  components depend back.
+- Switcher Dropdown Transition → Language Switcher Component
+  (external): targets its existing open/closed state exposure from
+  outside; Language Override's own component has no dependency back.
 - All motion-bearing components → Motion Layer (Framer Motion, external,
   Project Architecture): the shared animation mechanism.
-- All motion-bearing components (except Nav Transition Styles, which uses
-  a native CSS media query) → the reduced-motion platform signal
+- All motion-bearing components (except Nav Transition Styles, Secondary
+  Interaction Feedback Styles, and Switcher Dropdown Transition, which
+  use native CSS media queries) → the reduced-motion platform signal
   (external): read directly, independently, by each component.
 
 No circular dependencies: every component here depends outward on the
 Feature it layers motion onto, on the Styling System, or on the Motion
-Layer; none of those depend back. Section Navigation's own Technical
-Design's "no dependency on motion-interaction" commitment is preserved
-by construction — no component here requires Section Navigation's code
-to import or reference anything from this Feature.
+Layer; none of those depend back. Section Navigation's and Presence
+Links' own explicit "no dependency on motion-interaction" commitments are
+preserved by construction; Language Override's own Technical Design
+declares no such commitment (it never previously addressed
+`motion-interaction`), but no component here requires its code to import
+or reference anything from this Feature either, consistent with the same
+pattern.
 
 ---
 

@@ -163,8 +163,10 @@ equivalent.
 **Acceptance Criteria**
 
 - AC1: For every interactive element with a defined hover-based feedback
-  (including the Direct Contact CTA), an equivalent, functionally defined
-  feedback occurs on touch/tap interaction with that element.
+  (including the Direct Contact CTA, the nav links, Presence Links, and
+  the Language Switcher's trigger and options), an equivalent,
+  functionally defined feedback occurs on touch/tap interaction with that
+  element.
 - AC2: Touch interaction does not leave any such element without any
   interaction feedback at all.
 
@@ -175,9 +177,100 @@ equivalent.
     equivalent in purpose to the hover feedback.
   - Failure Condition: no feedback occurs on tap.
 
-### Commitment 7 — Reduced-Motion Functional Equivalence
+### Commitment 7 — Nav Link Hover/Focus Feedback
 
-Relationship to Solution: resolves Behaviour 7 (Reduced-Motion
+Relationship to Solution: resolves Behaviour 7 (Nav Link Hover/Focus
+Feedback), extending Section Navigation's own contract without altering
+its destination behavior.
+
+**Acceptance Criteria**
+
+- AC1: Hovering (pointer) or focusing (keyboard) a nav link ("about" or
+  "contact") produces feedback that observably distinguishes it from its
+  rest state.
+- AC2: The feedback does not alter the link's destination or function —
+  it still resolves via the same anchor-jump behavior defined by Section
+  Navigation's own contract.
+
+**Validation Scenarios**
+
+- Scenario — desktop visitor hovers a nav link
+  - Success Condition: an observable feedback treatment distinguishes it
+    from rest state.
+  - Failure Condition: no feedback occurs, or the link's destination
+    changes.
+- Scenario — keyboard visitor tabs focus onto a nav link
+  - Success Condition: the same feedback treatment is observable on
+    focus.
+  - Failure Condition: no feedback occurs on focus.
+
+### Commitment 8 — Presence Link Hover/Focus Feedback
+
+Relationship to Solution: resolves Behaviour 8 (Presence Link Hover/Focus
+Feedback), extending Presence Links' own contract without altering its
+destination or new-tab behavior.
+
+**Acceptance Criteria**
+
+- AC1: Hovering or focusing a Presence Link, at either placement
+  (Introduction glimpse, Connection group), produces feedback that
+  observably distinguishes it from its rest state.
+- AC2: The feedback is the same treatment at both placements — one
+  system, not two independently defined treatments.
+- AC3: The feedback does not alter the link's destination or new-tab
+  behavior — Presence Links' own contract commitments are unchanged.
+
+**Validation Scenarios**
+
+- Scenario — visitor hovers a Presence Link at the Introduction placement
+  - Success Condition: an observable feedback treatment distinguishes it
+    from rest state.
+  - Failure Condition: no feedback occurs.
+- Scenario — visitor hovers a Presence Link at the Connection placement
+  - Success Condition: the same feedback treatment as the Introduction
+    placement is observable.
+  - Failure Condition: no feedback occurs, or a visibly different
+    treatment is used.
+
+### Commitment 9 — Language Switcher Interaction Feedback
+
+Relationship to Solution: resolves Behaviour 9 (Language Switcher
+Interaction Feedback), extending Language Override's own contract without
+altering its selection, persistence, or no-op behavior.
+
+**Acceptance Criteria**
+
+- AC1: Opening the Language Switcher's dropdown is an observable,
+  discrete transition, not an instantaneous show.
+- AC2: Closing the dropdown (on selection or dismissal) is an observable,
+  discrete transition, not an instantaneous hide.
+- AC3: Hovering or focusing the trigger, and hovering or focusing each
+  option in the open list, produces feedback that observably
+  distinguishes it from its rest state.
+- AC4: None of this alters Language Override's own functional behavior —
+  selection, persistence, and the same-language no-op remain exactly as
+  defined by its own contract.
+
+**Validation Scenarios**
+
+- Scenario — visitor activates the Language Switcher trigger
+  - Success Condition: the dropdown's open transition is an observable,
+    discrete change, and the trigger shows hover/focus feedback beforehand.
+  - Failure Condition: the dropdown appears instantly with no transition.
+- Scenario — visitor hovers or focuses an option in the open dropdown
+  - Success Condition: an observable feedback treatment distinguishes it
+    from rest state.
+  - Failure Condition: no feedback occurs.
+- Scenario — visitor selects an option, closing the dropdown
+  - Success Condition: the close transition is an observable, discrete
+    change; Language Override's own selection/persistence behavior is
+    unaffected.
+  - Failure Condition: the dropdown disappears instantly, or selection
+    behavior changes.
+
+### Commitment 10 — Reduced-Motion Functional Equivalence
+
+Relationship to Solution: resolves Behaviour 10 (Reduced-Motion
 Equivalence), the Rule that reduced motion never blocks reaching a
 functional end-state, and the inherited firm invariant that a
 reduced-motion fallback is mandatory.
@@ -199,12 +292,17 @@ reduced-motion fallback is mandatory.
 - AC5: When active, the Direct Contact CTA's and touch-equivalent
   feedback (Commitments 5, 6) still functionally register interaction,
   without relying on animated motion as the sole cue.
+- AC6: When active, the nav links', Presence Links', and Language
+  Switcher's hover/focus feedback (Commitments 7, 8, 9) still
+  functionally register interaction, and the dropdown still reaches its
+  correct open/closed state, without relying on animated motion as the
+  sole cue.
 
 **Validation Scenarios**
 
 - Scenario — visitor with reduced-motion preference active loads the site
-  and navigates through it as in Commitments 1–6's scenarios
-  - Success Condition: every end-state in Commitments 1–6 is still
+  and navigates through it as in Commitments 1–9's scenarios
+  - Success Condition: every end-state in Commitments 1–9 is still
     reached.
   - Failure Condition: any end-state requires animated motion to be
     reached, or is unreachable without it.

@@ -23,6 +23,18 @@ defined motion or interaction behavior at all:
    hover.
 6. Touch/mobile devices have no defined equivalent feedback for
    hover-dependent interactions.
+7. Section Navigation's "about"/"contact" nav links have no defined
+   hover/focus feedback beyond default browser/link styling — already
+   flagged Pending, deferred to this Feature, in Section Navigation's
+   own UX Specification.
+8. Presence Links have no defined hover/focus feedback at either
+   placement (Introduction glimpse, Connection group) — already flagged
+   Pending, deferred to this Feature, in Presence Links' own UX
+   Specification.
+9. The Language Switcher — trigger, dropdown open/close, and option
+   list — has no defined motion or interaction feedback at all — already
+   flagged Pending, deferred to this Feature, in Language Override's own
+   UX Specification.
 
 Left unresolved, the site's individually strong Features would read as
 functionally complete but experientially inert, undermining the modern,
@@ -55,6 +67,13 @@ assumed."
   beyond a generic hover (Problem 5).
 - The problem of touch/mobile devices having no defined equivalent
   feedback for hover-dependent interactions (Problem 6).
+- The problem of Section Navigation's "about"/"contact" links having no
+  defined hover/focus feedback (Problem 7).
+- The problem of Presence Links having no defined hover/focus feedback
+  at either placement (Problem 8).
+- The problem of the Language Switcher having no defined
+  interaction/motion treatment for its trigger, dropdown open/close, and
+  option list (Problem 9).
 - The general problem of motion needing to read as one coherent system
   (a single curve/timing character) rather than isolated per-element
   treatments.
@@ -109,12 +128,24 @@ existence guarantee).
   interactive/focus states this Feature animates.
 - **`section-navigation`** — its own approved UX Specification already
   defers the Hero-vs-rest identity transition, the Active Screen
-  Indicator's motion, and the mobile overlay's open/close transition to
-  this Feature; confirmed here as this Feature's problem to resolve, not
-  new scope invented unilaterally.
+  Indicator's motion, the mobile overlay's open/close transition, and its
+  nav link hover/focus feedback (Problem 7) to this Feature; confirmed
+  here as this Feature's problem to resolve, not new scope invented
+  unilaterally.
 - **`direct-contact`** — its CTA is the specific element needing
   elaborated interaction treatment; this Feature depends on its existing
   markup/function without altering it.
+- **`presence-links`** — its own approved UX Specification already
+  defers all motion/hover treatment to this Feature ("No motion, timing,
+  or reveal behavior is defined here — owned by `motion-interaction`");
+  this Feature depends on its existing markup/placement at both
+  placements without altering it (Problem 8).
+- **`language-override`** — its own approved UX Specification already
+  defers the dropdown's open/close transition and all hover/focus
+  treatment to this Feature ("No motion, timing, or transition behavior
+  ... is defined here — owned by `motion-interaction`"); this Feature
+  depends on its existing markup/behavior without altering it (Problem
+  9).
 - Firm invariants inherited from Feature Definition: Hero's composition
   must reach its complete visual state during arrival before scroll/
   interaction; Hero's scroll cue stays non-interactive/non-focusable;

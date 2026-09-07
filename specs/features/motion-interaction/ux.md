@@ -10,9 +10,11 @@ interaction states") and Visual Foundations' "Shared interaction-state
 conventions," for the moments Feature Solution/Contract define: Hero's
 first-load entrance, About Narrative's progressive reveal, Section
 Navigation's identity transition and merged indicator, Direct Contact's
-CTA feedback, and touch-equivalent feedback. Excludes each Feature's own
-content/structure, focus-state existence (owned by `accessibility`), and
-the concrete technical mechanism (Feature Technical Design).
+CTA feedback, nav link/Presence Link/Language Switcher hover-focus
+feedback, the Language Switcher's dropdown open/close transition, and
+touch-equivalent feedback. Excludes each Feature's own content/structure,
+focus-state existence (owned by `accessibility`), and the concrete
+technical mechanism (Feature Technical Design).
 
 ## User Flows
 
@@ -85,6 +87,40 @@ Specializes Direct Contact's "Reach Javi" flow.
   momentary feedback registers at the moment of tap, since touch has no
   hover → unchanged `mailto:` hand-off proceeds (Contract Commitment 6).
 
+### Nav link hover/focus feedback
+
+Specializes Section Navigation's "Reach any screen directly" flow.
+
+- Desktop visitor hovers "about" or "contact" → the link responds with a
+  distinct feedback treatment (exact visual treatment Pending, Feature
+  UI) → visitor activates it → unchanged anchor-jump, per Section
+  Navigation's own flow (Contract Commitment 7).
+- Keyboard visitor tabs focus onto a nav link → the same feedback
+  treatment is observable on focus.
+
+### Presence Link hover/focus feedback
+
+Specializes Presence Links' "Discover Javi's broader presence" flow.
+
+- Visitor hovers or focuses a Presence Link, at either placement
+  (Introduction glimpse or Connection group) → the link responds with the
+  same feedback treatment at both placements (exact visual treatment
+  Pending, Feature UI) → visitor activates it → unchanged new-tab
+  hand-off, per Presence Links' own flow (Contract Commitment 8).
+
+### Language Switcher interaction feedback
+
+Specializes Language Override's "Switch to a different language" flow.
+
+- Visitor hovers or focuses the Language Switcher's trigger → feedback
+  treatment shows (exact visual treatment Pending, Feature UI) → visitor
+  activates the trigger → dropdown opens with a visible, discrete
+  transition (Contract Commitment 9) → visitor hovers or focuses an
+  option in the list → the same feedback treatment shows → visitor
+  selects a different language → dropdown closes with a visible, discrete
+  transition → Language Override's own flow continues from there
+  unchanged.
+
 ### Reduced-motion
 
 - Visitor with reduced-motion preference active experiences every flow
@@ -93,8 +129,10 @@ Specializes Direct Contact's "Reach Javi" flow.
   About Narrative content is revealed without animated motion (at each
   scroll-reach point, or immediately on direct-nav arrival), nav identity/
   indicator update directly, CTA/touch feedback still register as a
-  discrete, non-animated visual change, and the Hero's ambient gradient
-  drift pauses (Contract Commitment 7).
+  discrete, non-animated visual change, nav link/Presence Link/Language
+  Switcher hover/focus feedback still register without animated motion,
+  the dropdown still reaches its open/closed state directly, and the
+  Hero's ambient gradient drift pauses (Contract Commitment 10).
 
 ## Screens
 
@@ -106,19 +144,24 @@ own them.
 
 - Motion purpose: stages the first-load entrance choreography, the Hero
   ambient steady-state, and the nav's Hero-context identity. Participates
-  in the Hero first-load entrance, Hero ambient steady-state, and Nav
-  identity transition flows.
+  in the Hero first-load entrance, Hero ambient steady-state, Nav
+  identity transition, Nav link hover/focus feedback, Presence Link
+  hover/focus feedback (Introduction placement), and Language Switcher
+  interaction feedback flows.
 
 ### Personal Narrative
 
 - Motion purpose: stages About Narrative's progressive reveal and the
   nav's post-Hero identity. Participates in the About Narrative
-  progressive reveal and Nav identity transition flows.
+  progressive reveal, Nav identity transition, Nav link hover/focus
+  feedback, and Language Switcher interaction feedback flows.
 
 ### Connection
 
 - Motion purpose: stages Direct Contact's CTA feedback. Participates in
-  the Direct Contact CTA flow.
+  the Direct Contact CTA, Nav link hover/focus feedback, Presence Link
+  hover/focus feedback (Connection placement), and Language Switcher
+  interaction feedback flows.
 
 ## Interaction States
 
@@ -136,8 +179,18 @@ own them.
   graduated progress reading, giving the visitor an ambient sense of
   "where am I" and "how far through."
 - **CTA Feedback:** momentary states on hover (desktop) or tap (touch).
+- **Nav Link Feedback:** momentary states on hover/focus (desktop/
+  keyboard) or tap (touch); same treatment for "about" and "contact."
+- **Presence Link Feedback:** momentary states on hover/focus or tap;
+  identical treatment at both placements (Introduction, Connection).
+- **Switcher Trigger/Option Feedback:** momentary states on hover/focus
+  or tap, for the trigger and for each option in the open list.
+- **Switcher Dropdown:** elaborates Language Override's existing
+  `Closed`/`Open` state with an observable, discrete open/close
+  transition (rather than an instant show/hide).
 - **Reduced-Motion:** `Off` / `On` — On removes animated transitions
-  (including the ambient drift) but preserves every functional end-state.
+  (including the ambient drift and the dropdown's open/close transition)
+  but preserves every functional end-state.
 
 ## Feature Components
 
@@ -153,6 +206,14 @@ own them.
   existing Active Screen Indicator with a progress dimension.
 - **CTA Interaction Feedback** — specializes Direct Contact's CTA with
   hover/touch feedback.
+- **Nav Link Interaction Feedback** — specializes Section Navigation's
+  "about"/"contact" links with hover/focus/touch feedback.
+- **Presence Link Interaction Feedback** — specializes Presence Links'
+  existing Presence Link Group with hover/focus/touch feedback, identical
+  at both placements.
+- **Switcher Interaction Feedback** — specializes Language Override's
+  Language Switcher with trigger/option hover/focus/touch feedback and
+  the dropdown's open/close transition.
 - **Touch-Feedback Pattern** — general pattern applied wherever hover
   feedback exists.
 

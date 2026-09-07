@@ -4,10 +4,12 @@
 
 ## UI Scope
 
-Realizes Feature UX's six motion moments — Hero first-load entrance and
+Realizes Feature UX's motion moments — Hero first-load entrance and
 ambient drift, About Narrative's progressive reveal, Section Navigation's
-identity transition and merged indicator, and Direct Contact's CTA
-feedback and touch-equivalent — using Project UX's Visual Foundations
+identity transition and merged indicator, Direct Contact's CTA feedback,
+nav link/Presence Link/Language Switcher hover-focus feedback, the
+Language Switcher's dropdown open/close transition, and touch-equivalent
+— using Project UX's Visual Foundations
 (near-black/off-white base, vivid accent gradient reserved for emphasis)
 as shared vocabulary, building directly on each realized Feature's own
 approved UI Definition (Hero, About Narrative, Section Navigation, Direct
@@ -76,8 +78,31 @@ Pending.
   hover.
 - **Touch-feedback pattern (general):** wherever hover feedback exists,
   touch triggers the same visual treatment momentarily on tap/press
-  rather than requiring a sustained hover state. Currently the CTA is
-  this Feature's only feedback-bearing element.
+  rather than requiring a sustained hover state.
+- **Nav link / Presence Link hover-focus feedback:** on hover or focus,
+  the link's existing text fills with the site's accent gradient (the
+  same lavender-to-violet-grey gradient the CTA sweep, ornamental mark,
+  and Presence Links' tint already carry) as a static colour fill — not
+  an animated moving sweep like the CTA's — keeping the CTA as the one
+  elevated, primary interaction moment while these secondary links stay
+  in the same gradient vocabulary at a lighter treatment. Identical
+  treatment for "about," "contact," and every Presence Link at both
+  placements. On touch, the same fill flashes momentarily on tap/press.
+- **Language Switcher trigger hover-focus feedback:** the same static
+  gradient-fill treatment as the nav links, since the trigger lives
+  within the nav.
+- **Language Switcher dropdown open/close transition:** the dropdown
+  fades and translates slightly downward from the trigger as it opens,
+  and reverses (fades and translates slightly upward) as it closes — a
+  quick, responsive pace matching the nav identity/indicator transitions'
+  character (Relative Entrance Pacing below), not the CTA sweep's more
+  leisurely pace, since this is a functional menu rather than a
+  decorative hover moment.
+- **Language Switcher option hover-focus feedback:** each option in the
+  open list receives the same static gradient-fill treatment as the nav
+  links when hovered or focused; exact background/highlight treatment
+  beyond the text fill is Pending, left to whoever implements, consistent
+  with this Feature's existing Pending items.
 
 ### Relative Entrance Pacing (qualitative — exact values are Technical Design)
 
@@ -95,16 +120,23 @@ Pending.
   scrolling.
 - The nav identity transition and indicator transition are quick and
   responsive, tracking scroll closely rather than lagging behind it.
+- The Language Switcher's dropdown open/close transition is likewise
+  quick and responsive, matching the nav's pacing rather than the CTA's.
 - The CTA's gradient sweep is more leisurely and deliberate than the
   scroll-tied motions above — a discrete hover moment, not a continuous
   one, so it can take its time.
+- The nav link, Presence Link, and Switcher trigger/option gradient-fill
+  feedback is a near-instant colour change, not a sweep — the fastest of
+  this Feature's hover treatments, since these are secondary, frequently
+  re-triggered elements rather than the one elevated CTA moment.
 
 ## Colour Application
 
-- The ambient gradient drift and the CTA gradient sweep both reuse the
-  existing accent gradient value already carried by the ornamental mark
-  and Presence Links (lavender-to-violet-grey, per the Figma reference) —
-  no new colour token introduced.
+- The ambient gradient drift, the CTA gradient sweep, and the nav
+  link/Presence Link/Switcher trigger-option static gradient fill all
+  reuse the existing accent gradient value already carried by the
+  ornamental mark and Presence Links (lavender-to-violet-grey, per the
+  Figma reference) — no new colour token introduced.
 - Progress-bar fill: the same accent gradient, layered onto the
   divider's existing base colour — the divider's own exact base colour
   value is Pending, inherited from Section Navigation's UI Definition,
@@ -136,8 +168,19 @@ None new.
   transition applies to whatever anatomy is eventually assigned there.
 - **CTA Feedback:** gradient sweep, sustained while hovering / momentary
   on tap.
+- **Nav Link / Presence Link Feedback:** rest state (existing colour) →
+  gradient-fill state, sustained while hovering/focused / momentary on
+  tap. Identical across "about," "contact," and both Presence Link
+  placements.
+- **Switcher Trigger/Option Feedback:** same gradient-fill treatment as
+  nav links, sustained while hovering/focused / momentary on tap.
+- **Switcher Dropdown:** `Closed` (hidden, collapsed toward trigger) /
+  `Open` (visible, settled position), via the fade+translate transition
+  described above.
 - **Reduced-Motion** `On`: every state above renders its final value
-  directly, with no transition; ambient drift forced to `Static`.
+  directly, with no transition; ambient drift forced to `Static`; the
+  dropdown's open/close renders as an instant state change rather than a
+  fade+translate.
 - Desktop vs. mobile: motion applies atop each realized Feature's own
   existing per-device layout; no new per-device split beyond the
   progress-bar's mobile Pending status noted above.

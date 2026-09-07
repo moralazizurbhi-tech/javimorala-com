@@ -37,9 +37,20 @@ serves an articulable purpose rather than decoration.
 6. **Touch-Input Equivalent Feedback** — every hover-based feedback
    (including the CTA's) has a functionally equivalent touch/tap
    counterpart.
-7. **Reduced-Motion Equivalence** — every behavior above still reaches its
-   full end-state without animated motion when the visitor's
-   reduced-motion preference is active.
+7. **Nav Link Hover/Focus Feedback** — Section Navigation's "about" and
+   "contact" links get a distinct hover/focus feedback treatment, without
+   altering their destination behavior.
+8. **Presence Link Hover/Focus Feedback** — every Presence Link, at both
+   placements, gets the same distinct hover/focus feedback treatment,
+   without altering destination or new-tab behavior.
+9. **Language Switcher Interaction Feedback** — the Language Switcher's
+   trigger and each option get a distinct hover/focus feedback treatment,
+   and the dropdown's open/close is a discrete, observable transition
+   rather than an instant show/hide — without altering Language
+   Override's own selection, persistence, or no-op behavior.
+10. **Reduced-Motion Equivalence** — every behavior above still reaches
+    its full end-state without animated motion when the visitor's
+    reduced-motion preference is active.
 
 ### Flows
 
@@ -56,6 +67,13 @@ serves an articulable purpose rather than decoration.
   transitions, reflecting both section and progress.
 - CTA interaction (hover or tap) → defined feedback, equivalent across
   input types.
+- Nav link hover/focus/tap → defined feedback, destination unchanged.
+- Presence Link hover/focus/tap, at either placement → the same defined
+  feedback, destination/new-tab behavior unchanged.
+- Language Switcher trigger activation → hover/focus feedback →
+  dropdown opens with a discrete transition → option hover/focus →
+  feedback → selection → dropdown closes with a discrete transition →
+  Language Override's own flow continues unchanged.
 - Reduced-motion active → every flow above still completes fully, without
   relying on animation.
 
@@ -71,6 +89,12 @@ serves an articulable purpose rather than decoration.
 - The indicator's active/progress components always reflect actual scroll
   position, never merely "last link clicked."
 - Every hover feedback has a defined touch equivalent.
+- The nav link, Presence Link, and Language Switcher trigger/option
+  feedback treatments are identical wherever they recur (both nav links;
+  both Presence Link placements; every switcher option) — one system,
+  not per-instance variation.
+- The Language Switcher's dropdown open/close is always a discrete,
+  observable transition, never an instant show/hide.
 - Reduced motion never blocks reaching any functional end-state.
 - Every included behavior must serve an articulable purpose — a behavior
   without one is out of scope for this solution, regardless of technical
@@ -91,6 +115,15 @@ serves an articulable purpose rather than decoration.
   Narrative, Connection}` (extends Section Navigation's existing Active
   Screen Indicator state) plus a progress component derived from scroll
   position; transitions between states rather than swapping instantly.
+- **Nav Link / Presence Link Feedback:** rest state ⇄ feedback state, on
+  hover/focus (sustained) or tap (momentary). Identical across both nav
+  links and both Presence Link placements.
+- **Switcher Trigger/Option Feedback:** rest state ⇄ feedback state, on
+  hover/focus (sustained) or tap (momentary), for the trigger and each
+  option.
+- **Switcher Dropdown:** `Closed ⇄ Open`, extending Language Override's
+  existing state with a discrete, observable transition in each
+  direction rather than an instant change.
 - **Reduced-Motion Mode:** `Off ⇄ On`, derived from the visitor's system/
   browser preference; when On, every state above still reaches its
   end-state without relying on animated motion.
@@ -107,6 +140,9 @@ serves an articulable purpose rather than decoration.
   blindly.
 - Providing a touch-input equivalent for hover-based feedback requires the
   solution to functionally branch on input capability/type.
+- The Language Switcher's dropdown open/close transition requires the
+  solution to distinguish the dropdown's open/closed state from a plain
+  instantaneous visibility toggle.
 - Merging progress into the Active Indicator requires the indicator's
   state model to carry more than a single enum value (active screen) — it
   must also express a continuous/graduated progress component.
@@ -118,10 +154,11 @@ serves an articulable purpose rather than decoration.
 
 #### Included
 
-- The 7 behaviours above (About Narrative reveal, Hero entrance, Nav
+- The 10 behaviours above (About Narrative reveal, Hero entrance, Nav
   identity transition, merged Active/Progress Indicator, Direct Contact
-  CTA feedback, touch-equivalent feedback, and reduced-motion equivalence
-  applying to all of them).
+  CTA feedback, touch-equivalent feedback, nav link hover/focus feedback,
+  Presence Link hover/focus feedback, Language Switcher interaction
+  feedback, and reduced-motion equivalence applying to all of them).
 
 #### Excluded
 
