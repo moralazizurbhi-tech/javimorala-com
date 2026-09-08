@@ -1,0 +1,82 @@
+// Global Base & Reset Styles — browser-default reset/normalization and
+// root html/body base styling, built on the Styling System's tokens
+// (Task Catalog T-003).
+//
+// This partial does not add its own focus-ring/outline treatment — that
+// is the accessibility Feature's Focus-Visible Style Module's own
+// responsibility (Task Catalog T-023). Stripping the browser-default
+// outline here would leave keyboard focus invisible until T-023 exists,
+// so it is intentionally left untouched.
+//
+// No component-specific styling belongs here (mirrors the Styling
+// System's own boundary, T-002).
+
+@use '../tokens/color' as color;
+@use '../tokens/typography' as typography;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+html,
+body {
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background-color: color.$color-background;
+  color: color.$color-foreground;
+  font-family: typography.$font-family-base;
+  font-size: typography.$font-size-body;
+  font-weight: typography.$font-weight-regular;
+  line-height: typography.$line-height-base;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
