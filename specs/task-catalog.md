@@ -84,7 +84,7 @@ Components.
   enablesCommitments: none
   readiness: Ready
 
-  - id: T-003
+  - id: T-030
   name: Global Base & Reset Styles
   objective: Establish the global browser-default reset/normalization and
     base html/body styling (box-sizing, margin/padding reset, base
@@ -111,7 +111,7 @@ Components.
   enablesCommitments: none
   readiness: Ready
 
-- id: T-004
+- id: T-003
   name: Content Layer Schema
   type: infrastructure
   objective: Define the locale-keyed content collection structure for the three domains, decoupled from component code.
@@ -125,7 +125,7 @@ Components.
   enablesCommitments: none
   readiness: Ready
 
-- id: T-005
+- id: T-004
   name: Root Layout Composition
   type: infrastructure
   objective: Compose three empty Domain Section placeholders (Introduction, Personal Narrative, Connection) in fixed order.
