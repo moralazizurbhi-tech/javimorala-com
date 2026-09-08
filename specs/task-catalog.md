@@ -500,7 +500,9 @@ Components.
   tokens) — not resolved or invented here.
 - Consistent with the Implementation Plan's seven phases: Phase 0→T-001–004,
   Phase 1→T-005–007, Phase 2→T-008–010, Phase 3→T-011–012, Phase 4→T-013,
-  Phase 5→T-014–023, Phase 6→T-024–029.
+  Phase 5→T-014–022, Phase 6→T-024–029. T-023 (Focus-Visible Style Module)
+  carries no fixed phase, per the Implementation Plan's explicit Phase 5
+  exclusion — buildable opportunistically from Phase 0/1 onward.
 
 ---
 
