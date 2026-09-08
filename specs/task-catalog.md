@@ -84,7 +84,34 @@ Components.
   enablesCommitments: none
   readiness: Ready
 
-- id: T-003
+  - id: T-003
+  name: Global Base & Reset Styles
+  objective: Establish the global browser-default reset/normalization and
+    base html/body styling (box-sizing, margin/padding reset, base
+    colour/typography applied at the root, default link/list/button
+    chrome removed), built on the Styling System's tokens.
+  references: project-ux.md (Visual Foundations: Base element /
+    browser-default outcomes); project-architecture.md (System Structure:
+    Styling System; Architectural Principles: Enforced visual coherence)
+  dependencies: T-002
+  inputs: Styling System tokens (T-002)
+  outputs: global Sass reset/base stylesheet partial
+  acceptanceCriteria:
+    - Box-sizing, margin, and padding browser defaults are normalized
+      consistently across elements.
+    - Root html/body apply the Styling System's base colour and
+      typography tokens.
+    - Default browser chrome on links/lists/buttons is removed so every
+      element reads as deliberately designed rather than browser-default
+      (Project UX, Visual Foundations) — without duplicating the
+      Focus-Visible Style Module's own focus-ring responsibility
+      (accessibility Feature, T-023).
+    - No component-specific styling embedded here (mirrors T-002's own
+      boundary).
+  enablesCommitments: none
+  readiness: Ready
+
+- id: T-004
   name: Content Layer Schema
   type: infrastructure
   objective: Define the locale-keyed content collection structure for the three domains, decoupled from component code.
@@ -98,7 +125,7 @@ Components.
   enablesCommitments: none
   readiness: Ready
 
-- id: T-004
+- id: T-005
   name: Root Layout Composition
   type: infrastructure
   objective: Compose three empty Domain Section placeholders (Introduction, Personal Narrative, Connection) in fixed order.
