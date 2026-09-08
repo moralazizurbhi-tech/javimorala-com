@@ -2,7 +2,7 @@
 
 ## Progress Summary
 
-1 of 29 Task Catalog tasks completed (T-001). Phase 0 — Project Foundations
+1 of 30 Task Catalog tasks completed (T-001). Phase 0 — Project Foundations
 is 1/4 complete. All other phases (1–6) remain fully pending. No Feature
 Contract has been realized, composed, or validated yet — T-001 is
 infrastructure only (enablesCommitments: none).
