@@ -1,0 +1,26 @@
+---
+// Per-locale static route (Task Catalog T-005; content-localization
+// Technical Design, i18n/Routing Layer Responsibilities): generates one
+// fully static route per supported language, each pre-rendering that
+// language's resolved content/metadata from the Content Layer via
+// src/lib/i18n.ts. Domain Section slots remain empty here — Hero, About
+// Narrative, and Direct Contact Composition (T-008/T-009/T-010) mount
+// their own content into Root Layout's named slots; this route does not
+// need to change when they do.
+import RootLayout from '../../layouts/RootLayout.astro';
+import { SUPPORTED_LOCALES, resolveLocaleContent, type Locale } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({ params: { locale } }));
+}
+
+const { locale } = Astro.params as { locale: Locale };
+const { metadata } = await resolveLocaleContent(locale);
+---
+
+<RootLayout lang={locale}>
+  <Fragment slot="head">
+    <title>{metadata.title}</title>
+    <meta name="description" content={metadata.description} />
+  </Fragment>
+</RootLayout>
