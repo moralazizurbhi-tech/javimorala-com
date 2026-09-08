@@ -7,13 +7,16 @@ Implementation Report) was wiped by commit ea27f37 ("reset implementation");
 this report's baseline was established fresh from that reset point,
 starting at T-001.
 
-6 of 30 Task Catalog tasks complete: T-001, T-002, T-030, T-003, T-004 (all
-of Phase 0 — 5/5), and T-005 (1/3 of Phase 1). Milestone M0 ("Foundations
-Ready") is reached: Phase 0 is complete, the project builds, and Root
-Layout now actually renders three empty Domain Section placeholders per
-locale-route stub (verified via T-005's /en/, /es/, /eu/ routes). Milestone
-M1 ("Localization Operational") is not yet reached — T-006 (root
-bootstrap/redirect) and T-007 (coverage-check mechanism) remain.
+8 of 30 Task Catalog tasks complete: T-001, T-002, T-030, T-003, T-004 (all
+of Phase 0 — 5/5), and T-005, T-006, T-007 — completing all of Phase 1
+(3/3). Milestone M0 ("Foundations Ready") remains reached. Milestone M1
+("Localization Operational") is reached at the task level — every Phase 1
+task is individually implemented and verified — but not yet reached as an
+integrated whole: T-006 and T-007 were each implemented on their own
+branch off `main` (`67f896a`), and neither branch contains the other's
+commit, nor is either merged into `main`. No single buildable ref
+currently demonstrates the root bootstrap and the coverage check together.
+This is a merge-ordering gap, not a task-scope gap — see Known Issues.
 
 ## Feature Realization
 
@@ -23,16 +26,31 @@ bootstrap/redirect) and T-007 (coverage-check mechanism) remain.
 - presence-links — Not started
 - section-navigation — Not started
 - language-override — Not started
-- content-localization — Technically partial, Blocked overall. T-005
-  realizes Commitments 2–3's *mechanism* (per-locale static routes,
-  content/metadata resolution) — verified working for real via built HTML.
-  But content fidelity is not yet Realized: /en/'s copy is Provisional
-  (itself still placeholder pending final English wording, per
-  Implementation Plan Readiness Issue 1); /es/ and /eu/'s copy is Blocked
-  on a Missing Realization Dependency (T-025 — real Spanish/Euskera
-  authoring; the current es/eu entries are English-language filler tagged
-  "Pending," not translations). Commitments 1, 4, 5 are entirely
-  unaddressed (T-006, T-007 not started).
+- content-localization — Technically partial, Blocked overall.
+  - Commitments 2, 3 (T-005): mechanism Realized (per-locale static
+    routes, content/metadata resolution) — verified working for real via
+    built HTML. Content fidelity itself is not yet Realized: /en/'s copy
+    is Provisional (itself still placeholder pending final English
+    wording, per Implementation Plan Readiness Issue 1); /es/ and /eu/'s
+    copy is Blocked on a Missing Realization Dependency (T-025 — real
+    Spanish/Euskera authoring; the current es/eu entries are
+    English-language filler tagged "Pending," not translations).
+  - Commitment 1 (T-006): AC2/AC3 (detected-locale, English-fallback)
+    Realized and verified. AC1 (override honored) is Blocked on a Missing
+    Realization Dependency — T-024, which wires the real Override Store;
+    the root bootstrap's override read is currently a stub always
+    returning "unset."
+  - Commitment 4 (T-006): structurally Realized (content-free root,
+    synchronous pre-paint script) to the extent verifiable outside a real
+    browser; true first-paint/no-flash timing is not exercisable under
+    this project's Vitest/Node test environment — flagged, not treated as
+    a defect (same category as T-005's own alt-text limitation below).
+  - Commitment 5 (T-007): mechanism Realized and verified against
+    placeholder data. The Commitment's real-world guarantee (final
+    EN/ES/EU content actually symmetric) remains Blocked on Missing
+    Realization Dependencies T-025 (authoring) and T-029 (real
+    enforcement run) — T-007's own Task Catalog entry declares "mechanism
+    only."
 - motion-interaction — Not started
 - accessibility — Not started
 
@@ -94,19 +112,54 @@ bootstrap/redirect) and T-007 (coverage-check mechanism) remain.
   meta-description per locale, and `astro check` (0 errors/warnings/
   hints). Alt-text resolution is not yet exercisable — no image-bearing
   content exists until T-008/T-009 compose Hero/About Narrative.
+- T-006 — i18n/Routing Layer — Root Bootstrap & Redirect. Rewrote the
+  T-001 scaffold root page (`src/pages/index.astro`) into
+  content-localization's language-agnostic root: a synchronous
+  `is:inline` script resolving the active language via override →
+  detected browser locale → English, redirecting via `location.replace`
+  before any content paints, with a `<noscript>` meta-refresh fallback to
+  `/en/` for no-JS visitors. The override read is a stub always returning
+  `"unset"` until T-024 wires the real Override Store — so Commitment 1's
+  override-priority branch (AC1) is algorithm-proven but not yet live
+  end-to-end; detected-locale/fallback branches (AC2, AC3) are live.
+  Verified via `@astrojs/compiler` AST assertions (empty `<body>`, single
+  `is:inline` script, noscript/meta-refresh shape), direct execution of
+  the extracted `resolveLocale` priority logic and the full shipped script
+  against mocked `navigator`/`location`, plus the real pipeline: `astro
+  sync`, `astro build` (4 pages: `/`, `/en/`, `/es/`, `/eu/`), generated
+  `dist/index.html` inspected directly, and `astro check` (17 files,
+  0/0/0). A first attempt placed the test directly under `src/pages/`,
+  which broke the build — Astro treats any file there as a route; fixed
+  by moving it under an underscore-prefixed directory the router ignores.
+- T-007 — i18n/Routing Layer — Cross-Locale Coverage Check Mechanism.
+  Added `checkCrossLocaleCoverage` (`src/lib/content-coverage.ts`), a
+  pure, fs-based build-time/test check verifying every Content Layer
+  domain directory holds a `<locale>.json` entry for every supported
+  locale, independent of the `astro:content` virtual module.
+  `src/content/coverage.test.ts` (4 tests) confirms it passes against the
+  real placeholder Content Layer (symmetric en/es/eu across all four
+  domains) and, via temp-directory fixtures, that it correctly detects and
+  reports gaps when a domain is missing one or more locales' entries.
+  Mechanism only, per its own declared scope — currently passes against
+  T-005's English-filler es/eu placeholder data, not real translations;
+  real enforcement against final authored content is T-029's job, gated
+  on T-025.
 
 ## Pending Work
 
-- T-006 (Root Bootstrap & Redirect), T-007 (Cross-Locale Coverage Check
-  Mechanism) — now unblocked (T-005, T-003 satisfied); not started.
-  Completes Phase 1 / Milestone M1.
-- T-008–T-029 (23 tasks) — remain blocked on their declared dependencies
-  per the Task Catalog's DAG. None started.
+- T-008–T-029 minus {T-006, T-007} (21 tasks) remain per the Task
+  Catalog's DAG. T-008, T-009, T-010, T-014, T-018, T-023 are now
+  dependency-unblocked (T-002/T-004/T-005 satisfied) but not started.
+- T-024 (Wire Override Store into i18n Root Bootstrap) remains blocked on
+  T-013 (Language Switcher + Override Store), not yet started — needed to
+  make Commitment 1 AC1 live for real.
 - T-025 (content authoring) and its dependents (T-028, T-029) carry the
   Implementation Plan's Readiness Issue 1 (Javi Morala's own authoring,
   not schedulable as ordinary implementation work) — now also the
-  concrete blocker for T-005's ES/EU content realization (see Feature
-  Realization).
+  concrete blocker for T-005's ES/EU content realization and for T-007's
+  mechanism becoming a real enforcement (see Feature Realization).
+- Merge/integration: neither T-006 nor T-007's branch has been merged into
+  `main` or into each other — see Known Issues.
 
 ## Generated Artifacts
 
@@ -127,10 +180,21 @@ bootstrap/redirect) and T-007 (coverage-check mechanism) remain.
   locale.test.ts}, src/pages/[locale]/index.astro, src/content/
   {introduction,personal-narrative,connection,navigation}/{es,eu}.json
   (8 files).
-- Location: branch worktree-t001-scaffold-init, commits 922f8ef (T-002),
-  565d52a (T-030), c2d157c (T-004), fd606c9 (T-003), 1fe530b (T-005), all
-  pushed to origin (https://github.com/moralazizurbhi-tech/javimorala-com);
-  PR not yet opened.
+- T-006: src/pages/index.astro (rewritten from the T-001 scaffold page),
+  src/pages/_tests/index.test.ts (new — underscore-prefixed directory so
+  Astro's router ignores it).
+- T-007: src/lib/content-coverage.ts, src/content/coverage.test.ts.
+- Location (T-001–T-005, T-030): branch worktree-t001-scaffold-init,
+  commits 922f8ef (T-002), 565d52a (T-030), c2d157c (T-004), fd606c9
+  (T-003), 1fe530b (T-005), all merged to `main` (current `main` HEAD:
+  67f896a).
+- Location (T-006): branch worktree-t006-root-bootstrap-redirect, commit
+  2bb1550, pushed to origin
+  (https://github.com/moralazizurbhi-tech/javimorala-com), branched from
+  `main`@67f896a. Does not include T-007. PR not yet opened.
+- Location (T-007): branch worktree-t007-coverage-check-mechanism, commit
+  33253fa, pushed to origin, branched from `main`@67f896a. Does not
+  include T-006. PR not yet opened.
 
 ## Implementation Decisions
 
@@ -150,6 +214,17 @@ bootstrap/redirect) and T-007 (coverage-check mechanism) remain.
   locale.ts` (pure constants/derivation) so the latter is directly
   unit-testable under Vitest without the unresolvable `astro:content`
   virtual module.
+- T-006: the redirect algorithm is written directly inside the
+  `is:inline` script rather than imported from a shared TS module, since
+  `is:inline` scripts cannot import ES modules and the script must stay
+  synchronous/unbundled for Commitment 4. Verified by extracting and
+  executing the actual shipped script text in tests, avoiding drift risk
+  from a separately-typed mirror implementation.
+- T-006/T-007: each executed in its own fresh worktree/branch off `main`
+  this session (rather than one shared long-lived worktree, as
+  T-001–T-005 used), per the executing session's isolation requirement —
+  consequence: the two branches don't contain each other's work (see
+  Known Issues).
 
 ## Known Issues
 
@@ -157,11 +232,11 @@ bootstrap/redirect) and T-007 (coverage-check mechanism) remain.
   Report; Task Catalog/Implementation Plan unaffected. Traceability-only,
   no owning workflow.
 - The previously-documented git-worktree tsconfig resolver defect has now
-  not reproduced across five further build/check cycles (T-002 through
-  T-005) in this same worktree. Still not confirmed as fixed — the
-  mechanism (walking to the main checkout's node_modules-less `.git`) is
-  unchanged; this worktree's own `node_modules` may simply be masking it.
-  Future tasks should keep verifying rather than assume immunity.
+  not reproduced across seven further build/check cycles (T-002 through
+  T-007, including two fresh worktree checkouts for T-006 and T-007).
+  Still not confirmed as fixed — the mechanism (walking to the main
+  checkout's node_modules-less `.git`) is unchanged. Future tasks should
+  keep verifying rather than assume immunity.
 - Main checkout still has no package.json/node_modules of its own.
 - Planning inconsistency, for Planning's awareness: T-005's Task Catalog
   entry lists only "English placeholder content" as an input, yet its
@@ -182,6 +257,13 @@ bootstrap/redirect) and T-007 (coverage-check mechanism) remain.
   image-bearing content exists in the composed experience until
   T-008/T-009. Not a T-005 defect; flagged so it isn't mistaken for an
   oversight when T-026/T-028 later verify it.
+- Phase 1 is task-complete but not branch-integrated: T-006 and T-007 were
+  each implemented on their own branch off `main` (67f896a), and neither
+  branch contains the other's commit. No single buildable state yet
+  demonstrates the i18n/Routing Layer's root bootstrap and coverage check
+  together. Not a defect in either task's own implementation — a
+  merge-ordering gap for the user's own git workflow to resolve, out of
+  scope for the execution/reporting Skills.
 
 ## Execution Evidence
 
@@ -201,11 +283,27 @@ bootstrap/redirect) and T-007 (coverage-check mechanism) remain.
   (`grep` on `dist/{en,es,eu}/index.html`) confirming distinct `html
   lang="en"/"es"/"eu"` and locale-correct title/meta-description; `astro
   check`: 16 files, 0/0/0.
-- Cumulative current state (after T-005): `npm run test` — 6 test files,
-  14 tests, all passing. `npm run check` — 16 files, 0 errors, 0 warnings,
-  0 hints. `npm run build` — 4 static pages generated.
+- T-006: Vitest (5 tests: empty-body/script/noscript AST checks,
+  `resolveLocale` priority-branch extraction test, full-script
+  mocked-navigator/location execution test) passing; `astro sync`; `astro
+  build` — 4 pages (`/`, `/en/`, `/es/`, `/eu/`); generated
+  `dist/index.html` inspected directly (script/noscript content confirmed
+  verbatim, unbundled); `astro check`: 17 files, 0/0/0. Cumulative in that
+  worktree: `npm run test` — 7 test files, 19 tests, all passing.
+- T-007: Vitest (4 tests: real-content pass, synthetic-symmetric-fixture
+  pass, single-domain-gap detection, multi-domain-gap detection) passing;
+  `astro sync`; `astro build` — 4 pages (fresh worktree off `main`, so
+  root is still T-001's scaffold page — expected, T-007 doesn't touch it);
+  `astro check`: 18 files, 0/0/0. Cumulative in that worktree: `npm run
+  test` — 7 test files, 18 tests, all passing.
+- Cumulative current state (after T-005, on `main`): `npm run test` — 6
+  test files, 14 tests, all passing. `npm run check` — 16 files, 0
+  errors, 0 warnings, 0 hints. `npm run build` — 4 static pages generated.
+  (T-006's and T-007's own cumulative figures above are each per their own
+  unmerged branch — see Progress Summary and Known Issues.)
 - Commits 922f8ef, 565d52a, c2d157c, fd606c9, 1fe530b on branch
-  worktree-t001-scaffold-init, all pushed to origin.
+  worktree-t001-scaffold-init, merged to `main`. Commits 2bb1550 (T-006)
+  and 33253fa (T-007), each on their own branch, both pushed to origin.
 
 ---
 
