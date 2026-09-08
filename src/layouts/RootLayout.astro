@@ -1,0 +1,39 @@
+---
+// Root Layout — composes the three Domain Sections (Introduction,
+// Personal Narrative, Connection) in fixed order for a given locale
+// route; owns global layout/theme wiring (Task Catalog T-004; Project
+// Architecture, System Structure: Root Layout; Component
+// Relationships). No client-side router across domains — only
+// locale-level routing exists above this layout.
+//
+// Each Domain Section is an empty placeholder here: later Feature
+// tasks (Hero, About Narrative, Direct Contact Composition) mount
+// their own content into the matching named slot; this layout does
+// not need to change when they do.
+interface Props {
+  lang: string;
+}
+
+const { lang } = Astro.props;
+---
+
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <slot name="head" />
+  </head>
+  <body>
+    <main>
+      <section id="introduction" aria-label="Introduction">
+        <slot name="introduction" />
+      </section>
+      <section id="personal-narrative" aria-label="Personal Narrative">
+        <slot name="personal-narrative" />
+      </section>
+      <section id="connection" aria-label="Connection">
+        <slot name="connection" />
+      </section>
+    </main>
+  </body>
+</html>
