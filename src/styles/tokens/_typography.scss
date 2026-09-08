@@ -1,0 +1,21 @@
+// Typography Scale — a clear hierarchy from an expressive, large-scale
+// display treatment down through section text, narrative body copy, and
+// compact nav/label text (Project UX, Visual Foundations).
+//
+// Placeholder values — exact typeface, sizes, and weights remain Pending
+// each Feature UI Definition's own extension (e.g. hero-presentation's
+// display sizes are its own Feature-specific extension, not derived from
+// this scale).
+
+$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+$font-size-display: 4rem; // expressive, large-scale display treatment
+$font-size-heading: 2rem; // section text
+$font-size-body: 1rem; // narrative body copy
+$font-size-compact: 0.875rem; // compact nav/label text
+
+$font-weight-regular: 400;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.1;
+$line-height-base: 1.5;
