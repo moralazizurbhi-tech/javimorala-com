@@ -22,6 +22,17 @@ const { lang } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <slot name="head" />
+    <style lang="scss" is:global>
+      // Wires T-030's already-built, already-tested global reset/base
+      // stylesheet into the one shared layout every locale route renders
+      // through — previously compiled and unit-tested in isolation only,
+      // never actually loaded by a page (found while visually verifying
+      // T-008's Hero Composition: without this, body background/
+      // foreground colour never reach the browser, leaving off-white
+      // text on a default-white background). Mechanical wiring of prior
+      // approved work, not a new styling decision.
+      @use '../styles/base/reset';
+    </style>
   </head>
   <body>
     <main>

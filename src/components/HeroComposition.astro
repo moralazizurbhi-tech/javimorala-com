@@ -1,0 +1,250 @@
+---
+// Hero Composition — headline/tagline, ornamental-mark placement, and
+// scroll cue rendered together as one static, single-template arrival
+// composition, per device class (Task Catalog T-008;
+// hero-presentation/technical-design.md, Hero Composition).
+//
+// No client-side hydration: none of hero-presentation's Commitments
+// need runtime logic (Technical Design, Constraints). Content is
+// consumed only via the props this component receives from the
+// i18n/Routing Layer's already-resolved values (Contract Commitment 2)
+// — this component never reads the Content Layer directly.
+//
+// The introduction Content Layer schema (T-003, approved) holds only
+// `headline`/`tagline` string fields, while Feature UI's approved
+// typography treatment needs three independently-sized text lines
+// ("Building" / "the web" / "with a rebellious streak" —
+// hero-presentation/ui.md, Typography Application). `headline` carries
+// the first two lines newline-separated (grouped together per UI's own
+// Spacing and Layout description); `tagline` carries the third,
+// positioned separately. This keeps the split content-driven — no line
+// text is hardcoded here.
+interface Props {
+  introduction: {
+    headline: string;
+    tagline: string;
+  };
+}
+
+const { introduction } = Astro.props;
+const [dominantLine, ...secondaryLines] = introduction.headline.split('\n');
+
+// Scroll cue text is a Feature-owned static string, not sourced via
+// the Content Layer: hero-presentation/technical-design.md's
+// Collaborations section names only headline/tagline as content this
+// component consumes from the i18n/Routing Layer, and no
+// content-collection field exists for the scroll cue's label (its
+// English value is Confirmed in hero-presentation/ux.md; Spanish/
+// Euskera equivalents are not defined anywhere in approved content —
+// flagged as a known gap, not invented here).
+const SCROLL_CUE_TEXT = "there's more below.";
+---
+
+<div class="hero">
+  <div class="hero__mark" aria-hidden="true"></div>
+  <div class="hero__headline-group">
+    {
+      /*
+        Two arrangements of the same three lines — desktop groups
+        dominant+secondary together with tagline separate, mobile groups
+        secondary+tagline together with dominant separate (hero-
+        presentation/ui.md, Spacing and Layout: the groupings genuinely
+        differ per device class, not just a reflow). `display:none`
+        (media-query-driven, not JS) shows exactly one at a time and
+        also removes the other from the accessibility tree, so nothing
+        is announced twice.
+      */
+    }
+    <div class="hero__headline-mobile">
+      <span class="hero__line hero__line--dominant">{dominantLine}</span>
+      <div class="hero__headline-mobile-side">
+        {secondaryLines.map((line) => <span class="hero__line hero__line--secondary">{line}</span>)}
+        <p class="hero__tagline">{introduction.tagline}</p>
+      </div>
+    </div>
+    <div class="hero__headline-desktop">
+      <div class="hero__headline-desktop-left">
+        <span class="hero__line hero__line--dominant">{dominantLine}</span>
+        {secondaryLines.map((line) => <span class="hero__line hero__line--secondary">{line}</span>)}
+      </div>
+      <p class="hero__tagline">{introduction.tagline}</p>
+    </div>
+  </div>
+  <div class="hero__scroll-cue" aria-hidden="true">
+    <span class="hero__scroll-cue-text">{SCROLL_CUE_TEXT}</span>
+    <svg
+      class="hero__scroll-cue-arrow"
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M12 4v14m0 0l-6-6m6 6l6-6"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  </div>
+</div>
+
+<style lang="scss">
+  @use '../styles' as styles;
+
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    color: styles.$color-foreground;
+  }
+
+  // Ornamental mark: background-layer placement only — the visual asset
+  // itself is out of this Feature's scope (Technical Design,
+  // Dependencies). This gradient stands in for that asset so the
+  // composition's completeness invariant (Commitment 1) is structurally
+  // satisfiable today; a Missing Realization Dependency remains on the
+  // real asset (see Implementation Report).
+  .hero__mark {
+    position: absolute;
+    top: -10%;
+    right: -15%;
+    left: auto;
+    width: 70vw;
+    height: 40vh;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(124, 92, 255, 0.55) 0%,
+      rgba(236, 72, 153, 0.35) 35%,
+      transparent 70%
+    );
+    filter: blur(40px);
+    pointer-events: none;
+    z-index: 0;
+
+    @include styles.respond-to('desktop') {
+      top: 0;
+      right: auto;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(90vw, 900px);
+      height: 60vh;
+    }
+  }
+
+  .hero__headline-group {
+    position: absolute;
+    left: styles.space('lg');
+    right: styles.space('lg');
+    bottom: styles.space('4xl');
+    z-index: 1;
+  }
+
+  .hero__headline-desktop {
+    display: none;
+  }
+
+  .hero__headline-mobile {
+    display: flex;
+    align-items: center;
+    gap: styles.space('xl');
+  }
+
+  .hero__headline-mobile-side {
+    display: flex;
+    flex-direction: column;
+    gap: styles.space('sm');
+    min-width: 0;
+    flex: 1;
+  }
+
+  @include styles.respond-to('desktop') {
+    .hero__headline-group {
+      bottom: styles.space('3xl');
+    }
+
+    .hero__headline-mobile {
+      display: none;
+    }
+
+    .hero__headline-desktop {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: styles.space('xl');
+    }
+
+    .hero__headline-desktop-left {
+      display: flex;
+      flex-direction: column;
+      gap: styles.space('sm');
+    }
+  }
+
+  .hero__line,
+  .hero__tagline {
+    margin: 0;
+    min-width: 0;
+    font-family: styles.$font-family-base;
+    font-weight: styles.$font-weight-bold;
+    line-height: styles.$line-height-tight;
+  }
+
+  .hero__line--dominant {
+    // Mobile: rotated 90°, reading bottom-to-top (hero-presentation/
+    // ui.md), sized smaller than desktop's since it shares horizontal
+    // space with the secondary/tagline text beside it.
+    font-size: calc(#{styles.$font-size-display} * 1.5);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+
+    .hero__headline-desktop-left & {
+      // Desktop's copy renders upright at the larger, ~3x-secondary
+      // display size observed in the Feature UI's reference.
+      font-size: calc(#{styles.$font-size-display} * 3);
+      writing-mode: horizontal-tb;
+      transform: none;
+    }
+  }
+
+  .hero__line--secondary {
+    font-size: calc(#{styles.$font-size-display} * 0.4);
+
+    .hero__headline-desktop-left & {
+      font-size: styles.$font-size-display;
+    }
+  }
+
+  .hero__tagline {
+    font-size: calc(#{styles.$font-size-display} * 0.4);
+
+    .hero__headline-desktop & {
+      font-size: styles.$font-size-display;
+      text-align: right;
+    }
+  }
+
+  .hero__scroll-cue {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: styles.space('lg');
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: styles.space('sm');
+    font-family: styles.$font-family-base;
+    font-size: styles.$font-size-compact;
+    font-weight: styles.$font-weight-regular;
+
+    @include styles.respond-to('desktop') {
+      left: auto;
+      right: styles.space('2xl');
+      justify-content: flex-end;
+    }
+  }
+</style>
