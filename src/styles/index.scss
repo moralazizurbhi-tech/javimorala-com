@@ -1,0 +1,14 @@
+// Styling System — shared Sass token/mixin partials (Project Architecture,
+// System Structure: Styling System). Every Feature's UI Definition
+// consumes tokens/mixins through this single entry point:
+//
+//   @use '../../styles' as styles;
+//
+// This module holds tokens and generic, reusable mixins only — no
+// component-specific styling belongs here (Task Catalog T-002).
+
+@forward 'tokens/color';
+@forward 'tokens/typography';
+@forward 'tokens/spacing';
+@forward 'tokens/breakpoints';
+@forward 'mixins/interaction-state';
