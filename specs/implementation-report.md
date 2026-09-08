@@ -7,20 +7,27 @@ Implementation Report) was wiped by commit ea27f37 ("reset implementation");
 this report's baseline was established fresh from that reset point,
 starting at T-001.
 
-8 of 30 Task Catalog tasks complete: T-001, T-002, T-030, T-003, T-004 (all
-of Phase 0 — 5/5), and T-005, T-006, T-007 — completing all of Phase 1
-(3/3). Milestone M0 ("Foundations Ready") remains reached. Milestone M1
-("Localization Operational") is reached at the task level — every Phase 1
-task is individually implemented and verified — but not yet reached as an
-integrated whole: T-006 and T-007 were each implemented on their own
-branch off `main` (`67f896a`), and neither branch contains the other's
-commit, nor is either merged into `main`. No single buildable ref
-currently demonstrates the root bootstrap and the coverage check together.
-This is a merge-ordering gap, not a task-scope gap — see Known Issues.
+9 of 30 Task Catalog tasks complete: T-001, T-002, T-030, T-003, T-004 (all
+of Phase 0 — 5/5), T-005, T-006, T-007 (all of Phase 1 — 3/3), and T-008
+(first task of Phase 2, Core Domain Features). Milestone M0 ("Foundations
+Ready") remains reached. Milestone M1 ("Localization Operational") is now
+reached as an integrated whole: the previous report's merge-ordering gap
+(T-006 and T-007 each on their own unmerged branch, neither containing the
+other's commit) is resolved — both commits (`2bb1550`, `33253fa`) are
+confirmed ancestors of current `main` (`27e3639`, via `git merge-base
+--is-ancestor`), merged via that commit. A single buildable ref now
+demonstrates the root bootstrap and the coverage check together.
 
 ## Feature Realization
 
-- hero-presentation — Not started
+- hero-presentation — Technically complete (T-008). Realized for
+  structure/localization-mechanism; Provisional overall — three Missing
+  Realization Dependencies remain: (1) the ornamental mark's real visual
+  asset (explicitly out of this Feature's scope per its own Technical
+  Design); (2) Spanish/Euskera headline/tagline copy (T-025, not started);
+  (3) the scroll cue's text has no Content Layer field to carry a
+  translation — currently a Feature-owned static English string (see Known
+  Issues).
 - about-narrative — Not started
 - direct-contact — Not started
 - presence-links — Not started
@@ -50,7 +57,10 @@ This is a merge-ordering gap, not a task-scope gap — see Known Issues.
     EN/ES/EU content actually symmetric) remains Blocked on Missing
     Realization Dependencies T-025 (authoring) and T-029 (real
     enforcement run) — T-007's own Task Catalog entry declares "mechanism
-    only."
+    only." T-005's alt-text sub-criterion remains not yet exercisable —
+    Hero Composition (T-008) does not introduce any `<img>`-based content
+    (its ornamental mark is a CSS placeholder, not an image element); this
+    will first become exercisable at T-009.
 - motion-interaction — Not started
 - accessibility — Not started
 
@@ -144,22 +154,40 @@ This is a merge-ordering gap, not a task-scope gap — see Known Issues.
   T-005's English-filler es/eu placeholder data, not real translations;
   real enforcement against final authored content is T-029's job, gated
   on T-025.
+- T-008 — Hero Composition. Renders headline/tagline, ornamental-mark
+  placement, and scroll cue as one coordinated, single-template arrival
+  composition, mounted in Root Layout's Introduction slot via the
+  i18n/Routing Layer's resolved content. Two device-class arrangements
+  (mobile: dominant line alone, secondary+tagline grouped; desktop:
+  dominant+secondary grouped, tagline alone — hero-presentation/ui.md's
+  groupings genuinely differ, not a reflow) render as separate static
+  markup, toggled by CSS `display:none` per breakpoint — never
+  JS-sequenced, so no partial-composition state can exist. Populated the
+  Content Layer's English introduction entry with hero-presentation/
+  ux.md's Confirmed copy (previously placeholder text). All four
+  acceptance criteria (Commitments 1–4) verified: completeness (AST test +
+  visual check), localized-content-via-props-only (source test, no
+  `astro:content` import), non-interactive scroll cue (AST test: no
+  href/onclick/tabindex in its subtree), device-class CSS-only layout
+  (source test + visual check at both viewports). Also fixed a
+  pre-existing gap found during visual verification: T-030's global reset
+  stylesheet was built and unit-tested but never wired into any page;
+  wired it into RootLayout.astro (see Implementation Decisions).
 
 ## Pending Work
 
-- T-008–T-029 minus {T-006, T-007} (21 tasks) remain per the Task
-  Catalog's DAG. T-008, T-009, T-010, T-014, T-018, T-023 are now
-  dependency-unblocked (T-002/T-004/T-005 satisfied) but not started.
+- T-009–T-029 (21 tasks) remain per the Task Catalog's DAG. T-009, T-010,
+  T-014, T-018, T-023 are dependency-unblocked (T-002/T-004/T-005
+  satisfied) but not started.
 - T-024 (Wire Override Store into i18n Root Bootstrap) remains blocked on
   T-013 (Language Switcher + Override Store), not yet started — needed to
   make Commitment 1 AC1 live for real.
 - T-025 (content authoring) and its dependents (T-028, T-029) carry the
   Implementation Plan's Readiness Issue 1 (Javi Morala's own authoring,
   not schedulable as ordinary implementation work) — now also the
-  concrete blocker for T-005's ES/EU content realization and for T-007's
-  mechanism becoming a real enforcement (see Feature Realization).
-- Merge/integration: neither T-006 nor T-007's branch has been merged into
-  `main` or into each other — see Known Issues.
+  concrete blocker for T-005's ES/EU content realization, hero-
+  presentation's ES/EU realization, and T-007's mechanism becoming a real
+  enforcement (see Feature Realization).
 
 ## Generated Artifacts
 
@@ -184,6 +212,13 @@ This is a merge-ordering gap, not a task-scope gap — see Known Issues.
   src/pages/_tests/index.test.ts (new — underscore-prefixed directory so
   Astro's router ignores it).
 - T-007: src/lib/content-coverage.ts, src/content/coverage.test.ts.
+- T-008: src/components/HeroComposition.astro,
+  src/components/HeroComposition.test.ts,
+  src/pages/_tests/locale-index.test.ts (new); src/pages/[locale]/
+  index.astro (mounts HeroComposition into the introduction slot);
+  src/content/introduction/en.json (populated with Confirmed English
+  copy, was placeholder); src/layouts/RootLayout.astro (wired T-030's
+  reset stylesheet in — see Implementation Decisions).
 - Location (T-001–T-005, T-030): branch worktree-t001-scaffold-init,
   commits 922f8ef (T-002), 565d52a (T-030), c2d157c (T-004), fd606c9
   (T-003), 1fe530b (T-005), all merged to `main` (current `main` HEAD:
@@ -191,10 +226,14 @@ This is a merge-ordering gap, not a task-scope gap — see Known Issues.
 - Location (T-006): branch worktree-t006-root-bootstrap-redirect, commit
   2bb1550, pushed to origin
   (https://github.com/moralazizurbhi-tech/javimorala-com), branched from
-  `main`@67f896a. Does not include T-007. PR not yet opened.
+  `main`@67f896a. Now merged into `main` via `27e3639` — see Progress
+  Summary.
 - Location (T-007): branch worktree-t007-coverage-check-mechanism, commit
-  33253fa, pushed to origin, branched from `main`@67f896a. Does not
-  include T-006. PR not yet opened.
+  33253fa, pushed to origin, branched from `main`@67f896a. Now merged into
+  `main` via `27e3639` — see Progress Summary.
+- Location (T-008): branch worktree-t008-hero-composition, commit
+  160c944, pushed to origin, branched from `main`@27e3639 (already
+  includes T-006 and T-007). PR not yet opened.
 
 ## Implementation Decisions
 
@@ -225,6 +264,39 @@ This is a merge-ordering gap, not a task-scope gap — see Known Issues.
   T-001–T-005 used), per the executing session's isolation requirement —
   consequence: the two branches don't contain each other's work (see
   Known Issues).
+- T-008: the introduction Content Layer schema (T-003, approved) holds
+  only `headline`/`tagline` string fields, while Feature UI's approved
+  typography needs three independently-sized lines. Chose to encode the
+  first two lines newline-separated within `headline` (grouped together
+  per UI's own Spacing and Layout description) and the third in
+  `tagline`, split at render time — keeps the split content-driven, no
+  hardcoded line text, without touching T-003's approved schema.
+- T-008: the scroll cue's text has no Content Layer field (Technical
+  Design's Collaborations section names only headline/tagline as
+  i18n-consumed content). Implemented as a Feature-owned static English
+  string rather than extending T-003's approved schema, which would
+  exceed this Task's own scope — flagged under Known Issues for Planning.
+- T-008: wired T-030's already-built, already-unit-tested global reset
+  stylesheet into RootLayout.astro. Judgment call by the executing
+  session — technically outside T-008's own component-file boundary
+  (RootLayout is nominally T-004's artifact) — made because Hero
+  Composition's own visual output was illegible without it (off-white
+  text, no background colour reaching the browser) and the fix is
+  mechanical completion of already-approved prior work, not a new
+  styling decision. Flagged transparently rather than silently expanding
+  scope elsewhere.
+- T-008: two independent device-class DOM arrangements, CSS
+  `display:none`-toggled, rather than one CSS-Grid structure with
+  per-breakpoint area reassignment — the Grid approach was abandoned
+  mid-investigation by explicit user instruction after surfacing a
+  Chromium-specific layout quirk (see Known Issues); the flexbox
+  dual-layout replacement passes all automated checks and was visually
+  verified at both viewports.
+- T-008: the ornamental mark renders as a CSS radial-gradient placeholder,
+  not a real asset — the real asset is explicitly out of
+  hero-presentation's Feature scope (Technical Design, Dependencies); the
+  placeholder exists only so Commitment 1's completeness invariant is
+  structurally satisfiable today.
 
 ## Known Issues
 
@@ -232,11 +304,11 @@ This is a merge-ordering gap, not a task-scope gap — see Known Issues.
   Report; Task Catalog/Implementation Plan unaffected. Traceability-only,
   no owning workflow.
 - The previously-documented git-worktree tsconfig resolver defect has now
-  not reproduced across seven further build/check cycles (T-002 through
-  T-007, including two fresh worktree checkouts for T-006 and T-007).
-  Still not confirmed as fixed — the mechanism (walking to the main
-  checkout's node_modules-less `.git`) is unchanged. Future tasks should
-  keep verifying rather than assume immunity.
+  not reproduced across eight further build/check cycles (T-002 through
+  T-008, including three fresh worktree checkouts for T-006, T-007, and
+  T-008). Still not confirmed as fixed — the mechanism (walking to the
+  main checkout's node_modules-less `.git`) is unchanged. Future tasks
+  should keep verifying rather than assume immunity.
 - Main checkout still has no package.json/node_modules of its own.
 - Planning inconsistency, for Planning's awareness: T-005's Task Catalog
   entry lists only "English placeholder content" as an input, yet its
@@ -253,17 +325,48 @@ This is a merge-ordering gap, not a task-scope gap — see Known Issues.
   explicit for future phases with the same shape (e.g., any task building
   all three locale routes before T-025 completes). Owning workflow:
   Planning.
-- T-005's alt-text acceptance sub-criterion is not yet exercisable — no
-  image-bearing content exists in the composed experience until
-  T-008/T-009. Not a T-005 defect; flagged so it isn't mistaken for an
-  oversight when T-026/T-028 later verify it.
-- Phase 1 is task-complete but not branch-integrated: T-006 and T-007 were
-  each implemented on their own branch off `main` (67f896a), and neither
-  branch contains the other's commit. No single buildable state yet
-  demonstrates the i18n/Routing Layer's root bootstrap and coverage check
-  together. Not a defect in either task's own implementation — a
-  merge-ordering gap for the user's own git workflow to resolve, out of
-  scope for the execution/reporting Skills.
+- T-005's alt-text acceptance sub-criterion is not yet exercisable — Hero
+  Composition (T-008) did not introduce any `<img>`-based content either
+  (its ornamental mark is a CSS placeholder). Not a defect; flagged so it
+  isn't mistaken for an oversight when T-026/T-028 later verify it — first
+  exercisable at T-009.
+- RESOLVED (was open in the prior report): Phase 1's merge-ordering gap —
+  T-006 and T-007 were each implemented on their own branch off `main`
+  (67f896a), and at the time of the prior report neither branch contained
+  the other's commit. Both are now confirmed ancestors of current `main`
+  (`27e3639`) — see Progress Summary. No longer an open issue.
+- hero-presentation's scroll cue text has no Content Layer field to carry
+  a translation; Technical Design's Collaborations section names only
+  headline/tagline as i18n-consumed content. Currently a Feature-owned
+  static English string with no Spanish/Euskera path defined anywhere in
+  approved content. Owning workflow: Planning (content-localization's
+  Content Layer schema, or hero-presentation's Technical Design —
+  Planning's call which artifact should absorb this).
+- T-030's global reset stylesheet was built and unit-tested in isolation
+  at its own Task but never wired into any real page until T-008 found
+  and fixed the gap during visual verification. No Task Catalog entry
+  explicitly owned that wiring step — a similar shape to the
+  already-flagged T-005 ES/EU-placeholder-input gap above. Future tasks
+  producing shared/global styling artifacts might benefit from an
+  explicit "wired into the real page" acceptance criterion. Owning
+  workflow: Planning.
+- A Chromium-specific CSS layout quirk was found and investigated during
+  T-008's visual verification: an absolutely-positioned CSS Grid
+  container with an `auto`-sized, row-spanning track column paired with a
+  sibling `minmax(0, 1fr)` track fails to constrain the second track's
+  width for text wrapping (reproduced in isolated minimal repro files;
+  caching and dev-server timing were ruled out as causes). Investigation
+  was stopped by explicit user instruction before being conclusively
+  root-caused against the CSS specification. The component was rewritten
+  to a different, simpler CSS pattern (dual flexbox layouts toggled via
+  `display:none`) that avoids the pattern entirely and passes every
+  automated check. On real narrow-viewport screens the tagline's
+  right-edge margin may still read as tighter than its desktop
+  counterpart — a minor visual-polish item, not a Contract violation,
+  since Feature UX explicitly leaves exact spatial values Pending/to
+  Feature UI. Flagged for a future visual QA pass, not blocking.
+  Traceability-only, no owning workflow required unless a future task
+  hits the same CSS pattern.
 
 ## Execution Evidence
 
@@ -296,14 +399,35 @@ This is a merge-ordering gap, not a task-scope gap — see Known Issues.
   root is still T-001's scaffold page — expected, T-007 doesn't touch it);
   `astro check`: 18 files, 0/0/0. Cumulative in that worktree: `npm run
   test` — 7 test files, 18 tests, all passing.
+- T-008: Vitest — 7 tests across HeroComposition.test.ts (5) and
+  locale-index.test.ts (2): template completeness/dual-arrangement
+  presence, props-only content consumption (no astro:content import),
+  non-interactive scroll cue (no href/onclick/tabindex anywhere in its
+  subtree), CSS-only breakpoint layout, single HeroComposition mount into
+  RootLayout's introduction slot — all passing. `astro sync`; `astro
+  build` — 4 pages; generated `dist/en/index.html` inspected directly
+  (grep confirmed "Building"/"the web"/"with a rebellious streak"/
+  scroll-cue text and every `hero__*` class present). `astro check` — 22
+  files, 0 errors/0 warnings/0 hints. Visually verified in headless
+  Chrome (both the dev server and the static build output) at desktop
+  (1440×900) and mobile (390×844) viewports — confirmed real rendering,
+  not just markup presence: headline/mark/scroll-cue visible together,
+  colours matching Styling System tokens once the RootLayout
+  reset-wiring fix landed. Cumulative in that worktree: `npm run test` —
+  10 test files, 30 tests, all passing.
 - Cumulative current state (after T-005, on `main`): `npm run test` — 6
   test files, 14 tests, all passing. `npm run check` — 16 files, 0
   errors, 0 warnings, 0 hints. `npm run build` — 4 static pages generated.
   (T-006's and T-007's own cumulative figures above are each per their own
-  unmerged branch — see Progress Summary and Known Issues.)
+  branch as of when each was executed — both branches are now merged into
+  `main` via `27e3639`, see Progress Summary; T-008's cumulative figures
+  above are per its own still-unmerged branch.)
 - Commits 922f8ef, 565d52a, c2d157c, fd606c9, 1fe530b on branch
   worktree-t001-scaffold-init, merged to `main`. Commits 2bb1550 (T-006)
-  and 33253fa (T-007), each on their own branch, both pushed to origin.
+  and 33253fa (T-007), each originally on their own branch, both now
+  merged into `main` via `27e3639`. Commit 160c944 (T-008) on branch
+  worktree-t008-hero-composition, pushed to origin, branched from
+  `main`@27e3639.
 
 ---
 
