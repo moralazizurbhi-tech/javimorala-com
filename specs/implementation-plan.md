@@ -34,6 +34,11 @@ Feature Technical Design claims to realize any of them — every one treats them
 - Establish the Styling System's shared Sass/SCSS token/mixin partials, placeholder
   values acceptable — exact values are each Feature UI Definition's own detail
   (**Confirmed dependency** — Project Architecture, System Structure).
+- Establish the global browser-default reset/base styling (box-sizing and
+  margin/padding normalization, root html/body base colour/typography, default
+  link/list/button chrome removed), built on the Styling System's tokens
+  (**Confirmed dependency** — Project UX, Visual Foundations; Project
+  Architecture, Architectural Principles: Enforced visual coherence).
 - Establish the Content Layer's locale-keyed collection schema (structure only;
   content authored per Feature in Phase 2+) (**Confirmed dependency** — Project
   Architecture, System Structure).

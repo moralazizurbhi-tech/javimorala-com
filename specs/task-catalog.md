@@ -41,6 +41,14 @@ Components.
   immediately by four other Features), root-bootstrap redirect logic (needed
   by nobody else), and the coverage-check mechanism (needed only at final
   validation) have meaningfully different consumers and readiness timing.
+- **Global Base & Reset Styles stays a separate task (T-030) from Styling
+  System Foundation (T-002)** — T-002 defines the shared token/mixin
+  vocabulary itself; T-030 is the global reset/base stylesheet built on top
+  of those tokens, a distinct output with its own acceptance criteria
+  (browser-default normalization, root html/body base styling). T-030 was
+  added after the initial catalog draft; its identifier reflects that
+  addition order and carries no phase or dependency implication beyond its
+  stated `dependencies: T-002`.
 
 ## Task Type / Field Convention
 
@@ -84,8 +92,9 @@ Components.
   enablesCommitments: none
   readiness: Ready
 
-  - id: T-030
+- id: T-030
   name: Global Base & Reset Styles
+  type: infrastructure
   objective: Establish the global browser-default reset/normalization and
     base html/body styling (box-sizing, margin/padding reset, base
     colour/typography applied at the root, default link/list/button
@@ -507,10 +516,10 @@ Components.
 
 ## Coverage and DAG Checks
 
-- 29 tasks; every unique stable identifier appears exactly once.
+- 30 tasks; every unique stable identifier appears exactly once.
 - Every task has one execution objective; every task references at least one
   approved artifact.
-- Dependency graph is a strict DAG: Infrastructure (T-001–004) →
+- Dependency graph is a strict DAG: Infrastructure (T-001–004, T-030) →
   Content-Localization core (T-005–007) → Core/Composed/Personalization
   Features (T-008–013) → Motion/Accessibility layer (T-014–023) → Integration
   (T-024) → Content Authoring & Validation (T-025–029). No circular task
@@ -526,7 +535,7 @@ Components.
   content; T-012/T-017/T-018 for indicator anatomy; T-023/T-026 for Styling
   tokens) — not resolved or invented here.
 - Consistent with the Implementation Plan's seven phases: Phase 0→T-001–004,
-  Phase 1→T-005–007, Phase 2→T-008–010, Phase 3→T-011–012, Phase 4→T-013,
+  T-030; Phase 1→T-005–007, Phase 2→T-008–010, Phase 3→T-011–012, Phase 4→T-013,
   Phase 5→T-014–022, Phase 6→T-024–029. T-023 (Focus-Visible Style Module)
   carries no fixed phase, per the Implementation Plan's explicit Phase 5
   exclusion — buildable opportunistically from Phase 0/1 onward.
