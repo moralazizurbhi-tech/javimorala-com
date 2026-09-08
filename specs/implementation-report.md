@@ -180,20 +180,33 @@ Blocked — the category does not yet apply to any Feature.)
   Introduction slot (T-004)") still use pre-renumbering ids. Owning
   workflow: Planning — not resolved here or by the execution skill (out
   of both skills' artifact ownership).
-- Pre-existing, cross-cutting build-tooling defect (new, escalating):
-  `astro build`, `astro sync`, and `astro dev` all fail identically with
-  `Tsconfig not found astro/tsconfigs/strict` — tsconfig.json's `extends`
-  value doesn't resolve through the installed Vite/rolldown resolver even
-  though the file exists on disk and Node's own package.json "exports"
-  resolution reaches it fine. Reproduced with none of T-003/T-004/T-005's
-  files present, so it predates this reporting session (T-001's
-  toolchain). Blocks full-pipeline verification for every task since
-  T-002; T-003/T-004/T-005 fell back to structural/unit-level
-  verification instead (Sass compile, raw JSON assertions, standalone AST
-  parse via @astrojs/compiler). Means Milestone M0's "project builds"
-  criterion is not met despite all 5 Phase-0 tasks being individually
-  complete. No owning workflow decided yet — likely warrants a dedicated
-  fix before Phase 1 begins.
+- Pre-existing, cross-cutting build-tooling defect (root cause corrected
+  this session): `astro build`, `astro sync`, and `astro dev` all fail
+  identically with `Tsconfig not found astro/tsconfigs/strict`. The
+  previous reporting session attributed this to a package.json "exports"
+  wildcard-pattern resolver limitation — that theory is disproven.
+  Confirmed root cause: Astro's native Vite resolver (rolldown/oxc) walks
+  up the directory tree looking for a `.git` directory to establish a
+  resolution root for `resolve.tsconfigPaths`. This worktree's `.git` is
+  a file (a git-worktree pointer: `gitdir: .../javimorala-com/.git/
+  worktrees/zippy-popping-flute`), which the resolver skips past, landing
+  on the main checkout's real `.git` directory two levels up and treating
+  that as the resolution root — but the main checkout has no
+  `node_modules` installed, so `astro/tsconfigs/strict` can't be found
+  from there. Confirmed via an isolated reproduction: copying this
+  worktree's config files (including the original, unmodified
+  tsconfig.json) into a scratch directory with no git-worktree
+  relationship to the main checkout, reusing the same `node_modules` via
+  a directory junction — `astro sync` succeeded there with byte-identical
+  inputs, isolating the git-worktree structure itself as the cause. Fix
+  requires action in the main checkout (`npm install` there, or a
+  `node_modules` junction) — outside this worktree's artifact ownership;
+  the user has taken ownership of applying it. Still blocks full-pipeline
+  verification for every task since T-002; T-003/T-004/T-005 fell back to
+  structural/unit-level verification instead (Sass compile, raw JSON
+  assertions, standalone AST parse via @astrojs/compiler). Milestone M0's
+  "project builds" criterion remains unmet despite all 5 Phase-0 tasks
+  being individually complete.
 - (Carried forward, not created by this work) Implementation Plan
   Readiness Issue 1: Hero/About Narrative copy and About Narrative photos
   remain Pending, owned by Javi Morala's own authoring (T-025).
@@ -220,6 +233,12 @@ Blocked — the category does not yet apply to any Feature.)
   layouts/RootLayout.test.ts: 2).
 - `npm run build`, `npx astro sync`, `npx astro dev` (current session):
   all fail on the pre-existing defect described in Known Issues.
+- Isolated reproduction (this session): worktree config files + original
+  unmodified tsconfig.json, copied to a scratch directory with no
+  git-worktree relationship to the main checkout, node_modules reused via
+  directory junction — `astro sync` succeeded, isolating the git-worktree
+  `.git`-file structure as root cause (superseding the earlier "exports
+  wildcard" theory).
 - `npm run check` (astro check, T-001 historical): 6 files, 0 errors, 0
   warnings, 0 hints.
 
