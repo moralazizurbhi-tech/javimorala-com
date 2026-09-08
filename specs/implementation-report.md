@@ -2,10 +2,16 @@
 
 ## Progress Summary
 
-1 of 30 Task Catalog tasks completed (T-001). Phase 0 — Project Foundations
-is 1/4 complete. All other phases (1–6) remain fully pending. No Feature
-Contract has been realized, composed, or validated yet — T-001 is
-infrastructure only (enablesCommitments: none).
+5 of 30 Task Catalog tasks completed (T-001–T-005). Phase 0 — Project
+Foundations is now 5/5 complete (all Infrastructure tasks done). All other
+phases (1–6) remain fully pending. No Feature Contract has been realized,
+composed, or validated yet — all five completed tasks are infrastructure
+only (`enablesCommitments: none`).
+
+Note: Milestone M0's own stated criterion "project builds" is not actually
+met right now — see Known Issue 2. The five Phase 0 tasks are each
+individually complete per their own acceptance criteria, but the project
+does not currently build end-to-end via `astro build`.
 
 ## Feature Realization
 
@@ -36,30 +42,93 @@ Blocked — the category does not yet apply to any Feature.)
     Sass-styled Astro page, plus a Vitest suite (2/2 passing) importing
     each library directly.
 
+- T-002 — Styling System Foundation (infrastructure). Completed prior to
+  this reporting session (commit bd7cc6d), not previously reported. Shared
+  Sass token/mixin partials: colour (near-black/off-white base + accent),
+  typography (display-to-compact scale), spacing (generous, consistent
+  scale), breakpoints (mobile-default, desktop/tablet override), and a
+  shared interactive-transition mixin. Placeholder values throughout, per
+  Project UX's Visual Foundations. Verified via a Vitest suite compiling
+  the module through Sass's Node API (1/1 passing), exercising every
+  token/mixin category and confirming no component-specific styling is
+  embedded.
+
+- T-003 — Global Base & Reset Styles (infrastructure). Both acceptance
+  criteria checked:
+  - Box-sizing, margin, and padding browser defaults normalized
+    consistently (`src/styles/base/_reset.scss`).
+  - Root html/body apply the Styling System's base colour/typography
+    tokens; default link/list/button chrome removed.
+  - Deliberately leaves `outline`/focus styling untouched — that is the
+    accessibility Feature's Focus-Visible Style Module's own
+    responsibility (T-023).
+  - Verified via a Sass-compile Vitest suite (2/2 passing). Not yet wired
+    into any page — no Root Layout existed yet when this task ran.
+
+- T-004 — Content Layer Schema (infrastructure). Both acceptance criteria
+  checked:
+  - Schema holds fields sufficient for Hero's headline/tagline, About
+    Narrative's narrative text, Direct Contact's heading/CTA/farewell
+    text, and Section Navigation's nav labels/wordmark, each verified
+    per-domain in the test suite.
+  - No locale branching exists in code — adding `es.json`/`eu.json`
+    (T-025) is a data-only change.
+  - Four locale-keyed Astro Content Layer collections (`introduction`,
+    `personalNarrative`, `connection`, `navigation`) via the `glob`
+    loader, English-only placeholder entries. Verified via a Vitest suite
+    reading the raw JSON directly (5/5 passing), since `astro:content` is
+    a virtual module unavailable outside Astro's own pipeline.
+
+- T-005 — Root Layout Composition (infrastructure). The one acceptance
+  criterion checked: three Domain Sections render in fixed order, no
+  client-side router across them. `src/layouts/RootLayout.astro` composes
+  the three empty Domain Section placeholders (`introduction`,
+  `personal-narrative`, `connection`) in fixed order behind one HTML
+  shell, with a named slot per section and a `lang` prop. Verified via
+  `@astrojs/compiler`'s standalone `parse()` walking the resulting AST
+  (2/2 passing) — the project's own Astro pipeline (`build`/`sync`/`dev`)
+  cannot currently render it (Known Issue 2).
+
 ## Pending Work
 
-- T-002 Styling System Foundation, T-003 Content Layer Schema, T-004 Root
-  Layout Composition — now unblocked (sole dependency T-001 complete);
-  not started.
-- T-005–T-029 (24 tasks) — remain blocked on their declared dependencies
-  per the Task Catalog's DAG (Content-Localization core → Core/Composed/
-  Personalization Features → Motion/Accessibility layer → Integration →
-  Content Authoring & Validation). None started.
-- T-025 (content authoring) and its dependents (T-028, T-029) additionally
-  carry the Implementation Plan's Readiness Issue 1 (Javi Morala's own
-  authoring, not schedulable as ordinary implementation work).
+- Content-Localization core (i18n/Routing Layer) — three tasks; the first
+  is currently mis-cataloged as T-005, colliding with the just-completed
+  Root Layout Composition task (Known Issue 1). Root-resolution/per-locale
+  routes, root-bootstrap redirect, and the coverage-check mechanism. Not
+  started.
+- Core Domain Features — Hero (T-008), About Narrative (T-009), Direct
+  Contact (T-010). Depend on Content Layer Schema (done) + i18n Core
+  Resolution (pending). Not started.
+- Composed Features — Presence Links (T-011), Section Navigation (T-012).
+  Not started.
+- Personalization — Language Switcher + Override Store (T-013). Not
+  started.
+- Motion & Interaction — T-014–T-021 (8 tasks). Not started.
+- Accessibility — Nav Current-State AT Exposure (T-022), Focus-Visible
+  Style Module (T-023). Not started.
+- Integration — Wire Override Store into i18n Root Bootstrap (T-024). Not
+  started.
+- Content Authoring & Validation — T-025–T-029 (5 tasks, including Javi
+  Morala's own Spanish/Euskera authoring). Not started.
 
 ## Generated Artifacts
 
 - package.json, package-lock.json — dependencies: astro, @astrojs/react,
   react, react-dom, framer-motion, radix-ui; devDependencies: sass,
-  vitest, @vitejs/plugin-react, @astrojs/check, typescript, @types/react,
-  @types/react-dom.
+  vitest, @vitejs/plugin-react, @astrojs/check, @astrojs/compiler,
+  typescript, @types/react, @types/react-dom.
 - astro.config.mjs — output: 'static', React integration registered.
 - tsconfig.json, vitest.config.ts.
 - src/pages/index.astro — scaffold-verification page (Sass-styled
   heading + hydrated ScaffoldCheck island).
 - src/components/ScaffoldCheck.tsx, ScaffoldCheck.test.tsx.
+- src/styles/index.scss, src/styles/tokens/{_color,_typography,_spacing,
+  _breakpoints}.scss, src/styles/mixins/_interaction-state.scss,
+  src/styles/index.test.ts (T-002).
+- src/styles/base/_reset.scss, src/styles/base/reset.test.ts (T-003).
+- src/content.config.ts, src/content/{introduction,personal-narrative,
+  connection,navigation}/en.json, src/content/shape.test.ts (T-004).
+- src/layouts/RootLayout.astro, src/layouts/RootLayout.test.ts (T-005).
 - .gitignore (updated: added .astro/ and root node_modules/ entries).
 - .vscode/extensions.json, .vscode/launch.json; public/favicon.ico,
   favicon.svg (Astro scaffold defaults).
@@ -80,11 +149,51 @@ Blocked — the category does not yet apply to any Feature.)
   functional effect.
 - Added a minimal ScaffoldCheck island purely to prove the five
   technologies compile/hydrate together; this is verification scaffolding,
-  not Feature content — expected to be superseded when T-004 (Root
+  not Feature content — expected to be superseded when T-005 (Root
   Layout) and later Feature tasks replace the page body.
+- T-002: placeholder values throughout (exact values remain each Feature
+  UI Definition's own decision); verified via Sass's Node compile API
+  rather than a rendered page.
+- T-003: intentionally does not add its own focus-ring/outline treatment,
+  to avoid overlapping T-023's Focus-Visible Style Module's ownership.
+- T-004: Zod schemas defined inline in content.config.ts (the idiomatic
+  Astro pattern) rather than a separately importable module, since
+  `astro:content` can't be imported outside Astro's pipeline anyway; only
+  English placeholder content authored — Spanish/Euskera stays T-025's
+  job.
+- T-005: RootLayout accepts a `lang` prop but does not decide its value
+  (i18n/Routing Layer's job); deliberately did not wire in T-003's reset
+  stylesheet despite "owns global layout/theme wiring" language in
+  Project Architecture, since T-005's Task Catalog entry declares only
+  T-001 as a dependency — pulling in T-002/T-003 would be an undeclared
+  dependency edge.
 
 ## Known Issues
 
+- Task Catalog duplicate id (new): T-005 is used for both "Root Layout
+  Composition" (Infrastructure, now complete) and "i18n/Routing Layer —
+  Core Resolution & Per-Locale Routes" (Content Localization, still
+  pending) — introduced by a manual edit (commit b600884, user-
+  acknowledged) that wasn't fully propagated: the Coverage/DAG section
+  still says "Infrastructure (T-001–004)" though 5 infra tasks now exist,
+  and other tasks' references (e.g. T-008 citing "Root Layout's
+  Introduction slot (T-004)") still use pre-renumbering ids. Owning
+  workflow: Planning — not resolved here or by the execution skill (out
+  of both skills' artifact ownership).
+- Pre-existing, cross-cutting build-tooling defect (new, escalating):
+  `astro build`, `astro sync`, and `astro dev` all fail identically with
+  `Tsconfig not found astro/tsconfigs/strict` — tsconfig.json's `extends`
+  value doesn't resolve through the installed Vite/rolldown resolver even
+  though the file exists on disk and Node's own package.json "exports"
+  resolution reaches it fine. Reproduced with none of T-003/T-004/T-005's
+  files present, so it predates this reporting session (T-001's
+  toolchain). Blocks full-pipeline verification for every task since
+  T-002; T-003/T-004/T-005 fell back to structural/unit-level
+  verification instead (Sass compile, raw JSON assertions, standalone AST
+  parse via @astrojs/compiler). Means Milestone M0's "project builds"
+  criterion is not met despite all 5 Phase-0 tasks being individually
+  complete. No owning workflow decided yet — likely warrants a dedicated
+  fix before Phase 1 begins.
 - (Carried forward, not created by this work) Implementation Plan
   Readiness Issue 1: Hero/About Narrative copy and About Narrative photos
   remain Pending, owned by Javi Morala's own authoring (T-025).
@@ -100,12 +209,19 @@ Blocked — the category does not yet apply to any Feature.)
 
 ## Execution Evidence
 
-- Branch worktree-t001-scaffold, commit b1d8110d1452838e175249b7613a27eb
-  c8621463, pushed to origin.
-- `npm run build`: output:"static", mode:"static"; 1 page built in 6.70s;
-  dist/ verified to contain no server directory.
-- `npm test` (vitest run): 1 test file, 2 tests passed.
-- `npm run check` (astro check): 6 files, 0 errors, 0 warnings, 0 hints.
+- Branch worktree-zippy-popping-flute, commits fe8fe2c (T-003), b0bbdea
+  (T-004), 83f5f6f (T-005), pushed to origin. T-002 landed separately on
+  main via commit bd7cc6d prior to this reporting session.
+- `npm run build` (T-001, historical): output:"static", mode:"static"; 1
+  page built in 6.70s; dist/ verified to contain no server directory.
+- `npm test` / `npx vitest run`: 5 test files, 12 tests passing
+  (ScaffoldCheck.test.tsx: 2; styles/index.test.ts: 1;
+  styles/base/reset.test.ts: 2; content/shape.test.ts: 5;
+  layouts/RootLayout.test.ts: 2).
+- `npm run build`, `npx astro sync`, `npx astro dev` (current session):
+  all fail on the pre-existing defect described in Known Issues.
+- `npm run check` (astro check, T-001 historical): 6 files, 0 errors, 0
+  warnings, 0 hints.
 
 ---
 
