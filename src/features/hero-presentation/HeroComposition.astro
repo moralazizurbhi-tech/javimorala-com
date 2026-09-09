@@ -20,7 +20,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 ---
 
 <div class="hero">
-	<div class="hero__mark" aria-hidden="true"></div>
+	<img class="hero__mark" src="/ornamental-mark.svg" alt="" aria-hidden="true" />
 	<h1 class="hero__headline">
 		<span class="hero__headline-primary">{headlinePrimary}</span>
 		<span class="hero__headline-secondary hero__headline-secondary--1">{headlineSecondaryLine1}</span>
@@ -63,8 +63,13 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		}
 	}
 
-	// Background-layer reference for the ornamental mark (its own SVG asset
-	// is out of this Feature's scope — technical-design.md, Dependencies).
+	// Background-layer ornamental mark — shared static SVG asset (Figma
+	// "Porifolio" file, "Metal logogogog 1"; shape traced from that
+	// reference, gradient recoloured to the Styling System's confirmed
+	// lilac-to-purple tokens rather than the reference's own placeholder
+	// hue). Its own visual design is a shared substrate, not owned by this
+	// Feature (technical-design.md, Dependencies) — only placement/crop/
+	// z-order below are this Feature's concern.
 	// Mobile: cropped toward the top-right, bleeding off the right edge.
 	// Desktop/tablet: centered, contained within the viewport width — a
 	// distinct crop per device class, not a scaled copy (ui.md).
@@ -78,12 +83,8 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// exceeds 100% of the viewport, bleeding off the right edge").
 		width: 120vw;
 		height: 70vh;
-		border-radius: 50%;
-		background: linear-gradient(160deg, tokens.$color-gradient-start, tokens.$color-gradient-end);
-		opacity: 0.35;
+		object-fit: cover;
 		pointer-events: none;
-		-webkit-mask-image: linear-gradient(to bottom, black 35%, transparent 85%);
-		mask-image: linear-gradient(to bottom, black 35%, transparent 85%);
 
 		@include mixins.desktop-up {
 			top: 0;
