@@ -1,15 +1,18 @@
 @use '../../styles/tokens' as tokens;
 @use '../../styles/mixins' as mixins;
 
-// section-navigation/ui.md — Spacing and Layout (Desktop). Mobile's own
-// toggle/overlay realization is T-012's responsibility; this bar is
-// hidden below the desktop breakpoint until then, rather than squeezing
-// the desktop row onto a viewport it was never designed for.
+// section-navigation/ui.md — Spacing and Layout. Desktop/tablet realizes
+// the persistent bar (T-011); mobile realizes the closed-state bar plus
+// the toggle-triggered full-screen overlay (T-012) — two distinct
+// concrete layouts, not a resize/reflow of one (ui.md, Visual States).
 //
-// $nav-height must match RootLayout.astro's `scroll-margin-top` on the
-// three Domain Section ids, so an anchor-link jump (Commitment 2) lands
-// clear of this fixed bar rather than underneath it.
+// $nav-height / $mobile-nav-height must match RootLayout.astro's
+// `scroll-margin-top` on the three Domain Section ids (desktop-up and
+// base respectively), so an anchor-link jump (Commitment 2; Commitment
+// 6 AC2 from inside the overlay) lands clear of each fixed bar rather
+// than underneath it.
 $nav-height: 4.5rem;
+$mobile-nav-height: 3rem;
 
 .nav {
 	display: none;
@@ -51,6 +54,16 @@ $nav-height: 4.5rem;
 	background: linear-gradient(160deg, tokens.$color-gradient-start, tokens.$color-gradient-end);
 }
 
+// Right-hand group: "about"/"contact" grouped together, closest to the
+// frame's right edge (ui.md, Desktop) — the language control's hosting
+// slot (Commitment 7) sits alongside it, both distinct from the
+// far-left wordmark.
+.navEnd {
+	display: flex;
+	align-items: center;
+	gap: tokens.$space-md;
+}
+
 .links {
 	display: flex;
 	align-items: center;
@@ -76,4 +89,112 @@ $nav-height: 4.5rem;
 // Active Language Indicator convention.
 .linkActive {
 	font-weight: tokens.$font-weight-display;
+}
+
+// Language Override hosting slot, desktop bar (Commitment 7, AC1). Exact
+// position within the bar is Pending (ui.md); placed after the links,
+// within the same right-hand group, as a self-contained Implementation
+// Detail. Spacing comes from .navEnd's own gap.
+.languageSlot {
+	display: flex;
+}
+
+// --- Mobile: closed-state bar (T-012) ---------------------------------
+
+.mobileBar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	position: fixed;
+	inset: 0 0 auto 0;
+	z-index: 10;
+	height: $mobile-nav-height;
+	padding: 0 tokens.$space-sm;
+	background-color: tokens.$color-base-bg;
+
+	@include mixins.desktop-up {
+		display: none;
+	}
+}
+
+// Half the desktop/open-overlay wordmark size — a distinct treatment
+// specific to the collapsed mobile bar (ui.md, Typography Application).
+.mobileWordmark {
+	font-family: tokens.$font-family-base;
+	font-size: calc(#{tokens.$font-size-label} * 0.5);
+	font-weight: tokens.$font-weight-label;
+	color: tokens.$color-base-fg;
+	text-transform: lowercase;
+}
+
+.toggle {
+	display: flex;
+	color: tokens.$color-base-fg;
+
+	svg {
+		width: 2rem;
+		height: 0.5rem;
+	}
+}
+
+// --- Mobile: full-screen overlay (T-012, Commitment 6) ----------------
+
+.overlayBackdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 20;
+	background-color: tokens.$color-base-bg;
+}
+
+.overlayContent {
+	position: fixed;
+	inset: 0;
+	z-index: 21;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: tokens.$space-xl;
+	padding: tokens.$space-lg;
+	background-color: tokens.$color-base-bg;
+}
+
+// Same top-right position as the closed bar's toggle — a state-swap of
+// the same control, not a separate element (ui.md, Component Anatomy).
+.closeButton {
+	position: absolute;
+	top: calc((#{$mobile-nav-height} - 1.4375rem) / 2);
+	right: tokens.$space-sm;
+	color: tokens.$color-base-fg;
+
+	svg {
+		width: 1.4rem;
+		height: 1.4375rem;
+	}
+}
+
+.overlayLinks {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: tokens.$space-lg;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+// Same tier as the desktop links — measured identical (46) in both
+// contexts; no size reduction once the overlay opens (ui.md, Typography
+// Application).
+.overlayLink {
+	font-family: tokens.$font-family-base;
+	font-size: tokens.$font-size-label;
+	font-weight: tokens.$font-weight-label;
+	color: tokens.$color-base-fg;
+	text-transform: lowercase;
+}
+
+.overlayLanguageSlot {
+	display: flex;
+	justify-content: center;
 }

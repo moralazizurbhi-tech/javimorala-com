@@ -49,13 +49,17 @@ const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = A
 		font-weight: tokens.$font-weight-body;
 	}
 
-	// Section Navigation (T-011) renders as a fixed bar only from the
-	// desktop breakpoint up (SectionNav.module.scss). Anchor-link jumps
-	// (Commitment 2) must land clear of it, not underneath it — this
-	// value must match that stylesheet's own $nav-height.
+	// Section Navigation renders a fixed bar on every device class — the
+	// desktop bar (T-011) from the desktop breakpoint up, the mobile
+	// closed-state bar (T-012) below it. Anchor-link jumps (Commitment 2;
+	// Commitment 6 AC2 from inside the mobile overlay) must land clear of
+	// whichever is present, not underneath it — these values must match
+	// SectionNav.module.scss's own $mobile-nav-height / $nav-height.
 	:global(#introduction),
 	:global(#personal-narrative),
 	:global(#connection) {
+		scroll-margin-top: 3rem;
+
 		@include mixins.desktop-up {
 			scroll-margin-top: 4.5rem;
 		}

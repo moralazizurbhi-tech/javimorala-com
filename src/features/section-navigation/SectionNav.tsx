@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
+import { Dialog, VisuallyHidden } from 'radix-ui';
+import LanguageSwitcher from '../language-override/LanguageSwitcher';
 import styles from './SectionNav.module.scss';
 
 // Section Navigation Composition — core desktop bar & active-section
-// state (T-011). Mobile toggle/overlay and the language-control hosting
-// slot are T-012's own responsibility (technical-design.md, Design
-// Decision 6 — one shared component tree, extended there).
+// state (T-011), extended here with the mobile toggle/full-screen
+// overlay and the language-control hosting slot in both nav forms
+// (T-012, Commitments 6, 7). One shared component tree — Styling
+// System breakpoints decide which of the two realizations is visible
+// (technical-design.md, Design Decision 6) — not two separately
+// maintained components; both consume the same active-section state
+// (Design Decision 1) and the same link set.
 //
 // Static pre-hydration baseline (Design Decision 5): wordmark and
 // "about"/"contact" links are plain in-page anchors, functional via
@@ -13,7 +19,9 @@ import styles from './SectionNav.module.scss';
 // Commitment 5 AC1 ("Introduction active on initial load"). Hydration
 // then takes over only to keep the active-section state (Commitment 5)
 // and the derived compact-logomark condition (Commitment 4) accurate at
-// runtime — the only behavior that needs a live scroll observation.
+// runtime — the only behavior that needs a live scroll observation. The
+// mobile toggle/overlay (Commitment 6) is necessarily hydration-only —
+// it has no meaningful static/no-JS form of its own.
 //
 // The wordmark is always rendered and always links to Introduction's
 // top, on every screen (ui.md: "consistent across all three screens'
@@ -26,6 +34,17 @@ import styles from './SectionNav.module.scss';
 // — an Implementation Detail resolving the mechanism, not a new
 // decision: the always-present wordmark is the vehicle whenever the
 // icon itself is hidden.
+//
+// The mobile overlay is built on the Accessible Primitives Layer
+// (Radix UI's Dialog), per the Technical Design's own Constraint —
+// its modal focus-trap and full-screen backdrop are what satisfy
+// Commitment 6 AC4 ("underlying page not interactable while open")
+// without this component reimplementing focus management itself. Each
+// overlay link is wrapped in Dialog.Close (asChild) so activating it
+// both closes the overlay and lets the anchor's own default navigation
+// proceed in the same interaction (Commitment 6, AC2); the separate
+// close control only closes, with no href and no navigation side effect
+// (Commitment 6, AC3).
 
 export type SectionId = 'introduction' | 'personal-narrative' | 'connection';
 
@@ -39,6 +58,7 @@ interface Props {
 
 export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }: Props) {
 	const [activeSection, setActiveSection] = useState<SectionId>('introduction');
+	const [overlayOpen, setOverlayOpen] = useState(false);
 
 	useEffect(() => {
 		const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
@@ -86,31 +106,101 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 	const isIntroduction = activeSection === 'introduction';
 
 	return (
-		<nav className={styles.nav} aria-label="Primary">
-			<a href="#introduction" className={styles.wordmark}>
-				{wordmark}
-			</a>
-			{!isIntroduction && (
-				<a href="#introduction" className={styles.compactMark} aria-label="Introduction" />
-			)}
-			<ul className={styles.links}>
-				<li>
-					<a
-						href="#personal-narrative"
-						className={activeSection === 'personal-narrative' ? `${styles.link} ${styles.linkActive}` : styles.link}
-					>
-						{navLabelAbout}
+		<>
+			<nav className={styles.nav} aria-label="Primary">
+				<a href="#introduction" className={styles.wordmark}>
+					{wordmark}
+				</a>
+				{!isIntroduction && (
+					<a href="#introduction" className={styles.compactMark} aria-label="Introduction" />
+				)}
+				<div className={styles.navEnd}>
+					<ul className={styles.links}>
+						<li>
+							<a
+								href="#personal-narrative"
+								className={activeSection === 'personal-narrative' ? `${styles.link} ${styles.linkActive}` : styles.link}
+							>
+								{navLabelAbout}
+							</a>
+						</li>
+						<li>
+							<a
+								href="#connection"
+								className={activeSection === 'connection' ? `${styles.link} ${styles.linkActive}` : styles.link}
+							>
+								{navLabelContact}
+							</a>
+						</li>
+					</ul>
+					<div className={styles.languageSlot}>
+						<LanguageSwitcher />
+					</div>
+				</div>
+			</nav>
+
+			<Dialog.Root open={overlayOpen} onOpenChange={setOverlayOpen}>
+				<div className={styles.mobileBar}>
+					<a href="#introduction" className={styles.mobileWordmark}>
+						{wordmark}
 					</a>
-				</li>
-				<li>
-					<a
-						href="#connection"
-						className={activeSection === 'connection' ? `${styles.link} ${styles.linkActive}` : styles.link}
-					>
-						{navLabelContact}
-					</a>
-				</li>
-			</ul>
-		</nav>
+					<Dialog.Trigger className={styles.toggle} aria-label="Open menu">
+						<svg viewBox="0 0 32 8" aria-hidden="true" focusable="false">
+							<line x1="0" y1="1" x2="32" y2="1" stroke="currentColor" strokeWidth="2" />
+							<line x1="0" y1="7" x2="32" y2="7" stroke="currentColor" strokeWidth="2" />
+						</svg>
+					</Dialog.Trigger>
+				</div>
+				<Dialog.Portal>
+					<Dialog.Overlay className={styles.overlayBackdrop} />
+					<Dialog.Content className={styles.overlayContent}>
+						<VisuallyHidden.Root asChild>
+							<Dialog.Title>Navigation menu</Dialog.Title>
+						</VisuallyHidden.Root>
+						<Dialog.Close className={styles.closeButton} aria-label="Close menu">
+							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<path
+									d="M4 4l16 16M20 4 4 20"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+								/>
+							</svg>
+						</Dialog.Close>
+						<ul className={styles.overlayLinks}>
+							<li>
+								<Dialog.Close asChild>
+									<a
+										href="#personal-narrative"
+										className={
+											activeSection === 'personal-narrative'
+												? `${styles.overlayLink} ${styles.linkActive}`
+												: styles.overlayLink
+										}
+									>
+										{navLabelAbout}
+									</a>
+								</Dialog.Close>
+							</li>
+							<li>
+								<Dialog.Close asChild>
+									<a
+										href="#connection"
+										className={
+											activeSection === 'connection' ? `${styles.overlayLink} ${styles.linkActive}` : styles.overlayLink
+										}
+									>
+										{navLabelContact}
+									</a>
+								</Dialog.Close>
+							</li>
+						</ul>
+						<div className={styles.overlayLanguageSlot}>
+							<LanguageSwitcher />
+						</div>
+					</Dialog.Content>
+				</Dialog.Portal>
+			</Dialog.Root>
+		</>
 	);
 }
