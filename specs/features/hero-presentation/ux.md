@@ -5,11 +5,13 @@
 ## UX Scope
 
 Specializes Project UX's Introduction screen, the "Get an impression of
-who Javi is" User Flow, the Scroll/Continue Cue UI Component, and the
-Visual Identity's decorative-mark entrance role — for the composition of
-headline/tagline, ornamental-mark placement, and entry scroll cue as one
-arrival moment. Consistent with Feature Solution/Contract's boundary:
-excludes nav, presence links, the ornamental mark's visual asset, and
+who Javi is" User Flow, the Scroll/Continue Cue UI Component, the
+Presence Links UI Component's minor/secondary Introduction-screen role,
+and the Visual Identity's decorative-mark entrance role — for the
+composition of headline/tagline, ornamental-mark placement, entry scroll
+cue, and Presence Links' conditional placement as one arrival moment.
+Consistent with Feature Solution/Contract's boundary: excludes nav,
+Presence Links' own link content, the ornamental mark's visual asset, and
 motion timing/sequencing.
 
 ## User Flows
@@ -27,6 +29,11 @@ Specializes Project UX's "Get an impression of who Javi is" flow.
 - No separate "activate scroll cue" flow exists — Contract Commitment 3
   establishes the scroll cue produces no scroll/navigation effect when
   activated.
+- On device classes/viewports with room for it, the visitor also
+  perceives Presence Links as a minor, secondary glimpse alongside the
+  composition (Contract Commitment 5); on constrained/small screens it is
+  not shown, and its absence there is not a partial-composition failure
+  (Commitment 5 AC2/AC4).
 
 ## Screens
 
@@ -35,7 +42,11 @@ Specializes Project UX's "Get an impression of who Javi is" flow.
 Existing identity, from Project UX's Screens.
 
 - Purpose: present the first-impression composition as one moment.
-  Participates in the Hero arrival flow.
+  Participates in the Hero arrival flow. The composition also includes
+  Presence Links as a minor/secondary glimpse when the device
+  class/viewport has room for it (Commitment 5); it's omitted on
+  constrained/small screens rather than compromising the primary
+  composition.
 - Perceptual/experience direction: the headline is the primary,
   first-perceived element carrying Javi's voice and character; the
   ornamental mark reads as a secondary, anchoring visual presence
@@ -72,6 +83,12 @@ Existing identity, from Project UX's Screens.
   Scroll/Continue Cue component for its role in this composition;
   passive affordance only (Feature Solution/Contract), carrying a short
   text label per below.
+- **Presence Links (Hero placement)** — specializes Project UX's
+  Presence Links component for its secondary/minor role at Introduction;
+  shown only on device classes/viewports with room to accommodate it
+  without compromising the primary composition (Commitment 5); its own
+  link content is owned by `presence-links` — this Feature only
+  coordinates its conditional placement/prominence here.
 
 ## Content and Assets
 
@@ -85,15 +102,20 @@ Existing identity, from Project UX's Screens.
   `content-localization`'s authoring process before launch.
 - **Scroll cue text (English)** — Confirmed: "there's more below."
 - **Scroll cue text (Spanish, Euskera)** — Pending.
+- **Presence Links content/list** — Excluded: link content itself is
+  `presence-links`' own concern; this Feature only decides whether/where
+  to show it within the Hero moment.
 - **Ornamental mark asset** — Excluded: the visual asset itself is shared
   substrate, not a content requirement owned by this Feature; only its
   placement is this Feature's concern.
 
 ## UX Constraints
 
-- Composition must express within the existing visual identity —
-  near-black/off-white base palette with vivid gradient accents reserved
-  for emphasis.
+- Composition must express within the existing visual identity — a
+  plain, warm near-black/off-white base palette (no gradient on the
+  background), with the confirmed lilac-to-purple gradient applied
+  specifically to the ornamental mark (an SVG asset) as the composition's
+  emphasis element.
 - Reduced-motion fallback is mandatory for this Feature's arrival
   presentation.
 - Desktop, tablet, and mobile must each receive a purpose-built
@@ -101,6 +123,9 @@ Existing identity, from Project UX's Screens.
 - Full keyboard operability, visible focus states, sufficient contrast,
   and assistive-technology compatibility apply to the scroll cue if it is
   an interactive/focusable element.
+- When shown, Presence Links must read as visually subordinate to
+  headline/tagline, ornamental mark, and scroll cue — never competing
+  with them for primary attention (Contract Commitment 5).
 
 ---
 

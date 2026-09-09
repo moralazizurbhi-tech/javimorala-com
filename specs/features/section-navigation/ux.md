@@ -95,6 +95,14 @@ pattern.
   Figma reference is an early static exploration with no distinct
   "active" visual treatment evidenced, so its exact visual expression
   (color, underline, weight, etc.) is Pending, left to Feature UI.
+- **Compact Logomark Presence:** two discrete per-screen states — absent
+  (Introduction) / present (Personal Narrative, Connection) (Commitment
+  4) — confirmed by Figma as structurally distinct compositions (the
+  Introduction frame has no nav-logomark grouping at all; About/Contact
+  both do, identically), not an animated transition. Any visual
+  transition experienced while scrolling between screens is
+  `motion-interaction`'s separate concern, layered on top of these
+  discrete states.
 - No loading, empty, or error state applies — this Feature has no
   data-fetch or fallible operation; it's a static composed surface
   driven by scroll position and confirmed link targets.

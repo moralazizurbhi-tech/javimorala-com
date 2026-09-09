@@ -11,22 +11,29 @@ toggle/overlay — informed by the same explicitly-provided Figma reference
 (file `CCwye9dUj8Sy4f2lgy6i9f`: "Home" `4:65`/"Home - mobile" `22:41`,
 "About" `13:2`/"About - mobile" `22:112`, "Contact" `22:2`/"Contact -
 mobile" `22:126`, "Menu - mobile" `22:99`), treated as evidence, not
-persistent project knowledge. Project UX's Visual Foundations don't yet
-define concrete type/spacing/colour tokens, so most values below are
-Feature-specific extensions, mapped qualitatively to existing tiers where
-they visibly correspond (mirrors Direct Contact's UI approach). Excludes
+persistent project knowledge. Project UX's Visual Foundations now define concrete typography (a single
+rounded, geometric sans-serif family, weight-driven hierarchy) and
+colour (warm near-black/off-white base, gradient reserved for emphasis)
+at the outcome level; exact sizing below remains a Feature-specific
+extension, mapped to existing tiers where it visibly corresponds
+(mirrors Direct Contact's UI approach). Excludes
 the ornamental mark's own visual design/asset, each destination screen's
 own content, `language-override`'s own control behavior, and all
 motion/transition treatment (`motion-interaction`).
 
 ## Typography Application
 
-- Wordmark ("javimorala.com"): small body/label-tier text, regular
-  weight, lowercase as observed — Project UX's "compact nav/label text"
-  tier.
-- "about"/"contact" links: same small body/label-tier text, regular
-  weight, lowercase, matching the wordmark's visual weight (no separate
-  emphasis).
+- Wordmark ("javimorala.com"), desktop and mobile-open-overlay: small
+  body/label-tier text, regular weight, lowercase as observed — measured
+  height 46, an exact match to Hero's nav-link tier (also 46), not just
+  a qualitative "compact nav/label text" resemblance.
+- Wordmark, mobile closed state: measured height 23 — exactly half the
+  desktop/open-overlay size, a distinct smaller treatment specific to
+  the collapsed mobile bar.
+- "about"/"contact" links (desktop and inside the open mobile overlay):
+  same tier as the desktop wordmark, regular weight, lowercase, matching
+  its visual weight (no separate emphasis) — measured height 46 in both
+  contexts, confirming no size reduction once the overlay opens.
 - No distinct typographic treatment observed for an active state —
   consistent with Feature UX's Pending marker on the indicator's visual
   expression.
@@ -40,26 +47,33 @@ motion/transition treatment (`motion-interaction`).
   left-to-right in that order, with "contact" closest to the frame's
   right edge; a consistent gap between the two links.
 - A thin horizontal divider line runs the bar's full width beneath it,
-  separating the nav from the screen content below.
+  separating the nav from the screen content below — present on all
+  three screens, including Introduction (confirmed: Introduction's own
+  frame has its own divider-line pair, just not grouped into a named
+  container the way About/Contact's nav row is).
 - On About and Contact, the compact logomark icon is centered
   horizontally within this same row, vertically aligned with the
-  wordmark and links. On Introduction, that same row contains only the
-  wordmark and links — no centered element — leaving the Hero's own
-  large centerpiece mark (owned by `hero-presentation`) as the only mark
-  on that screen.
+  wordmark and links; its frame measures 117x216 — exactly as tall as
+  the entire nav row — spanning the row's full height rather than
+  sitting as a small inline icon at text baseline. On Introduction, that
+  same row contains only the wordmark and links — no centered element —
+  leaving the Hero's own large centerpiece mark (owned by
+  `hero-presentation`) as the only mark on that screen.
 - The bar's row height, divider position, and left/right link alignment
   stay visually consistent across all three screens — only the compact
   logomark's presence changes.
 
 ### Mobile
 
-- Closed: wordmark top-left, hamburger toggle (two-line glyph) top-right
-  — no divider line observed in the mobile reference.
+- Closed: wordmark top-left at its half-size (measured 23), hamburger
+  toggle top-right measuring 32x8 (two horizontal lines) — no divider
+  line observed in the mobile reference.
 - Open (overlay): the toggle is replaced by a close ("X") glyph in the
-  same top-right position; "about" and "contact" are centered together
-  in the vertical middle of the full-screen overlay, stacked with a
-  large gap between them — no wordmark or compact logomark observed
-  within the open overlay in this reference.
+  same top-right position, measuring ~22.6x23 (two crossed lines);
+  "about" and "contact" are centered together in the vertical middle of
+  the full-screen overlay at their full size (measured 46, unchanged
+  from desktop), stacked with a large gap between them — no wordmark or
+  compact logomark observed within the open overlay in this reference.
 - The language control's placement within either mobile form isn't
   observed in this Figma reference (older exploration, predates the
   confirmed `language-override` addition) — its concrete position is
@@ -86,6 +100,8 @@ motion/transition treatment (`motion-interaction`).
 
 ## Colour Application
 
+- Background: plain, warm near-black base (Figma: solid #221e24 on
+  every screen's frame) — the same base used everywhere, no gradient.
 - Wordmark, nav links, and the compact logomark: the project's soft
   off-white foreground (`#ebeaec`, observed directly in Figma), no
   accent-gradient treatment.

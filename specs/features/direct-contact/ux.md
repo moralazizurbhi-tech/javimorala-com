@@ -5,15 +5,18 @@
 ## UX Scope
 
 Specializes Project UX's Connection screen and its "Reach Javi" User Flow,
-for the CTA composition (heading + `mailto:` link) and closing farewell
-line, composed alongside Presence Links (secondary, owned by
-`presence-links`) into one cohesive closing-screen moment. Informed by an
-explicitly provided external Figma source (file `CCwye9dUj8Sy4f2lgy6i9f`,
-"Contact" frame `22:2` desktop / "Contact - mobile" `22:126`) — treated as
-observed evidence, confirmed against by the user, not persistent project
-knowledge. Excludes Presence Links' own link content, nav, the ornamental
-mark, motion timing, the localization mechanism, and the anti-scraping
-technique (Technical Design).
+for the section eyebrow header, CTA composition (heading + `mailto:`
+link), closing farewell line, and the ornamental mark's decorative
+background role, composed alongside Presence Links (secondary, owned by
+`presence-links`) into one cohesive closing-screen moment that fills
+exactly one viewport's height. Informed by an explicitly provided
+external Figma source (file `CCwye9dUj8Sy4f2lgy6i9f`, "Contact" frame
+`22:2` desktop / "Contact - mobile" `22:126`) — treated as observed
+evidence, confirmed against by the user, not persistent project
+knowledge. Excludes Presence Links' own link content, nav, the
+ornamental mark's own visual design/asset, motion timing, the
+localization mechanism, and the anti-scraping technique (Technical
+Design).
 
 ## User Flows
 
@@ -42,16 +45,27 @@ Existing identity, from Project UX's Screens.
   dominant/primary; presence links secondary/supporting (Project UX
   Screen Composition).
 - Perceptual/experience direction (Observed from Figma, Confirmed by the
-  user): a heading introduces the section; the CTA link is the primary
-  actionable element below/alongside it (Contract Commitment 4); Presence
-  Links (presence-links' own content) appear as a secondary group; the
-  farewell line closes the screen as two lines — a primary line, then a
-  secondary line nodding toward Presence Links. Exact spatial layout,
-  sizing, and positioning are Pending, left entirely to Feature UI.
-- Desktop and mobile both realize this same structure (Observed —
-  matching "Contact"/"Contact - mobile" Figma frames with the same text
-  elements); specific per-device-class realization is Pending, left to
-  Feature UI.
+  user): a section eyebrow header ("let's get in touch," divider-flanked)
+  is the topmost element, read before the CTA cluster; a heading
+  introduces the section; the CTA link is the primary actionable element
+  below/alongside it (Contract Commitment 4); Presence Links
+  (presence-links' own content) appear as a secondary group; the farewell
+  line closes the screen as two lines — a primary line, then a secondary
+  line nodding toward Presence Links. The ornamental mark renders as a
+  background layer, purely decorative and non-interactive, subordinate
+  to the CTA at all times (Contract Commitment 6) — it never competes
+  with the CTA for primary attention, mirroring Hero's own
+  mark-subordination pattern. The whole composition fills exactly
+  one viewport's height, not a taller, scrolled block. Exact spatial
+  layout, sizing, and positioning are Pending, left entirely to Feature
+  UI.
+- Desktop/tablet and mobile both realize this same core structure, with
+  one exception: the section eyebrow header is desktop/tablet-only,
+  omitted on mobile (Observed — the Figma mobile frame has no separate
+  eyebrow instance), mirroring Hero's established space-constrained
+  mobile-omission pattern for secondary elements; the CTA cluster and the
+  farewell/Presence-Links group appear on both device classes. Specific
+  per-device-class realization is otherwise Pending, left to Feature UI.
 
 ## Interaction States
 
@@ -62,6 +76,13 @@ Existing identity, from Project UX's Screens.
 
 ## Feature Components
 
+- **Section Eyebrow Header** — a divider-flanked label introducing the
+  screen, positioned above and before the CTA cluster; observed from
+  Figma, distinct from the smaller Contact Heading below; reuses the same
+  confirmed "Contact heading" text values under Content and Assets — no
+  separate copy. Desktop/tablet only — omitted on mobile, where the
+  viewport doesn't have room to show it separately from the CTA-adjacent
+  Contact Heading without compromising the primary composition.
 - **Contact Heading** — a short section heading introducing the
   Connection screen's contact moment. Feature-specific component,
   observed from Figma.
@@ -72,6 +93,11 @@ Existing identity, from Project UX's Screens.
   technique itself Pending, Technical Design.
 - **Farewell Line** — two short closing text lines presented statically,
   positioned after/alongside the CTA and Presence Links.
+- **Ornamental Mark (Connection background placement)** — specializes
+  Project UX's Visual Identity note on the mark's role; the mark's own
+  visual design/asset is not owned here (Feature Definition boundary);
+  purely decorative, non-interactive, subordinate to the CTA (Contract
+  Commitment 6).
 
 ## Content and Assets
 
@@ -111,6 +137,11 @@ Existing identity, from Project UX's Screens.
   consistent with Project UX's UX Constraints.
 - No motion, timing, or reveal behavior is defined here — owned by
   `motion-interaction`.
+- The Connection screen's composition fills exactly one viewport's
+  height on desktop and mobile alike — not a taller, scrolled
+  composition.
+- The ornamental mark must remain visually subordinate to the CTA and
+  carry no interactive affordance (Contract Commitment 6).
 
 ---
 

@@ -56,6 +56,13 @@ statically-authored effort.
   broader online presence (social/professional profiles), distinct from
   direct contact; appears both at the first-impression moment and again
   at the closing Connection moment.
+- **Localization** (applies across all domains) — auto-detected content
+  resolution into the visitor's language (English, Spanish, Euskera),
+  with an always-available manual override, ensuring every domain's
+  content reaches the visitor in a language they understand.
+- **Section navigation** (applies across all domains) — a persistent
+  navigation aid letting a visitor move directly between the three
+  domains as a shortcut alongside free scrolling.
 
 ## Functional Principles
 

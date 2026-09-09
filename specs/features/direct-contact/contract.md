@@ -129,6 +129,32 @@ presented statically, with no interactive behavior of its own.
   - Failure Condition: any interactive behavior (e.g. a click handler
     or toggle) is triggered.
 
+### Commitment 6 — Ornamental Mark Decorative Presence
+
+Relationship to Solution: resolves the Behaviour/Rule establishing the
+ornamental mark as a purely decorative, non-interactive background
+element, subordinate to the CTA, not subject to Commitment 1's strict
+completeness guarantee.
+
+**Acceptance Criteria**
+
+- AC1: The ornamental mark, when presented in the Connection
+  composition, carries no interactive or focusable behavior.
+- AC2: The mark's visual prominence is subordinate to the CTA — it never
+  competes with the CTA for primary attention.
+- AC3: The mark's presence or absence does not affect Commitment 1's
+  guarantee that the CTA itself is present and visible without
+  requiring prior visitor interaction.
+
+**Validation Scenarios**
+
+- Scenario — Mark presented alongside the CTA
+  - Success Condition: the mark renders as a non-interactive decorative
+    background element; the CTA remains the composition's primary
+    focus.
+  - Failure Condition: the mark exposes an interactive/focusable
+    affordance, or visually overshadows the CTA.
+
 ---
 
 *Created: 2026-09-07*

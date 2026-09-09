@@ -23,7 +23,12 @@ connect/follow" problem at both visitor moments.
 - Link labels render in the visitor's active language via
   `content-localization`.
 - The same link set (same profiles, same identity/order) is presented
-  consistently at both placements — no divergent subset.
+  consistently at both placements — no divergent subset. This governs
+  the link set's content/identity when a placement is actually composed
+  in; it does not require every host Feature to compose this Feature's
+  placement at every device class/viewport. Whether a host Feature
+  composes it at all in a given context is that host Feature's own
+  scope (Feature Definition's Excluded list), not decided here.
 
 ### Flows
 
@@ -45,7 +50,10 @@ connect/follow" problem at both visitor moments.
   in the single-page experience.
 - No form fields, no visitor data collection, at any point.
 - The same set of profile links must be used at both placements — no
-  per-placement content divergence.
+  per-placement content divergence — whenever a placement is actually
+  composed in by its host Feature; whether a host Feature composes this
+  Feature's placement at all, in a given device/viewport context, is
+  that host Feature's own scope, not decided here.
 - At each placement, presence links stay functionally secondary to that
   placement's own primary element (Hero's headline/mark/scroll-cue at
   Introduction; the CTA at Connection) — exact visual styling is UX/UI's
@@ -60,7 +68,9 @@ browser/OS, no in-page loading/confirmation/success state.
 
 - Consistent single link-set across both placements is a solution-level
   requirement, narrowing Context's "same identity/behavior consistently
-  across both" into an explicit rule.
+  across both" into an explicit rule — scoped to when a placement is
+  actually composed in, not to whether a host Feature composes it at
+  all in a given context.
 - Single external-link activation per profile is a solution-level
   requirement, narrowing Context's inherited "no backend/no on-site form"
   constraint.

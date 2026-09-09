@@ -8,9 +8,10 @@
 
 Provide the visitor a primary, always-visible CTA that opens a `mailto:`
 hand-off to reach Javi directly, without exposing his email address to
-automated scraping, coordinated with Presence Links (secondary) and the
-closing farewell line as one closing composition — resolving Feature
-Context's "no path to real contact" problem.
+automated scraping, coordinated with Presence Links (secondary), the
+closing farewell line, and the ornamental mark's decorative background
+placement as one closing composition — resolving Feature Context's "no
+path to real contact" problem.
 
 ## Solution Behaviour
 
@@ -27,6 +28,11 @@ Context's "no path to real contact" problem.
   via `content-localization`.
 - Presence Links is composed alongside the CTA as a secondary element; its
   own link behavior is `presence-links`' own solution.
+- The ornamental mark is presented in the Connection composition as a
+  purely decorative background element — it carries no interactive
+  behavior and does not compete with the CTA for primary attention. Its
+  presence carries no completeness guarantee of its own, mirroring how
+  Presence Links is already treated here.
 
 ### Flows
 
@@ -49,6 +55,8 @@ Context's "no path to real contact" problem.
   element; exact visual styling is UX/UI's concern.
 - The farewell line is presented statically, with no interactive behavior
   of its own.
+- The ornamental mark, when shown, must remain visually subordinate to
+  the CTA — never competing with it for primary attention.
 
 ### States and Transitions
 
@@ -74,11 +82,16 @@ loading/confirmation/success state.
   anti-scraping requirement.
 - Composing the CTA, Presence Links, and farewell line together, with the
   CTA taking functional precedence.
+- Coordinating the ornamental mark's decorative background placement
+  alongside the CTA, Presence Links, and farewell line, as a purely
+  decorative, non-interactive element.
 
 #### Excluded
 
 - Presence Links' own link content/behavior — `presence-links`'s own
   solution.
+- The ornamental mark's own visual design/asset (shared substrate, owned
+  by no Feature).
 - The specific anti-scraping technique/mechanism — Technical Design.
 - Exact CTA copy, farewell-line wording, and the actual email address
   content — Feature UX's Content and Assets.

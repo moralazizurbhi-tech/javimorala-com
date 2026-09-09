@@ -67,6 +67,11 @@ conversion or audience-capture outcome.
 - **`motion-interaction`** — governs any arrival motion/microinteraction;
   interacts with this Feature's presentation without this Feature defining
   the motion itself.
+- **`presence-links`** — composed into this Feature's Hero moment as a
+  secondary/minor element, shown only when the device class/viewport has
+  room to accommodate it without compromising the primary composition;
+  owns its own link content, this Feature owns coordinating its
+  conditional placement.
 
 ---
 

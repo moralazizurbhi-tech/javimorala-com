@@ -9,14 +9,15 @@ ambient drift, About Narrative's progressive reveal, Section Navigation's
 identity transition and merged indicator, Direct Contact's CTA feedback,
 nav link/Presence Link/Language Switcher hover-focus feedback, the
 Language Switcher's dropdown open/close transition, and touch-equivalent
-— using Project UX's Visual Foundations
-(near-black/off-white base, vivid accent gradient reserved for emphasis)
-as shared vocabulary, building directly on each realized Feature's own
+— using Project UX's Visual Foundations — now confirmed as a single
+rounded, geometric sans-serif family and a warm near-black/off-white
+base with a lilac-to-purple gradient reserved for emphasis — as shared
+vocabulary, building directly on each realized Feature's own
 approved UI Definition (Hero, About Narrative, Section Navigation, Direct
 Contact) without altering their static compositions. Informed by the same
 explicitly-provided Figma reference other Features cite (file
 `CCwye9dUj8Sy4f2lgy6i9f`), consulted here specifically for the accent
-gradient's actual look — a lavender-to-violet-grey gradient, the same one
+gradient's actual look — a lilac-to-purple gradient, the same one
 already carried by the ornamental mark and Presence Links' tint — treated
 as evidence, not persistent project knowledge. Excludes exact timing/
 easing values and animation technology (Feature Technical Design), and
@@ -70,7 +71,7 @@ Pending.
   there).
 - **CTA feedback (gradient sweep):** on hover, the CTA's existing
   display text is filled by the site's accent gradient (the same
-  lavender-to-violet-grey gradient the ornamental mark and Presence
+  lilac-to-purple gradient the ornamental mark and Presence
   Links already carry), and the gradient's position animates across the
   text — a moving sweep, like light passing over the letters — rather
   than a flat before/after fill swap. On touch, the same sweep plays
@@ -81,7 +82,7 @@ Pending.
   rather than requiring a sustained hover state.
 - **Nav link / Presence Link hover-focus feedback:** on hover or focus,
   the link's existing text fills with the site's accent gradient (the
-  same lavender-to-violet-grey gradient the CTA sweep, ornamental mark,
+  same lilac-to-purple gradient the CTA sweep, ornamental mark,
   and Presence Links' tint already carry) as a static colour fill — not
   an animated moving sweep like the CTA's — keeping the CTA as the one
   elevated, primary interaction moment while these secondary links stay
@@ -135,7 +136,7 @@ Pending.
 - The ambient gradient drift, the CTA gradient sweep, and the nav
   link/Presence Link/Switcher trigger-option static gradient fill all
   reuse the existing accent gradient value already carried by the
-  ornamental mark and Presence Links (lavender-to-violet-grey, per the
+  ornamental mark and Presence Links (lilac-to-purple, per the
   Figma reference) — no new colour token introduced.
 - Progress-bar fill: the same accent gradient, layered onto the
   divider's existing base colour — the divider's own exact base colour

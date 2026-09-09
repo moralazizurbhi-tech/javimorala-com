@@ -10,15 +10,20 @@ CTA/farewell). Direct Contact's own UI Definition already observed this
 Feature within its Connection composition (plain inline text links,
 horizontal, lavender/accent-tinted, no icons) — treated here as the
 baseline, applied consistently at both placements per Contract Commitment
-2. Project UX's Visual Foundations don't yet define concrete
-type/spacing/colour tokens, so most values below are Feature-specific
-extensions (mirrors Direct Contact's own UI).
+2. Project UX's Visual Foundations now define concrete typography (a single
+rounded, geometric sans-serif family, weight-driven hierarchy) and
+colour (warm near-black/off-white base, lilac-to-purple gradient
+reserved for emphasis) at the outcome level; exact sizing and the
+lavender/accent colour value below remain Feature-specific extensions
+(mirrors Direct Contact's own UI).
 
 ## Typography Application
 
 - Instagram/LinkedIn labels: small body/label-tier text, regular weight,
-  plain text, no icon — the same tier Direct Contact's UI already
-  assigned this Feature.
+  plain text, no icon — measured height 28 in the Figma source, the same
+  compact tier confirmed for Hero's scroll-cue/presence-links text and
+  Direct Contact's farewell lines — a consistently measured tier across
+  three Features, not just a qualitative match.
 
 ## Spacing and Layout
 
@@ -31,16 +36,25 @@ extensions (mirrors Direct Contact's own UI).
 ### Introduction placement
 
 - Positioned bottom-left (Confirmed by the user), same horizontal-with-
-  gap treatment, same identity (Contract Commitment 2). Exact
-  margin/offset from the screen edge is Pending — no specific Figma
-  frame identified there with confidence; left to implementation within
-  the site's established margin/gutter convention.
+  gap treatment, same identity (Contract Commitment 2). Cross-referenced
+  against hero-presentation's own UI Definition: bottom-left corner,
+  mirroring the scroll cue's bottom-right placement, a small quiet text
+  row. Exact pixel margin/offset from the screen edge remains Pending —
+  Hero's own description is relative, not a literal value — left to
+  implementation within the site's established margin/gutter convention.
 
-### Mobile (both placements)
+### Mobile — Connection placement
 
-- Same relative order/grouping as desktop; reflows within the narrower
-  column, matching Direct Contact's own mobile realization of this
-  cluster.
+- Reflows within the narrower column, matching Direct Contact's own
+  mobile realization of this cluster.
+
+### Mobile — Introduction placement
+
+- Omitted — hero-presentation's own UI Definition establishes no mobile
+  realization exists for this placement; the viewport doesn't have room
+  to show it without compromising Hero's primary composition (Hero
+  Contract Commitment 5). This Feature's Connection placement is
+  unaffected.
 
 ## Component Anatomy and Variants
 
@@ -50,13 +64,14 @@ extensions (mirrors Direct Contact's own UI).
 
 ## Colour Application
 
-- Both labels: a distinct, lavender/accent-tinted colour — visibly
-  different from the plain off-white used for each placement's primary
-  content. Realizes Contract Commitment 4 and the visual-distinctness
-  constraint already established from the Connection side (Direct
-  Contact's UI). Exact colour token value is Pending — Project UX's
-  Visual Foundations don't yet name one; this Feature only asserts the
-  consistent differentiation.
+- Both labels: Project UX's confirmed lilac-to-purple gradient, applied
+  as a static text fill (not the animated moving sweep motion-interaction
+  gives the Direct Contact CTA) — visibly different from the plain
+  off-white used for each placement's primary content. Realizes Contract
+  Commitment 4 and the visual-distinctness constraint already established
+  from the Connection side (Direct Contact's UI), and matches the value
+  motion-interaction's own UI Definition already assumes this Feature
+  carries.
 
 ## Borders, Radii, Shadows, Surfaces
 

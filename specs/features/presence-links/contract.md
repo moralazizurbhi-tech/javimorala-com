@@ -39,26 +39,42 @@ no in-site confirmation state", "opens in a new browser tab").
     on-site form appears, data is captured, or a multi-step/confirmation
     flow is presented.
 
-### Commitment 2 — Consistent Link Set Across Both Placements
+### Commitment 2 — Consistent Link Set Across Composed Placements
 
 Relationship to Solution: resolves the Rule that the same set of profile
-links must be used at both placements — no per-placement content
-divergence — and the Behaviour that the link set is presented
-consistently at both placements.
+links must be used at both placements when composed — no per-placement
+content divergence — and the Behaviour that the link set is presented
+consistently wherever composed in, scoped to a host Feature's own
+decision on whether to compose this Feature's placement at all in a
+given context (Feature Solution, as refined).
 
 **Acceptance Criteria**
 
-- AC1: The set of linked profiles (identity and order) is identical
-  between the Introduction placement and the Connection placement.
-- AC2: No profile link appears at one placement but not the other.
+- AC1: When both placements are composed in by their respective host
+  Features, the set of linked profiles (identity and order) is
+  identical between them.
+- AC2: No profile link appears at one composed placement but not the
+  other, when both are composed.
+- AC3: A host Feature's decision not to compose this Feature's
+  placement at all, in a given device/viewport context, is not a
+  failure of this Commitment — consistent with that host Feature's own
+  scope (e.g. hero-presentation's Commitment 5).
 
 **Validation Scenarios**
 
-- Scenario — Compare both placements at render
+- Scenario — Compare both placements at render, both composed
   - Success Condition: the Introduction and Connection placements list
     the exact same profiles, in the same order.
   - Failure Condition: the two placements present a different set,
-    order, or count of profile links.
+    order, or count of profile links, while both are composed.
+- Scenario — A host Feature omits this Feature's placement in a
+  device-constrained context
+  - Success Condition: the remaining composed placement still presents
+    its full, correct set; the omission itself is not treated as a
+    failure of this Commitment.
+  - Failure Condition: the omission is treated as violating this
+    Commitment, or it causes the remaining composed placement's set to
+    change.
 
 ### Commitment 3 — Localized Link Labels at Render
 

@@ -3,10 +3,19 @@
 ## UX Analysis
 
 Visual identity: a near-black background with soft off-white text as the
-base palette, plus vivid gradient fills reserved for accent/highlight
-moments. Two related logomark treatments: a compact mark for a persistent
-nav bar, and a larger, more decorative mark used at high-impact moments
-(entrance, closing).
+base palette, plus vivid gradient fills — observed as a lilac-to-purple
+hue family, most visibly in the ornamental mark and card treatments —
+reserved for accent/highlight moments. Two related logomark treatments: a
+compact mark for a persistent nav bar, and a larger, more decorative mark
+used at high-impact moments (entrance, closing), rendered as an
+illegible, spiked, band-logo-style wordmark in that same gradient.
+
+Typography: a single rounded, geometric sans-serif family carries the
+entire page, expressed through weight and size rather than mixing
+typefaces — a heavy, bold weight for the headline/display moment,
+stepping down through a medium weight for section and body copy, to a
+lighter, compact weight for nav links and small labels. The character
+reads as warm, current, and approachable rather than technical or mono.
 
 Interaction patterns: a persistent top navigation (logomark + anchor
 links) stays visible across every section on larger screens; on small
@@ -54,7 +63,15 @@ states, keyboard behavior, reduced-motion handling) is evidenced at all.
 Preserve / Evolve / Replace / Discard:
 - Persistent nav + mobile overlay menu → Preserve
 - Dark, high-contrast base palette → Preserve
-- Gradient accents for emphasis → Evolve (kept as a concept; exact values open)
+- Gradient accents for emphasis → Evolve — now decided as a
+  lilac-to-purple gradient spectrum specifically (per explicit user
+  confirmation), carried forward for the ornamental mark and emphasis
+  moments; exact stops/technical realization remain open for Technical
+  Design.
+- Typography (rounded geometric sans-serif, weight-driven hierarchy) →
+  Evolve — confirmed as the general typographic character to carry
+  forward, in the spirit of the reference's display face; exact typeface
+  selection remains open for Technical Design.
 - Scroll cue on the first screen → Evolve (expanded into a more prominent,
   more motion-forward feel across the whole experience, not just the
   entrance)
@@ -160,15 +177,34 @@ rather than adopted a skills-pitch framing for the identity screen.
 
 ## Visual Foundations
 
-- Typography scale: a clear hierarchy from an expressive, large-scale
-  display treatment for impression moments down through section text,
-  narrative body copy, and compact nav/label text — reading as deliberate
-  and current, not a generic system-font default.
+- Typography scale: a single rounded, geometric sans-serif family,
+  carried through the whole hierarchy via weight and size rather than
+  mixed typefaces — a heavy, bold weight for the expressive, large-scale
+  display treatment at impression moments, stepping down through a
+  medium weight for section text and narrative body copy, to a lighter,
+  compact weight for nav/label text — reading as warm, deliberate, and
+  current, not a generic system-font default.
 - Spacing scale: generous, uncluttered spacing within and between
   screens, consistent across all three domains and both device sizes.
-- Colour system: a high-contrast, dark-leaning base (near-black
-  background, soft off-white foreground) with a vivid accent colour
-  reserved for emphasis — chosen to read as a deliberate creative choice,
+- Responsive scaling outcome: every size in the typography and spacing
+  scale — headline, body, compact-label, and layout-spacing tiers alike
+  — scales smoothly with the viewport's width rather than jumping
+  between a few fixed steps, bounded by an explicit minimum and maximum
+  per tier so it never shrinks to illegible smallness on a narrow
+  viewport nor balloons to an overwhelming scale on a very wide one —
+  preserving each tier's relative proportion and hierarchy at every
+  screen size, not just at the widths a reference design happened to
+  depict. Figma measurements cited throughout Feature UI Definitions
+  record the relative proportions and tier relationships observed at
+  the reference's own fixed-width frames (1728px desktop, 390px
+  mobile) — evidence of ratio and hierarchy, never literal pixel
+  targets to copy as-is. The concrete scaling mechanism and exact bound
+  values are Technical Design's decision.
+- Colour system: a high-contrast, dark-leaning base (a warm near-black
+  background, soft off-white foreground) with a lilac-to-purple gradient
+  reserved for emphasis and high-impact moments (the ornamental mark, key
+  accents) — a confirmed purple-family spectrum rather than an open hue
+  choice — chosen to read as a deliberate, elegant creative signature,
   not "dark mode" as a default.
 - Base element / browser-default outcomes: every interactive element
   (links, switcher, nav toggle) reads as deliberately designed, with a

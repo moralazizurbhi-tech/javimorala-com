@@ -110,6 +110,51 @@ requiring device-class-appropriate treatment (not a plain reflow).
   - Failure Condition: the smaller device class is simply a
     scaled/reflowed copy of the larger one with no distinct treatment.
 
+### Commitment 5 — Presence Links Placement
+
+Relationship to Solution: resolves the Behaviour/Rules establishing
+Presence Links as a minor/secondary Hero element, shown conditionally on
+available space, governed by a lighter completeness expectation than
+Commitment 1.
+
+**Acceptance Criteria**
+
+- AC1: On a device class/viewport with room to accommodate it without
+  compromising the primary composition, the Hero composition includes
+  Presence Links as a minor/secondary element.
+- AC2: On a device class/viewport too constrained to fit it well (e.g.
+  small/mobile screens), Presence Links may be omitted from the Hero
+  composition without that being a defect.
+- AC3: When shown, Presence Links' visual prominence is subordinate to
+  headline/tagline, ornamental mark, and scroll cue — it never competes
+  with them for primary attention.
+- AC4: Presence Links' absence (whether from space constraints or delay)
+  never blocks or invalidates the composition's arrival completeness
+  under Commitment 1 — that invariant applies only to the original three
+  elements.
+- AC5: Presence Links' own link content/list is not decided by this
+  Feature (owned by `presence-links`).
+
+**Validation Scenarios**
+
+- Scenario A — Sufficient space (e.g. desktop/tablet)
+  - Success Condition: Presence Links appears within the Hero composition
+    as a minor/secondary element.
+  - Failure Condition: Presence Links is missing despite adequate room,
+    with no accommodation constraint justifying its absence.
+- Scenario B — Constrained space (e.g. small/mobile screens)
+  - Success Condition: Presence Links is omitted from the Hero
+    composition without affecting the completeness of the three primary
+    elements.
+  - Failure Condition: forcing Presence Links into a constrained layout
+    compromises the primary composition (crowds or obscures
+    headline/tagline, mark, or scroll cue).
+- Scenario C — Prominence check (wherever shown)
+  - Success Condition: Presence Links reads as visually subordinate to
+    the three primary elements.
+  - Failure Condition: Presence Links competes with or overshadows
+    headline/tagline, mark, or scroll cue for primary attention.
+
 ---
 
 *Created: 2026-09-06*

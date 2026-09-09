@@ -65,12 +65,6 @@ Connection screen — without owning either host composition itself.
 ## Relationship to Catalog / Capabilities
 
 - Realizes capability `presence-links`.
-- **Unresolved conflict, flagged not fixed here:** the Feature Catalog
-  records `section-navigation` as "enabling" `presence-links` directly,
-  but this Definition finds no independent nav anchor — Presence Links is
-  reached only through its two host compositions (`hero-presentation`,
-  `direct-contact`). Requires review by Feature Discovery/Catalog
-  Organization.
 - No Feature-to-Feature relationship for the Hero-composition or
   Connection-screen-composition relationships is recorded on the
   `presence-links` catalog entry itself; both are inferred from

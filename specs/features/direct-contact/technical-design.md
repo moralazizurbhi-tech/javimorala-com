@@ -13,17 +13,28 @@ composition within the same Domain Section.
 
 **Purpose**
 
-Realize `direct-contact`'s Feature Contract by rendering the contact
-heading, CTA link, and farewell lines as one coordinated, fully static
-composition, with the CTA's target address protected from static-source
-scraping.
+Realize `direct-contact`'s Feature Contract by rendering the section
+eyebrow header, contact heading, CTA link, farewell lines, and the
+ornamental mark's decorative background placement as one coordinated,
+fully static composition filling exactly one viewport's height, with
+the CTA's target address protected from static-source scraping.
 
 **Responsibilities**
 
-- Render the contact heading, CTA anchor, and both farewell lines
-  together in the Connection Domain Section's static markup, with the
-  CTA preceding `presence-links`' own composed content in DOM order
-  (Commitment 4).
+- Render the section eyebrow header (desktop/tablet only), contact
+  heading, CTA anchor, both farewell lines, and the ornamental mark's
+  decorative background layer together in the Connection Domain
+  Section's static markup, with the CTA preceding `presence-links`' own
+  composed content in DOM order (Commitment 4).
+- Size the Connection Domain Section's outer container to exactly one
+  viewport's height (desktop and mobile alike) via the Styling System's
+  breakpoint/sizing primitives, rather than allowing content to
+  determine a taller, scrolled block.
+- Render the ornamental mark as a non-interactive background layer,
+  behind all other Connection content in stacking order, with no
+  focusable/interactive markup (Commitment 6) — referencing the same
+  shared SVG asset Hero Composition also references, without owning or
+  duplicating its definition.
 - Consume the Connection domain's locale-resolved content (heading, CTA
   link text, farewell lines) from the i18n/Routing Layer for the active
   route's locale (Commitment 3); never read the Content Layer directly,
@@ -47,6 +58,9 @@ scraping.
   within the static markup.
 - DOM-order precedence of the CTA over `presence-links`' composed
   content within the shared Connection Domain Section.
+- The Connection Domain Section's fixed one-viewport-height sizing.
+- The ornamental mark's non-interactive background stacking treatment
+  (shared asset referenced, not redefined).
 
 **Collaborations**
 
@@ -66,6 +80,9 @@ scraping.
 - `presence-links`' own composition — external; this component only
   establishes DOM-order precedence relative to it, never owns or renders
   its content.
+- Shared Ornamental Mark Asset (external, project-wide substrate, not
+  owned by any Feature) — this component references the same asset
+  Hero Composition also references, for its own background placement.
 
 **Constraints**
 
@@ -104,6 +121,10 @@ scraping.
   Rationale: static-first principle; none of the Feature's committed
   behaviors need client-side logic once the encoding decision above is
   made.
+- The ornamental mark is rendered as a purely static background layer
+  with no hydration — consistent with this component's existing
+  no-React-island design; Commitment 6 requires no interactivity, so no
+  island is needed for it either.
 
 **Anti-Scraping Encoding Mechanism**
 
@@ -137,6 +158,8 @@ scraping.
 - Commitment 3 → i18n/Routing Layer consumption.
 - Commitment 4 → DOM-order precedence over Presence Links.
 - Commitment 5 → static, non-interactive text rendering.
+- Commitment 6 → non-interactive background-layer rendering of the
+  shared ornamental mark asset, with no completeness dependency.
 
 ## Cross-Component Relationships
 

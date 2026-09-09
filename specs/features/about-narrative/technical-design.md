@@ -34,11 +34,18 @@ photos as one coordinated, fully static composition, per device class.
 - Render both photos as plain, non-interactive image elements — no
   carousel/lightbox/toggle affordance — since Commitment 4 forbids any
   interaction changing which photo(s) display.
-- Apply the device-class-specific layout (two-column desktop/tablet vs.
-  single-column mobile ordering, per Feature UI Definition) entirely
-  through the Styling System's responsive breakpoints within one shared
-  markup structure, rather than branching to separate templates per
-  device class.
+- Apply the device-class-specific layout (staggered, contrasting-
+  orientation photo placement on desktop/tablet vs. single-column
+  ordering with the portrait photo proximate to the opening line on
+  mobile, per Feature UI Definition) entirely through the Styling
+  System's responsive breakpoints within one shared markup structure,
+  rather than branching to separate templates per device class.
+- Expose the narrative's first paragraph block as a distinctly styled
+  element — a heavier display-weight treatment as the composition's
+  opening/greeting, per Feature UI Definition — while the remaining
+  five blocks (including the AI-development line) share one uniform
+  body-tier style; applied via markup/selector structure, not by
+  giving the first block special functional behavior.
 
 **Owned Concepts**
 
@@ -48,6 +55,9 @@ photos as one coordinated, fully static composition, per device class.
   Styling System breakpoints.
 - Preservation of authored paragraph order as the mechanism guaranteeing
   AI-note subordinate positioning.
+- The narrative's first-paragraph distinct styling hook, separating its
+  display-tier treatment from the remaining five blocks' shared body
+  tier.
 
 **Collaborations**
 
@@ -55,8 +65,10 @@ photos as one coordinated, fully static composition, per device class.
   content (narrative text, including its closing AI-development
   paragraph) for the active locale.
 - Styling System — supplies breakpoint tokens, typography/colour tokens
-  (uniform body-copy tier, off-white foreground), and column/spacing
-  layout primitives for the two-column/single-column arrangements.
+  (the opening line's distinct display tier plus the shared body-copy
+  tier for the remaining five blocks, off-white foreground), and
+  column/spacing layout primitives for the staggered, contrasting-
+  orientation photo placement and single-column mobile ordering.
 
 **Dependencies**
 
@@ -94,11 +106,11 @@ photos as one coordinated, fully static composition, per device class.
 - Render as a purely static Astro component, no React island. Rationale:
   static-first principle; none of the Feature's committed behaviors need
   client-side logic.
-- Single shared markup with CSS-only device-class branching (column
-  arrangement via breakpoints), not two separate template paths.
-  Rationale: keeps the completeness invariant trivially true across
-  device classes — one render path to guarantee, not two that could
-  diverge.
+- Single shared markup with CSS-only device-class branching (staggered
+  photo placement and column arrangement via breakpoints), not two
+  separate template paths. Rationale: keeps the completeness invariant
+  trivially true across device classes — one render path to guarantee,
+  not two that could diverge.
 - AI-development line authored as part of the same narrative content
   block (its final paragraph), not rendered as a separate
   component/slot. Rationale: Feature UX/UI require it to read as an

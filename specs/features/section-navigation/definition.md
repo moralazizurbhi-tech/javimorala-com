@@ -87,14 +87,7 @@ language-switching mechanism, or detailed visual/motion specification.
 
 - Realizes capability `section-navigation`.
 - Catalog relationship states this Feature "enables" `hero-presentation`,
-  `about-narrative`, `direct-contact`, `presence-links`, and "hosts"
-  `language-override`.
-- **Unresolved conflict, flagged not fixed here** (consistent with the
-  same flag already recorded in Presence Links' own Definition): the
-  catalog records this Feature as "enabling" `presence-links` directly,
-  but no independent nav anchor for `presence-links` exists — it's reached
-  only via the Introduction and Connection screen compositions. Requires
-  review by Feature Discovery/Catalog Organization.
+  `about-narrative`, `direct-contact`, and "hosts" `language-override`.
 
 ## Pending (out of scope for this phase)
 

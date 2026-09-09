@@ -14,12 +14,13 @@
 
 Provide the primary way for an interested visitor to reach Javi directly
 through an external channel — and, as the Connection screen's primary
-element, coordinate that CTA together with Presence Links and the closing
-farewell line into one cohesive closing-screen moment (composition,
-ordering, relative prominence, CTA kept primary/presence-links secondary
-per Project UX). The Feature does not own Presence Links' own link content,
-the exact contact channel/mechanism, any copy, or detailed visual/
-interaction styling.
+element, coordinate that CTA together with Presence Links, the closing
+farewell line, and the ornamental mark's decorative background placement
+into one cohesive closing-screen moment (composition, ordering, relative
+prominence, CTA kept primary/presence-links secondary per Project UX).
+The Feature does not own Presence Links' own link content, the exact
+contact channel/mechanism, any copy, the mark's visual design/asset
+(shared substrate), or detailed visual/interaction styling.
 
 ## Functional Boundary
 
@@ -29,14 +30,21 @@ interaction styling.
   only, e.g. email; no on-site form or visitor data collection).
 - Presenting the closing farewell line as a minor element of the Connection
   screen.
-- Coordinating the direct-contact CTA, Presence Links, and farewell line
-  into one cohesive Connection-screen moment — CTA primary, Presence Links
-  secondary.
+- Presenting the ornamental mark in its Connection-screen decorative
+  background placement (display/placement only), mirroring Hero
+  Presentation's equivalent treatment of the same shared asset.
+- Coordinating the direct-contact CTA, Presence Links, farewell line, and
+  the ornamental mark's background placement into one cohesive
+  Connection-screen moment — CTA primary, Presence Links secondary, mark
+  purely decorative/background.
 
 ### Excluded
 
 - Presence Links' own link content/list — owned by `presence-links`; this
   Feature only coordinates its placement/prominence relative to the CTA.
+- The ornamental mark's visual design/asset itself — shared substrate
+  ("Ornamental mark," per feature-catalog.md's excluded-from-Feature-
+  status note), not owned by any Feature.
 - The persistent nav / "contact" anchor link that brings a visitor here —
   owned by `section-navigation`.
 - Any motion/animation/scroll-reveal behavior applied to this screen's

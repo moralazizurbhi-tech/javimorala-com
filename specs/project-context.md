@@ -40,6 +40,25 @@ that self-expression, not a separate goal pursued for its own sake.
   involvement or oversight.
 - javimorala.com is the intended domain for the site.
 
+## External References
+
+- **Name:** "Porifolio" Figma file (likely a typo for "Portfolio" in the
+  source file's own name)
+- **Source:** Figma
+- **Locator:** https://www.figma.com/design/CCwye9dUj8Sy4f2lgy6i9f/Porifolio?node-id=15-3&t=xw36oGJYjggpzS1I-1
+- **Role:** Evolving Reference — an early, single-page UX exploration whose
+  individual elements (nav, palette, gradient, scroll cue, presence-link
+  placement, card pattern) were each explicitly marked Preserve / Evolve /
+  Replace / Discard in Project UX Specification's Analysis, rather than
+  treated as pure inspiration or as authoritative as-is.
+- **Consulted:** Yes — during Project UX Specification's original creation
+  (2026-09-06) and its typography/colour refinement (2026-09-08).
+- **Notes:** Covers three screens (Home, About, Contact) and their mobile
+  variants; no shared Figma styles/variables are defined in the file
+  itself. Superseded per-element by Project UX Specification's own
+  Preserve/Evolve/Replace/Discard decisions — this reference is a pointer,
+  not a source of truth on its own.
+
 ---
 
 *Created: 2026-09-05*

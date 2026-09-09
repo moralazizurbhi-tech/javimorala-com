@@ -40,17 +40,26 @@ Existing identity, from Project UX's Screens.
   dominant/primary content; the AI-development line stays
   subordinate/quiet within it (Project UX Screen Composition).
 - Perceptual/experience direction: the narrative text leads the
-  composition — its first line functions as the opening/greeting, rather
-  than a separate preceding intro block; the two photos are presented
-  alongside the narrative text, not before it as their own section; each
-  narrative paragraph and each photo is a separately addressable
-  structural unit, a composition choice made so the separately owned
-  `motion-interaction` Feature has individual pieces to apply
-  scroll-reveal/interaction treatment to later — this Feature defines no
-  motion, timing, or reveal behavior itself. Exact spatial layout, sizing,
-  and positioning are Pending, left entirely to Feature UI.
-- Desktop and mobile both realize this same experience; the specific
-  per-device-class realization is Pending, left to Feature UI.
+  composition — its opening line carries elevated visual emphasis as a
+  distinct greeting moment, rather than a separate preceding intro block,
+  read before the remaining body paragraphs at their own shared, lower
+  tier; the closing AI-development line stays deliberately unemphasized
+  and quiet within that same lower tier (Contract Commitment 2). The two
+  photos are presented alongside the narrative text, not before it as
+  their own section, and carry contrasting orientations (one
+  landscape-leaning, one portrait-leaning) as a compositional detail worth
+  preserving for visual variety — exact placement remains Feature UI's
+  discretion. Each narrative paragraph and each photo is a separately
+  addressable structural unit, a composition choice made so the
+  separately owned `motion-interaction` Feature has individual pieces to
+  apply scroll-reveal/interaction treatment to later — this Feature
+  defines no motion, timing, or reveal behavior itself. Exact spatial
+  layout, sizing, and positioning are Pending, left entirely to Feature
+  UI.
+- Desktop and mobile both realize this same experience, including the
+  opening line's elevated emphasis carried at its own device-appropriate
+  scale rather than a generic reflow; the specific per-device-class
+  realization is Pending, left to Feature UI.
 
 ## Interaction States
 
@@ -63,11 +72,15 @@ Existing identity, from Project UX's Screens.
 
 - **Narrative Text** — Javi's confirmed personal narrative, in his own
   voice; structured as discrete paragraph-level blocks (not one merged
-  block), with the AI-assisted-development line as its final block —
-  never its opening line (Contract Commitment 2).
+  block), with the opening line carrying distinct, elevated emphasis as
+  the composition's greeting moment, and the AI-assisted-development line
+  as its final block — never its opening line (Contract Commitment 2).
 - **Personal Photos (×2)** — two photos, presented simultaneously
   (Contract Commitment 4), each its own discrete container, placed
-  alongside the narrative text rather than preceding it.
+  alongside the narrative text rather than preceding it; carrying
+  contrasting orientations (one landscape-leaning, one portrait-leaning)
+  as a compositional detail worth preserving for visual variety — exact
+  placement is Feature UI's discretion.
 
 ## Content and Assets
 
@@ -183,6 +196,10 @@ Existing identity, from Project UX's Screens.
 - Full keyboard operability, visible focus states, sufficient contrast,
   and assistive-technology compatibility apply to this screen's content,
   consistent with Project UX's UX Constraints.
+- Desktop and mobile realizations must each preserve the opening line's
+  elevated emphasis and the photos' contrasting-orientation variety
+  identified above, through their own device-appropriate treatment —
+  neither is dropped on either device class.
 
 ---
 
