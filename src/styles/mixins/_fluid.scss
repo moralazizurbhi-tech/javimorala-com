@@ -1,0 +1,14 @@
+@use 'sass:math';
+
+// Fluid, viewport-interpolated sizing (T-002) — realizes Project UX's
+// Visual Foundations requirement that every tier "scales smoothly with
+// the viewport's width... bounded by an explicit minimum and maximum."
+// Default viewport bounds match the Figma reference frames Project UX
+// itself cites as the scale's own evidence (390px mobile, 1728px desktop).
+
+@function fluid-size($min, $max, $min-vw: 24.375rem, $max-vw: 108rem) {
+  $slope: math.div($max - $min, $max-vw - $min-vw);
+  $intercept: $min - $slope * $min-vw;
+
+  @return clamp(#{$min}, calc(#{$intercept} + #{$slope * 100vw}), #{$max});
+}

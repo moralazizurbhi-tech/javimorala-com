@@ -1,0 +1,8 @@
+// Breakpoints (T-002) — one device-class split (mobile / desktop), per
+// hero-presentation's and section-navigation's own device-class
+// treatments. 768px is fixed as a standard mobile/desktop threshold —
+// an Implementation Detail: no Feature Technical Design fixes an exact
+// value, and Project UX's Visual Foundations only establishes that two
+// device classes exist, not a threshold.
+
+$breakpoint-desktop: 768px;

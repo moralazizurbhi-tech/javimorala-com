@@ -1,0 +1,24 @@
+@use '../mixins/fluid' as fluid;
+
+// Typography Scale (T-002) — Project UX Visual Foundations: one rounded,
+// geometric sans-serif family carried through the whole hierarchy via
+// weight and size. Font: Fredoka (self-hosted via @fontsource-variable)
+// — rounded terminals, geometric construction, warm/current character.
+// Fixed here as an Implementation Detail per the Implementation Plan's
+// own Phase 0 authorization: exact typeface selection was left open to
+// Technical Design and no Feature Technical Design claims it.
+//
+// Fluid bounds use fluid-size()'s default viewport bounds, themselves
+// matching the Figma reference frames Project UX names as the scale's
+// own evidence (390px mobile / 1728px desktop).
+
+$font-family-base: 'Fredoka Variable', 'Fredoka', system-ui, sans-serif;
+
+$font-weight-display: 700; // headline/display moments
+$font-weight-body: 500; // section/narrative body copy
+$font-weight-label: 400; // nav links, small labels
+
+$font-size-display: fluid.fluid-size(2.5rem, 5rem);
+$font-size-heading: fluid.fluid-size(1.75rem, 2.75rem);
+$font-size-body: fluid.fluid-size(1rem, 1.125rem);
+$font-size-label: fluid.fluid-size(0.8125rem, 0.9375rem);

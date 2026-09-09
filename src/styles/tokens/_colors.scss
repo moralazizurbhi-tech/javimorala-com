@@ -1,0 +1,22 @@
+// Colour System (T-002) — Project UX Visual Foundations: near-black/
+// off-white base, lilac-to-purple gradient reserved for emphasis.
+// Base values are the exact colours already Observed/Confirmed in Figma
+// by section-navigation's and direct-contact's own approved UI
+// Definitions (#221e24, #ebeaec) — reused here, not reinvented, so the
+// Styling System stays consistent with what Features already assert.
+// Gradient/accent values are fixed here per the Implementation Plan's
+// own Phase 0 authorization, since no Feature Technical Design claims
+// them; contrast ratios are independently verified in colors.contrast.test.ts.
+
+$color-base-bg: #221e24;
+$color-base-fg: #ebeaec;
+
+$color-gradient-start: #9b7fd4; // lilac
+$color-gradient-end: #4b2178; // deep purple
+
+// Flat accent for non-gradient interactive/meaningful-UI use (focus
+// ring, accent text tints) — reuses the gradient's own lighter stop per
+// accessibility/ui.md's Colour Application ("the site's accent colour
+// ... the vivid gradient/colour Visual Foundations reserves for
+// emphasis").
+$color-accent: $color-gradient-start;

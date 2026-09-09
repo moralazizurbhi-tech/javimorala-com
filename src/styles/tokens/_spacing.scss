@@ -1,0 +1,11 @@
+@use '../mixins/fluid' as fluid;
+
+// Spacing Scale (T-002) — Project UX Visual Foundations: "generous,
+// uncluttered spacing ... consistent across all three domains and both
+// device sizes," scaling fluidly like every other tier.
+
+$space-xs: fluid.fluid-size(0.5rem, 0.75rem);
+$space-sm: fluid.fluid-size(1rem, 1.5rem);
+$space-md: fluid.fluid-size(1.5rem, 2.5rem);
+$space-lg: fluid.fluid-size(2.5rem, 4rem);
+$space-xl: fluid.fluid-size(4rem, 7rem);

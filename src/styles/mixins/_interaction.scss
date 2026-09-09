@@ -1,0 +1,31 @@
+@use '../tokens/colors' as colors;
+@use '../tokens/motion' as motion;
+
+// Focus-ring convention (T-002) — accessibility/technical-design.md's
+// Focus-Visible Style Module applies this globally at T-026; T-002 only
+// fixes the colour/transition values it will reference. Radius
+// intentionally not fixed here — per accessibility/ui.md, the ring
+// "matches whatever radius the focused element itself already has."
+@mixin focus-ring {
+  outline: 2px solid colors.$color-accent;
+  outline-offset: 2px;
+  transition: outline-color motion.$transition-duration-fast motion.$transition-easing;
+}
+
+// Shared hover/active feedback convention — the concrete per-component
+// application (nav links, Presence Links, the switcher) is
+// `motion-interaction`'s Secondary Interaction Feedback Styles (T-024);
+// this fixes only the shared opacity/timing convention it will use.
+@mixin interactive-feedback {
+  transition: opacity motion.$transition-duration-base motion.$transition-easing;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &:active {
+    opacity: 0.65;
+  }
+}

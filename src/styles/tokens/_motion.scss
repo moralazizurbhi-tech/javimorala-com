@@ -1,0 +1,10 @@
+// Shared interaction-state conventions (T-002) — Project UX Visual
+// Foundations: "hover, focus, and active states are consistent across
+// every interactive element site-wide, using the same motion feel as
+// scroll-triggered reveals elsewhere." Fixes only the shared CSS
+// transition timing convention; `motion-interaction` (Phase 6) owns the
+// actual Framer Motion choreography built on top of it.
+
+$transition-duration-fast: 150ms;
+$transition-duration-base: 250ms;
+$transition-easing: ease-out;

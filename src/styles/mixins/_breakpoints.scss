@@ -1,0 +1,7 @@
+@use '../tokens/breakpoints' as tokens;
+
+@mixin desktop-up {
+  @media (min-width: tokens.$breakpoint-desktop) {
+    @content;
+  }
+}
