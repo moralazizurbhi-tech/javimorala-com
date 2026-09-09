@@ -73,7 +73,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		z-index: -1;
 		top: 0;
 		right: -20%;
-		width: 90vw;
+		// Width intentionally exceeds 100vw so the shape bleeds off the
+		// right edge, per ui.md's Mobile spec ("width intentionally
+		// exceeds 100% of the viewport, bleeding off the right edge").
+		width: 120vw;
 		height: 70vh;
 		border-radius: 50%;
 		background: linear-gradient(160deg, tokens.$color-gradient-start, tokens.$color-gradient-end);
@@ -94,7 +97,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 
 	.hero__headline {
 		grid-area: headline;
-		align-self: center;
+		// Bottom-anchored on mobile too, matching desktop's own end-anchor
+		// and the Figma "Home - mobile" reference, where the headline sits
+		// in the lower portion of the viewport, clear of the mark above it.
+		align-self: end;
 		display: grid;
 		column-gap: tokens.$space-md;
 		row-gap: tokens.$space-xs;
@@ -121,7 +127,6 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 				'primary .'
 				'secondary1 secondary2';
 			align-items: start;
-			align-self: end;
 			column-gap: tokens.$space-lg;
 		}
 	}
