@@ -1,0 +1,19 @@
+@use '../../styles/tokens' as tokens;
+
+// language-override/ui.md — Typography Application: compact nav/label-tier
+// text, regular weight, off-white foreground, no accent colour. Chrome
+// (no border/pill/background) already comes from the T-001 global reset
+// applied to <button>/<a> site-wide; nothing extra is needed here.
+.trigger,
+.item {
+	font-family: tokens.$font-family-base;
+	font-size: tokens.$font-size-label;
+	font-weight: tokens.$font-weight-label;
+	color: tokens.$color-base-fg;
+}
+
+// Active Language Indicator — bold weight distinguishes the active item,
+// never colour (ui.md, Colour Application).
+.itemActive {
+	font-weight: tokens.$font-weight-display;
+}
