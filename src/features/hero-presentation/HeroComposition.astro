@@ -132,6 +132,11 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 				'primary .'
 				'secondary1 secondary2';
 			align-items: start;
+			// Anchored to the mark's own bottom edge (mark height: 70vh),
+			// not centered in the row, so both halves of the headline sit
+			// right where the mark ends rather than floating mid-viewport.
+			align-self: start;
+			margin-top: 70vh;
 			column-gap: tokens.$space-lg;
 		}
 	}
