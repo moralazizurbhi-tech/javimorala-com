@@ -1,0 +1,44 @@
+// Browser-default normalization (T-001), independent of brand tokens.
+// Values match the reset every Radix UI component applies to itself
+// (box-sizing, margin, link/list/button chrome), scoped here to the whole
+// document since Radix's own reset ships as a per-element opt-in class
+// rather than a document-wide stylesheet. Superseded by the Styling
+// System's token/mixin partials at T-002.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+blockquote,
+dl,
+dd,
+figure,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+ol,
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  all: unset;
+  cursor: pointer;
+}

@@ -1,0 +1,10 @@
+@use 'reset';
+
+// Sass-nesting smoke test (T-001) — proves the Sass compiler, not just
+// CSS-compatible syntax, is wired in. Superseded by real component
+// styles from T-002 onward.
+body {
+  &.rt-scaffold {
+    min-height: 100vh;
+  }
+}
