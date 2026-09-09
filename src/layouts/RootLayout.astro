@@ -1,17 +1,27 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import SectionNav from '../features/section-navigation/SectionNav';
 import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
   title: string;
   description: string;
   lang: SupportedLocale;
+  wordmark: string;
+  navLabelAbout: string;
+  navLabelContact: string;
 }
 
-const { title, description, lang } = Astro.props;
+const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description} lang={lang}>
+	<SectionNav
+		client:load
+		wordmark={wordmark}
+		navLabelAbout={navLabelAbout}
+		navLabelContact={navLabelContact}
+	/>
 	<main>
 		<section id="introduction">
 			<slot name="introduction" />
@@ -27,6 +37,7 @@ const { title, description, lang } = Astro.props;
 
 <style lang="scss">
 	@use '../styles/tokens' as tokens;
+	@use '../styles/mixins' as mixins;
 
 	// Global theme (T-004) — brand colour/typography applied at the root,
 	// on top of T-001's reset. :global(body) is required since BaseLayout
@@ -36,5 +47,21 @@ const { title, description, lang } = Astro.props;
 		color: tokens.$color-base-fg;
 		font-family: tokens.$font-family-base;
 		font-weight: tokens.$font-weight-body;
+	}
+
+	// Section Navigation renders a fixed bar on every device class — the
+	// desktop bar (T-011) from the desktop breakpoint up, the mobile
+	// closed-state bar (T-012) below it. Anchor-link jumps (Commitment 2;
+	// Commitment 6 AC2 from inside the mobile overlay) must land clear of
+	// whichever is present, not underneath it — these values must match
+	// SectionNav.module.scss's own $mobile-nav-height / $nav-height.
+	:global(#introduction),
+	:global(#personal-narrative),
+	:global(#connection) {
+		scroll-margin-top: 3rem;
+
+		@include mixins.desktop-up {
+			scroll-margin-top: 4.5rem;
+		}
 	}
 </style>
