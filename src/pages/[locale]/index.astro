@@ -15,10 +15,19 @@ export function getStaticPaths() {
 const { locale } = Astro.params as { locale: SupportedLocale };
 
 const introduction = await getEntry('introduction', locale);
+const personalNarrative = await getEntry('personalNarrative', locale);
+const connection = await getEntry('connection', locale);
 const description = introduction?.data.placeholder ?? '';
 ---
 
-<RootLayout lang={locale} title="Javi Morala" description={description}>
+<RootLayout
+	lang={locale}
+	title="Javi Morala"
+	description={description}
+	wordmark={introduction?.data.wordmark ?? ''}
+	navLabelAbout={personalNarrative?.data.navLabel ?? ''}
+	navLabelContact={connection?.data.navLabel ?? ''}
+>
 	<Fragment slot="introduction">
 		<h1>Javi Morala</h1>
 		<IntegrationCheck client:load />

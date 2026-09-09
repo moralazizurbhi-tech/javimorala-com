@@ -1,5 +1,5 @@
 {
-  "en": { "placeholder": "TODO" },
-  "es": { "placeholder": "TODO" },
-  "eu": { "placeholder": "TODO" }
+  "en": { "placeholder": "TODO", "navLabel": "about" },
+  "es": { "placeholder": "TODO", "navLabel": "acerca de" },
+  "eu": { "placeholder": "TODO", "navLabel": "buruz" }
 }

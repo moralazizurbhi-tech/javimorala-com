@@ -1,0 +1,79 @@
+@use '../../styles/tokens' as tokens;
+@use '../../styles/mixins' as mixins;
+
+// section-navigation/ui.md — Spacing and Layout (Desktop). Mobile's own
+// toggle/overlay realization is T-012's responsibility; this bar is
+// hidden below the desktop breakpoint until then, rather than squeezing
+// the desktop row onto a viewport it was never designed for.
+//
+// $nav-height must match RootLayout.astro's `scroll-margin-top` on the
+// three Domain Section ids, so an anchor-link jump (Commitment 2) lands
+// clear of this fixed bar rather than underneath it.
+$nav-height: 4.5rem;
+
+.nav {
+	display: none;
+
+	@include mixins.desktop-up {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		position: fixed;
+		inset: 0 0 auto 0;
+		z-index: 10;
+		height: $nav-height;
+		padding: 0 tokens.$space-md;
+		background-color: tokens.$color-base-bg;
+		border-bottom: 1px solid rgba(tokens.$color-base-fg, 0.15);
+	}
+}
+
+.wordmark {
+	font-family: tokens.$font-family-base;
+	font-size: tokens.$font-size-label;
+	font-weight: tokens.$font-weight-label;
+	color: tokens.$color-base-fg;
+	text-transform: lowercase;
+}
+
+// Compact Logomark Icon (Commitment 4) — background-layer placeholder
+// standing in for the shared ornamental-mark asset, which is out of this
+// Feature's scope (ux.md: "Pending... shared project-wide substrate").
+// Centered in the bar, spanning close to its full height (ui.md).
+.compactMark {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: tokens.$space-md;
+	height: calc(#{$nav-height} - #{tokens.$space-sm});
+	border-radius: 999px;
+	background: linear-gradient(160deg, tokens.$color-gradient-start, tokens.$color-gradient-end);
+}
+
+.links {
+	display: flex;
+	align-items: center;
+	gap: tokens.$space-md;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.link {
+	font-family: tokens.$font-family-base;
+	font-size: tokens.$font-size-label;
+	font-weight: tokens.$font-weight-label;
+	color: tokens.$color-base-fg;
+	text-transform: lowercase;
+}
+
+// Active Screen Indicator (Commitment 5) — the state-tracking mechanism
+// is what this task delivers; the exact visual anatomy remains Pending
+// (ux.md/ui.md) and is applied via Styling System tokens whenever it's
+// decided (Task Catalog readiness note). Bold weight stands in as a
+// minimal, non-colour placeholder, mirroring language-override's own
+// Active Language Indicator convention.
+.linkActive {
+	font-weight: tokens.$font-weight-display;
+}

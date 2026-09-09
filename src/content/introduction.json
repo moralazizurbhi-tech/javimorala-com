@@ -1,5 +1,5 @@
 {
-  "en": { "placeholder": "TODO" },
-  "es": { "placeholder": "TODO" },
-  "eu": { "placeholder": "TODO" }
+  "en": { "placeholder": "TODO", "wordmark": "javimorala.com" },
+  "es": { "placeholder": "TODO", "wordmark": "javimorala.com" },
+  "eu": { "placeholder": "TODO", "wordmark": "javimorala.com" }
 }

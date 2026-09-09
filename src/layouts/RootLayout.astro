@@ -1,17 +1,27 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import SectionNav from '../features/section-navigation/SectionNav';
 import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
   title: string;
   description: string;
   lang: SupportedLocale;
+  wordmark: string;
+  navLabelAbout: string;
+  navLabelContact: string;
 }
 
-const { title, description, lang } = Astro.props;
+const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description} lang={lang}>
+	<SectionNav
+		client:load
+		wordmark={wordmark}
+		navLabelAbout={navLabelAbout}
+		navLabelContact={navLabelContact}
+	/>
 	<main>
 		<section id="introduction">
 			<slot name="introduction" />
@@ -27,6 +37,7 @@ const { title, description, lang } = Astro.props;
 
 <style lang="scss">
 	@use '../styles/tokens' as tokens;
+	@use '../styles/mixins' as mixins;
 
 	// Global theme (T-004) — brand colour/typography applied at the root,
 	// on top of T-001's reset. :global(body) is required since BaseLayout
@@ -36,5 +47,17 @@ const { title, description, lang } = Astro.props;
 		color: tokens.$color-base-fg;
 		font-family: tokens.$font-family-base;
 		font-weight: tokens.$font-weight-body;
+	}
+
+	// Section Navigation (T-011) renders as a fixed bar only from the
+	// desktop breakpoint up (SectionNav.module.scss). Anchor-link jumps
+	// (Commitment 2) must land clear of it, not underneath it — this
+	// value must match that stylesheet's own $nav-height.
+	:global(#introduction),
+	:global(#personal-narrative),
+	:global(#connection) {
+		@include mixins.desktop-up {
+			scroll-margin-top: 4.5rem;
+		}
 	}
 </style>
