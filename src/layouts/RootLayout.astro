@@ -1,0 +1,37 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<BaseLayout title={title}>
+	<main>
+		<section id="introduction">
+			<slot name="introduction" />
+		</section>
+		<section id="personal-narrative">
+			<slot name="personal-narrative" />
+		</section>
+		<section id="connection">
+			<slot name="connection" />
+		</section>
+	</main>
+</BaseLayout>
+
+<style lang="scss">
+	@use '../styles/tokens' as tokens;
+
+	// Global theme (T-004) — brand colour/typography applied at the root,
+	// on top of T-001's reset. :global(body) is required since BaseLayout
+	// owns <body> in a separate component; Root Layout owns the theme.
+	:global(body) {
+		background-color: tokens.$color-base-bg;
+		color: tokens.$color-base-fg;
+		font-family: tokens.$font-family-base;
+		font-weight: tokens.$font-weight-body;
+	}
+</style>

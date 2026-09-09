@@ -1,9 +1,11 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import RootLayout from '../layouts/RootLayout.astro';
 import IntegrationCheck from '../components/IntegrationCheck';
 ---
 
-<BaseLayout title="Javi Morala">
-	<h1>Javi Morala</h1>
-	<IntegrationCheck client:load />
-</BaseLayout>
+<RootLayout title="Javi Morala">
+	<Fragment slot="introduction">
+		<h1>Javi Morala</h1>
+		<IntegrationCheck client:load />
+	</Fragment>
+</RootLayout>
