@@ -1,14 +1,17 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
   title: string;
+  description: string;
+  lang: SupportedLocale;
 }
 
-const { title } = Astro.props;
+const { title, description, lang } = Astro.props;
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} description={description} lang={lang}>
 	<main>
 		<section id="introduction">
 			<slot name="introduction" />

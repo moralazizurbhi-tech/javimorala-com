@@ -1,19 +1,23 @@
 ---
 import '../styles/global.scss';
+import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
   title: string;
+  description: string;
+  lang: SupportedLocale;
 }
 
-const { title } = Astro.props;
+const { title, description, lang } = Astro.props;
 ---
 
-<html lang="en">
+<html lang={lang}>
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={description} />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>

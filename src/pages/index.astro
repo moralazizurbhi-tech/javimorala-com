@@ -1,11 +1,31 @@
 ---
-import RootLayout from '../layouts/RootLayout.astro';
-import IntegrationCheck from '../components/IntegrationCheck';
+// i18n/Routing Layer — root bootstrap (T-006). Content-free: resolves the
+// active locale client-side, before anything paints, and redirects
+// immediately, so no language's content is ever shown then swapped
+// (content-localization/technical-design.md, Design Decisions 1, 3;
+// Commitments 1, 4). No-JS visitors fall back to /en/ via <noscript>.
 ---
 
-<RootLayout title="Javi Morala">
-	<Fragment slot="introduction">
-		<h1>Javi Morala</h1>
-		<IntegrationCheck client:load />
-	</Fragment>
-</RootLayout>
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Javi Morala</title>
+		<script>
+			import { readOverride } from '../features/language-override/overrideStore';
+			import { detectBrowserLocale, resolveActiveLocale } from '../features/content-localization/localeResolution';
+
+			const locale = resolveActiveLocale({
+				override: readOverride(),
+				detected: detectBrowserLocale(),
+			});
+
+			window.location.replace(`/${locale}/`);
+		</script>
+		<noscript>
+			<meta http-equiv="refresh" content="0; url=/en/" />
+		</noscript>
+	</head>
+	<body></body>
+</html>
