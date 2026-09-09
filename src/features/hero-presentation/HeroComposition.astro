@@ -84,6 +84,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		width: 120vw;
 		height: 70vh;
 		object-fit: cover;
+		// Crop from the bottom (where the artwork's own gradient already
+		// fades toward transparent) rather than the top, so the mark's
+		// sharpest, most distinctive detail near its crown is preserved.
+		object-position: top;
 		pointer-events: none;
 
 		@include mixins.desktop-up {
@@ -98,10 +102,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 
 	.hero__headline {
 		grid-area: headline;
-		// Bottom-anchored on mobile too, matching desktop's own end-anchor
-		// and the Figma "Home - mobile" reference, where the headline sits
-		// in the lower portion of the viewport, clear of the mark above it.
-		align-self: end;
+		// Vertically centered within the headline row, so it shares the
+		// viewport's middle band with the mark above rather than being
+		// pinned to the very bottom edge, on both device classes.
+		align-self: center;
 		display: grid;
 		column-gap: tokens.$space-md;
 		row-gap: tokens.$space-xs;
