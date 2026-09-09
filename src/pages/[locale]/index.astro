@@ -5,7 +5,7 @@
 // (content-localization/technical-design.md; Commitments 2, 3).
 import { getEntry } from 'astro:content';
 import RootLayout from '../../layouts/RootLayout.astro';
-import IntegrationCheck from '../../components/IntegrationCheck';
+import HeroComposition from '../../features/hero-presentation/HeroComposition.astro';
 import { SUPPORTED_LOCALES, type SupportedLocale } from '../../features/content-localization/localeResolution';
 
 export function getStaticPaths() {
@@ -20,7 +20,11 @@ const description = introduction?.data.placeholder ?? '';
 
 <RootLayout lang={locale} title="Javi Morala" description={description}>
 	<Fragment slot="introduction">
-		<h1>Javi Morala</h1>
-		<IntegrationCheck client:load />
+		<HeroComposition
+			headlinePrimary={introduction?.data.headlinePrimary ?? ''}
+			headlineSecondaryLine1={introduction?.data.headlineSecondaryLine1 ?? ''}
+			headlineSecondaryLine2={introduction?.data.headlineSecondaryLine2 ?? ''}
+			scrollCue={introduction?.data.scrollCue ?? ''}
+		/>
 	</Fragment>
 </RootLayout>

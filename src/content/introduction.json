@@ -1,5 +1,23 @@
 {
-  "en": { "placeholder": "TODO" },
-  "es": { "placeholder": "TODO" },
-  "eu": { "placeholder": "TODO" }
+  "en": {
+    "placeholder": "TODO",
+    "headlinePrimary": "Building",
+    "headlineSecondaryLine1": "the web",
+    "headlineSecondaryLine2": "with a rebellious streak",
+    "scrollCue": "there's more below."
+  },
+  "es": {
+    "placeholder": "TODO",
+    "headlinePrimary": "Construyendo",
+    "headlineSecondaryLine1": "la web",
+    "headlineSecondaryLine2": "con un toque rebelde",
+    "scrollCue": "hay más abajo."
+  },
+  "eu": {
+    "placeholder": "TODO",
+    "headlinePrimary": "Eraikitzen",
+    "headlineSecondaryLine1": "sarea",
+    "headlineSecondaryLine2": "izaera errebeldez",
+    "scrollCue": "behean gehiago dago."
+  }
 }
