@@ -149,8 +149,9 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		column-gap: tokens.$space-md;
 		row-gap: tokens.$space-xs;
 		margin: 0;
-		font-family: tokens.$font-family-base;
+		font-family: tokens.$font-family-heading;
 		font-weight: tokens.$font-weight-display;
+		letter-spacing: tokens.$letter-spacing-heading;
 		color: tokens.$color-base-fg;
 
 		// Mobile: dominant word anchored to the left edge, both secondary
@@ -163,14 +164,20 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		align-items: center;
 
 		@include mixins.desktop-up {
-			// Desktop/tablet: asymmetric lower-left / lower-right spread —
-			// not a reflow of the mobile column arrangement (ui.md, Desktop).
-			grid-template-columns: 1fr 1fr;
-			grid-template-rows: auto auto;
-			grid-template-areas:
-				'primary .'
-				'secondary1 secondary2';
-			align-items: start;
+			// Desktop/tablet: sized and centered to exactly match
+			// `.hero__mark`'s own box (left: 50%, width: 70vw, same
+			// translateX), not left as a plain full-width grid — so the
+			// children's percentage-based positions below resolve against
+			// the mark's own geometry, not the viewport. This is what makes
+			// the headline/mark relationship hold "independent of desktop
+			// size" (developer review): both scale together from the same
+			// 70vw reference, instead of the mark scaling on its own while
+			// the headline anchored to the viewport's/grid's own edges.
+			display: block;
+			position: absolute;
+			left: 50%;
+			width: 70vw;
+			transform: translateX(-50%);
 			// Anchored to the mark's own inked geometry, not its crop box's
 			// bottom edge (70vh) — the artwork's own tendrils taper off and
 			// stop well before that edge (ux.md: "the mark's left tendrils
@@ -180,9 +187,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 			// dominant group's upper glyphs sit within the tendrils' own
 			// reach; offset by the mark's own top margin (above) so the
 			// relationship holds regardless of that margin's exact value.
-			align-self: start;
-			margin-top: calc(#{tokens.$space-md} + 52vh);
-			column-gap: tokens.$space-lg;
+			top: calc(#{tokens.$space-md} + 52vh);
 		}
 	}
 
@@ -199,28 +204,57 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		@include mixins.desktop-up {
 			writing-mode: horizontal-tb;
 			transform: none;
+			// 25.1% — measured directly from the production SVG asset's
+			// own geometry (getBBox() on its lowest-reaching left path):
+			// the left descending tendril cluster's own lowest point sits
+			// at x=304.9 of the 1216-wide viewBox. Inset slightly (to 12%)
+			// so the dominant word's own span genuinely overlaps that
+			// tendril position rather than starting exactly at its tip —
+			// "shares close to the same horizontal span" (ui.md), not a
+			// bare touch.
+			position: absolute;
+			left: 12%;
+			top: 0;
 		}
 	}
 
 	.hero__headline-secondary {
-		font-size: tokens.$font-size-heading;
+		// Derived directly from the primary size (not the shared
+		// $font-size-heading token) so the two stay in a fixed ~3x ratio
+		// at every viewport width, matching Figma's own measured ratio
+		// (185:60 ≈ 3.08x) — a Hero-local relationship, deliberately not
+		// coupled to $font-size-heading, which stays free for other
+		// Features' own future section headings.
+		font-size: calc(#{tokens.$font-size-display} / 3);
 		line-height: 1.1;
 	}
 
 	.hero__headline-secondary--1 {
 		grid-area: secondary1;
+
+		@include mixins.desktop-up {
+			// Same left anchor as the primary word, directly below it —
+			// together they form the "dominant word group" the left
+			// tendril cluster reaches into (ui.md).
+			position: absolute;
+			left: 12%;
+			top: calc(#{tokens.$font-size-display} + #{tokens.$space-xs});
+		}
 	}
 
 	.hero__headline-secondary--2 {
 		grid-area: secondary2;
 
 		@include mixins.desktop-up {
-			// Pushed to the far right of its column — and so toward the
-			// mark's own right tendril / the viewport's right edge — rather
-			// than left-aligning within the column's own width, matching
-			// ui.md's "lower-right region" (developer visual review found
-			// it sitting nearer the horizontal center instead).
-			justify-self: end;
+			// 24.7% from the right — measured the same way as the primary
+			// word's own anchor above: the right tendril's lowest point
+			// sits at x=916.1 of 1216 (75.3% from the left, i.e. 24.7% from
+			// the right). Inset to 12% from the right edge for the same
+			// overlap reason. Roughly level with the "the web" line above
+			// (ui.md), via the same top offset.
+			position: absolute;
+			right: 12%;
+			top: calc(#{tokens.$font-size-display} + #{tokens.$space-xs});
 		}
 	}
 
@@ -235,7 +269,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		justify-content: center;
 		gap: tokens.$space-xs;
 		margin: 0;
-		font-family: tokens.$font-family-base;
+		font-family: tokens.$font-family-body;
 		font-size: tokens.$font-size-label;
 		font-weight: tokens.$font-weight-label;
 		color: tokens.$color-base-fg;

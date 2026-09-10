@@ -6,7 +6,7 @@
 // applied to <button>/<a> site-wide; nothing extra is needed here.
 .trigger,
 .item {
-	font-family: tokens.$font-family-base;
+	font-family: tokens.$font-family-body;
 	font-size: tokens.$font-size-label;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;

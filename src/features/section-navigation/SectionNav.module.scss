@@ -77,7 +77,7 @@ $mobile-nav-height: 3rem;
 }
 
 .wordmark {
-	font-family: tokens.$font-family-base;
+	font-family: tokens.$font-family-body;
 	font-size: tokens.$font-size-label;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
@@ -129,7 +129,7 @@ $mobile-nav-height: 3rem;
 }
 
 .link {
-	font-family: tokens.$font-family-base;
+	font-family: tokens.$font-family-body;
 	font-size: tokens.$font-size-label;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
@@ -175,7 +175,7 @@ $mobile-nav-height: 3rem;
 // Half the desktop/open-overlay wordmark size — a distinct treatment
 // specific to the collapsed mobile bar (ui.md, Typography Application).
 .mobileWordmark {
-	font-family: tokens.$font-family-base;
+	font-family: tokens.$font-family-body;
 	font-size: calc(#{tokens.$font-size-label} * 0.5);
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
@@ -242,7 +242,7 @@ $mobile-nav-height: 3rem;
 // contexts; no size reduction once the overlay opens (ui.md, Typography
 // Application).
 .overlayLink {
-	font-family: tokens.$font-family-base;
+	font-family: tokens.$font-family-body;
 	font-size: tokens.$font-size-label;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
