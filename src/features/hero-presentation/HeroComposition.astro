@@ -20,15 +20,17 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 ---
 
 <div class="hero">
-	<img class="hero__mark" src="/ornamental-mark.svg" alt="" aria-hidden="true" />
-	<span id="hero-mark-boundary" class="hero__mark-boundary" aria-hidden="true"></span>
-	<h1 class="hero__headline">
-		<span class="hero__headline-primary">{headlinePrimary}</span>
-		<span class="hero__headline-secondary-group">
-			<span class="hero__headline-secondary hero__headline-secondary--1">{headlineSecondaryLine1}</span>
-			<span class="hero__headline-secondary hero__headline-secondary--2">{headlineSecondaryLine2}</span>
-		</span>
-	</h1>
+	<div class="hero__display">
+		<img class="hero__mark" src="/ornamental-mark.svg" alt="" aria-hidden="true" />
+		<span id="hero-mark-boundary" class="hero__mark-boundary" aria-hidden="true"></span>
+		<h1 class="hero__headline">
+			<span class="hero__headline-primary">{headlinePrimary}</span>
+			<span class="hero__headline-secondary-group">
+				<span class="hero__headline-secondary hero__headline-secondary--1">{headlineSecondaryLine1}</span>
+				<span class="hero__headline-secondary hero__headline-secondary--2">{headlineSecondaryLine2}</span>
+			</span>
+		</h1>
+	</div>
 	<p class="hero__scroll-cue">
 		<span>{scrollCue}</span>
 		<svg class="hero__scroll-cue-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -77,6 +79,65 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		}
 	}
 
+	// Groups the mark and the headline as one visual unit so they move
+	// together as a single element (developer direction: "the Building
+	// [and] the ornament... both as one element" must sit centered on the
+	// page) — previously the mark was pinned near `.hero`'s own top edge
+	// independently of the headline's own vertical centering, so the pair
+	// read as two separately-placed things rather than one composition,
+	// and their combined visual center sat above the page's true middle.
+	// Not present on desktop-up: the mark and headline already have their
+	// own independently-tuned, approved absolute positions there (see
+	// each's own desktop-up rules below) — `display: contents` un-wraps
+	// this element for layout there, restoring exactly that prior
+	// structure instead of grouping them.
+	.hero__display {
+		grid-area: headline;
+		position: relative;
+		align-self: center;
+		min-width: 0;
+
+		// `.hero__mark` (below) is `position: absolute`, so on its own it
+		// contributes nothing to `.hero__display`'s normal-flow height —
+		// `align-self: center` above would then only center the headline's
+		// own (much smaller) height, leaving the mark to bleed upward from
+		// wherever *that* lands, independent of the mark's own real size
+		// (confirmed via screenshot: the combined group still read as
+		// top-heavy after grouping alone). This spacer reserves flow space
+		// approximating the mark's own rotated bounding-box height, so the
+		// browser's centering math accounts for the *combined* group
+		// instead of just the headline.
+		//
+		// `.hero__mark` itself is anchored at `top: 0` (unrotated box), so
+		// what matters here isn't the rotated box's *total* bounding height
+		// but how far its visual bottom edge sits *below that anchor* —
+		// rotation happens around the box's own center, so only about half
+		// of the bounding-box growth extends downward from `top: 0`, the
+		// other half bleeding upward off-screen (clipped by `.hero`'s
+		// `overflow: hidden`). First attempt used the full bounding height
+		// here and left a large dead gap above the headline (visually
+		// confirmed wrong) before this was corrected.
+		//
+		// Let W = mark width, H = W×(780/1216) (its aspect-ratio). A W×H
+		// box rotated 45° about its center has bounding height
+		// (W+H)/√2, centered on the original box's own center (H/2 from
+		// `top: 0`) — so its bottom edge sits at
+		// H/2 + (W+H)/(2√2) = 0.9011×W below `top: 0`. Kept in sync with
+		// `.hero__mark`'s own `width`/rotation below by hand, since a
+		// shared Sass variable can't cross into a pseudo-element's
+		// generated box from here cleanly.
+		&::before {
+			content: '';
+			display: block;
+			width: 100%;
+			height: calc(115vw * 0.9011 - 3rem);
+		}
+
+		@include mixins.desktop-up {
+			display: contents;
+		}
+	}
+
 	// Background-layer ornamental mark — shared static SVG asset (Figma
 	// "Porifolio" file, "Metal logogogog 1"; shape traced from that
 	// reference, gradient corrected to Figma's own literal colour values
@@ -107,9 +168,23 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// exactly, so `object-fit: contain` has no leftover space to
 		// reposition within — nothing for `object-position` to do, and
 		// nothing here to leak into the desktop-up override below.
-		top: -14%;
+		// `top: 0`, flush at `.hero__display`'s own top edge — which is
+		// also the spacer's (`.hero__display::before`, above) own top
+		// edge, so the mark visually fills the space the spacer reserves,
+		// with the headline starting right where the spacer (and, being
+		// sized 3rem short of the mark's real height, the mark itself)
+		// ends — giving the tendrils a small overlap into the headline's
+		// own space for "genuine interleaving" (ux.md). Tried `bottom:
+		// 100%` first: that measures against `.hero__display`'s *entire*
+		// height (spacer + headline together, since both are inside the
+		// same containing block), landing the mark's bottom at the
+		// spacer's own top instead of its bottom — a full spacer-height
+		// gap above the headline (visually confirmed wrong). This
+		// `width` must stay in sync with the spacer's own hand-derived
+		// height above if either changes.
+		top: 0;
 		right: -32%;
-		width: 145vw;
+		width: 115vw;
 		aspect-ratio: 1216 / 780;
 		height: auto;
 		object-fit: contain;
@@ -161,19 +236,11 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	}
 
 	.hero__headline {
-		grid-area: headline;
-		// Vertically centered within the headline row, so it shares the
-		// viewport's middle band with the mark above rather than being
-		// pinned to the very bottom edge, on both device classes.
-		align-self: center;
-		// As a grid item of .hero's own single-column mobile grid,
-		// `.hero__headline`'s default `min-width: auto` still contributes
-		// its own nested `1fr` secondary column's max-content size (the
-		// inner min-width: 0 fixes on the secondary elements only stop
-		// blowout *within* that inner grid, not this outer contribution) —
-		// blowing out .hero's own shared column and exposing the scroll
-        // cue (the only other row anchored to that column's far edge, per
-		// developer direction below) to the same overflow.
+		// Mobile: a plain block child of `.hero__display` (which is the
+		// thing centered and grid-placed now — see above); its own
+		// `min-width: auto` (a grid container, so still a candidate for
+		// the same nested-track blowout the secondary elements needed
+		// `min-width: 0` for internally) is defensively reset here too.
 		min-width: 0;
 		display: grid;
 		// Tightened (was $space-md) — the dominant word and the secondary
