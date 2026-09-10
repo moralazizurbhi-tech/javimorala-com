@@ -323,6 +323,29 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 			// the headline anchored to the viewport's/grid's own edges.
 			display: block;
 			position: absolute;
+			// Restores the direct `grid-area: headline` this element had
+			// before the mark/headline grouping round wrapped it inside
+			// `.hero__display` (which now carries the grid placement
+			// instead). Root-caused via a byte-level compiled-CSS diff
+			// between that round's before/after states, after two prior
+			// fix attempts (`content: none` on the spacer, then
+			// `position: static` on the wrapper) failed to restore the
+			// position: an absolutely-positioned grid item's inset
+			// properties resolve against *its own grid area's box* when
+			// it has one (a real, if easy-to-miss, CSS Grid behavior) —
+			// without `grid-area` here, this element fell back to using
+			// `.hero`'s *entire* padding box instead, a different
+			// reference box whose top edge doesn't coincide with the
+			// 'headline' area's own, silently shifting every desktop
+			// position computed from `top`/`left` here (developer visual
+			// review: "the heading is not sitting at the bottom of the
+			// ornament as before" — never obvious at normal viewing
+			// scale, only caught via pixel-diffing against an
+			// earlier-round screenshot). `.hero__display` keeps its own
+			// `grid-area: headline` too (harmless — multiple grid items
+			// may share a named area; only this element's own is what
+			// its absolute positioning actually consults).
+			grid-area: headline;
 			left: 50%;
 			width: 70vw;
 			margin-left: 0;
