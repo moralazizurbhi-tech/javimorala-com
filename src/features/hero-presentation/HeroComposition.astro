@@ -49,6 +49,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	.hero {
 		position: relative;
 		isolation: isolate;
+		// Mobile's mark (below) is rotated and bleeds off two edges by
+		// design (ui.md, Mobile; Figma's own mobile frame) — contains that
+		// bleed instead of letting it force horizontal page scroll.
+		overflow: hidden;
 		// `100dvh` (falls back to `100vh` on browsers that don't support
 		// it) — plain `100vh` resolves against mobile browsers' *large*
 		// viewport (address bar hidden), which is taller than what's
@@ -90,28 +94,25 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	.hero__mark {
 		position: absolute;
 		z-index: -1;
-		// Figma's own mobile frame ("Home - mobile") shows the mark through
-		// a square clip window (≈583×583 at the 390px mobile frame — i.e.
-		// close to 1:1 with the viewport width), bleeding off both the top
-		// and right edges — not the wide/short letterbox this previously
-		// produced (120vw × 70vh against the asset's own 1216×780 viewBox
-		// forced `cover` to zoom in ~2x horizontally, showing an
-		// unrecognizable close-up crop; developer visual review finding).
-		// `aspect-ratio: 1/1` reproduces that square window at any mobile
-		// width instead of a fixed vh height.
-		top: -8%;
-		right: -28%;
-		// Width intentionally exceeds 100vw so the shape bleeds off the
-		// right edge, per ui.md's Mobile spec ("width intentionally
-		// exceeds 100% of the viewport, bleeding off the right edge").
-		width: 150vw;
-		aspect-ratio: 1 / 1;
+		// Figma's own mobile frame ("Home - mobile") doesn't crop the
+		// artwork's own proportions at all — it rotates the whole mark
+		// (-45°, developer-confirmed against Figma) and scales it down, so
+		// almost the entire shape stays visible; only a small amount bleeds
+		// past the frame's own edges, clipped by `.hero`'s `overflow:
+		// hidden` above (developer visual review finding — the earlier
+		// square-crop-window approach cropped the artwork's own aspect
+		// ratio instead, and was still an unrotated fragment).
+		// `aspect-ratio` matches the source SVG's own viewBox (1216×780)
+		// exactly, so `object-fit: contain` has no leftover space to
+		// reposition within — nothing for `object-position` to do, and
+		// nothing here to leak into the desktop-up override below.
+		top: -14%;
+		right: -32%;
+		width: 145vw;
+		aspect-ratio: 1216 / 780;
 		height: auto;
-		object-fit: cover;
-		// Crop toward the crown (top-left of the source artwork), matching
-		// Figma's own mobile crop and the same crown-bias already applied
-		// to the desktop crop.
-		object-position: top left;
+		object-fit: contain;
+		transform: rotate(-45deg);
 		pointer-events: none;
 
 		@include mixins.desktop-up {
@@ -383,13 +384,14 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 
 	// Passive affordance only — plain text, no interactive semantics
 	// (Commitment 3: activating it must never scroll or navigate).
-	// Mobile: full-width, centered. Desktop/tablet: bottom-right corner,
-	// clear of the headline (ui.md).
+	// Mobile: bottom-left, anchored to the same edge as the rest of the
+	// mobile headline content (developer direction) — not centered.
+	// Desktop/tablet: bottom-right corner, clear of the headline (ui.md).
 	.hero__scroll-cue {
 		grid-area: cue;
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: flex-start;
 		gap: tokens.$space-xs;
 		margin: 0;
 		font-family: tokens.$font-family-body;
