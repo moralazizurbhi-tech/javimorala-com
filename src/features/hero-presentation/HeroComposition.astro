@@ -96,7 +96,8 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		z-index: -1;
 		// Figma's own mobile frame ("Home - mobile") doesn't crop the
 		// artwork's own proportions at all — it rotates the whole mark
-		// (-45°, developer-confirmed against Figma) and scales it down, so
+		// (45° clockwise/downward, developer-confirmed against Figma — the
+		// first attempt had the direction reversed) and scales it down, so
 		// almost the entire shape stays visible; only a small amount bleeds
 		// past the frame's own edges, clipped by `.hero`'s `overflow:
 		// hidden` above (developer visual review finding — the earlier
@@ -112,7 +113,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		aspect-ratio: 1216 / 780;
 		height: auto;
 		object-fit: contain;
-		transform: rotate(-45deg);
+		transform: rotate(45deg);
 		pointer-events: none;
 
 		@include mixins.desktop-up {
@@ -165,8 +166,22 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// viewport's middle band with the mark above rather than being
 		// pinned to the very bottom edge, on both device classes.
 		align-self: center;
+		// As a grid item of .hero's own single-column mobile grid,
+		// `.hero__headline`'s default `min-width: auto` still contributes
+		// its own nested `1fr` secondary column's max-content size (the
+		// inner min-width: 0 fixes on the secondary elements only stop
+		// blowout *within* that inner grid, not this outer contribution) —
+		// blowing out .hero's own shared column and exposing the scroll
+        // cue (the only other row anchored to that column's far edge, per
+		// developer direction below) to the same overflow.
+		min-width: 0;
 		display: grid;
-		column-gap: tokens.$space-md;
+		// Tightened (was $space-md) — the dominant word and the secondary
+		// lines read as too far apart at $space-md (developer visual
+		// review); the dominant word's own column is the one that moves
+		// closer, since the secondary column's own left edge is what the
+		// text below it is anchored against.
+		column-gap: tokens.$space-xs;
 		row-gap: tokens.$space-xs;
 		margin: 0;
 		font-family: tokens.$font-family-heading;
@@ -384,24 +399,27 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 
 	// Passive affordance only — plain text, no interactive semantics
 	// (Commitment 3: activating it must never scroll or navigate).
-	// Mobile: bottom-left, anchored to the same edge as the rest of the
-	// mobile headline content (developer direction) — not centered.
-	// Desktop/tablet: bottom-right corner, clear of the headline (ui.md).
+	// Bottom-right on both device classes (developer direction: same
+	// corner as desktop, not centered) — no device-class difference here,
+	// unlike most of this component's other treatments.
 	.hero__scroll-cue {
 		grid-area: cue;
 		display: flex;
 		align-items: center;
-		justify-content: flex-start;
+		justify-content: flex-end;
 		gap: tokens.$space-xs;
 		margin: 0;
+		// Grid items default to `min-width: auto` (their own unwrapped
+		// content width) — with `justify-content: center` this never
+		// visibly overflowed the 'cue' track, but flex-end exposed it: the
+		// track blew out past the viewport edge and `.hero`'s own
+		// `overflow: hidden` (added this round for the mark's bleed)
+		// silently clipped the text instead of causing visible scroll.
+		min-width: 0;
 		font-family: tokens.$font-family-body;
 		font-size: tokens.$font-size-caption;
 		font-weight: tokens.$font-weight-label;
 		color: tokens.$color-base-fg;
-
-		@include mixins.desktop-up {
-			justify-content: flex-end;
-		}
 	}
 
 	.hero__scroll-cue-icon {
