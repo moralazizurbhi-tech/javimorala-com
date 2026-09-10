@@ -136,7 +136,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 			content: '';
 			display: block;
 			width: 100%;
-			height: calc((115vw * 0.9011 - 22vw) / 2);
+			height: calc((150vw * 0.9011 - 22vw) / 2);
 		}
 
 		@include mixins.desktop-up {
@@ -188,9 +188,13 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// gap above the headline (visually confirmed wrong). This
 		// `width` must stay in sync with the spacer's own hand-derived
 		// height above if either changes.
+		// Widened (115vw → 150vw) and shifted left (right: -32% → -52%) —
+		// developer direction: the mark should span almost to the left
+		// edge, not leave a visible gap there (previously its own left
+		// edge sat around 17% in from the container's left edge).
 		top: 0;
-		right: -32%;
-		width: 115vw;
+		right: -52%;
+		width: 150vw;
 		aspect-ratio: 1216 / 780;
 		height: auto;
 		object-fit: contain;
@@ -341,6 +345,11 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// Mobile). Desktop/tablet: upright, the dominant display line.
 		writing-mode: vertical-rl;
 		transform: rotate(180deg);
+		// Tighter than the shared heading tracking (-0.06em) inherited from
+		// `.hero__headline` — developer direction, matching the same
+		// tightening already applied to the dominant word specifically on
+		// desktop-up (below).
+		letter-spacing: -0.09em;
 
 		@include mixins.desktop-up {
 			writing-mode: horizontal-tb;

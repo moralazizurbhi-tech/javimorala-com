@@ -26,15 +26,16 @@ $font-weight-label: 400; // nav links, small labels
 // since Hero derives its own secondary size directly from $font-size-display
 // (see HeroComposition.astro) to hit its own ratio target without
 // coupling other Features' future section headings to that same ratio.
-// Mobile-end bound raised again (was 2.75rem) — the earlier value was
-// only ever calibrated against desktop's own Figma frame; Figma's
-// separately-authored mobile frame ("Home - mobile") shows the rotated
-// dominant word at a size close to desktop's own (its own short line-box
-// width implies roughly 4.5rem+), not a proportionally-shrunk version of
-// it — developer visual review, checked against that mobile frame
-// directly, since the mobile word is short and needs to stay dominant
-// even at narrow widths.
-$font-size-display: fluid.fluid-size(4.5rem, 5.5rem);
+// Mobile-end bound raised (was 2.75rem) — the earlier value was only
+// ever calibrated against desktop's own Figma frame; Figma's separately
+// -authored mobile frame ("Home - mobile") shows the rotated dominant
+// word at a size close to desktop's own, not a proportionally-shrunk
+// version of it — developer visual review, checked against that mobile
+// frame directly, since the mobile word is short and needs to stay
+// dominant even at narrow widths. Eased back down slightly afterward
+// (was 4.5rem) — read a touch large in practice on the real mobile
+// composition once the mark/headline grouping was in place.
+$font-size-display: fluid.fluid-size(4rem, 5.5rem);
 $font-size-heading: fluid.fluid-size(1.75rem, 2.75rem);
 $font-size-body: fluid.fluid-size(1rem, 1.125rem);
 // Nav/label tier — raised to match Figma's own measured desktop value
