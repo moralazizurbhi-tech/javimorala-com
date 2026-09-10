@@ -21,6 +21,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 
 <div class="hero">
 	<img class="hero__mark" src="/ornamental-mark.svg" alt="" aria-hidden="true" />
+	<span id="hero-mark-boundary" class="hero__mark-boundary" aria-hidden="true"></span>
 	<h1 class="hero__headline">
 		<span class="hero__headline-primary">{headlinePrimary}</span>
 		<span class="hero__headline-secondary hero__headline-secondary--1">{headlineSecondaryLine1}</span>
@@ -100,6 +101,23 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		}
 	}
 
+	// Mark-visibility sentinel (technical-design.md, Collaborations) — a
+	// passive marker at the Ornamental Mark's own effective lower
+	// boundary (its box height, 70vh, is shared by both device classes,
+	// so one position works for both). Section Navigation observes this
+	// the same way it already observes Domain Section boundaries, to
+	// drive its own divider-line segmented/continuous state
+	// (section-navigation Contract Commitment 8) — this component has no
+	// knowledge of, or dependency on, that consumer.
+	.hero__mark-boundary {
+		position: absolute;
+		top: 70vh;
+		left: 0;
+		width: 100%;
+		height: 1px;
+		pointer-events: none;
+	}
+
 	.hero__headline {
 		grid-area: headline;
 		// Vertically centered within the headline row, so it shares the
@@ -132,11 +150,16 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 				'primary .'
 				'secondary1 secondary2';
 			align-items: start;
-			// Anchored to the mark's own bottom edge (mark height: 70vh),
-			// not centered in the row, so both halves of the headline sit
-			// right where the mark ends rather than floating mid-viewport.
+			// Anchored to the mark's own inked geometry, not its crop box's
+			// bottom edge (70vh) — the artwork's own tendrils taper off and
+			// stop well before that edge (ux.md: "the mark's left tendrils
+			// reach into its upper region... genuine interleaving"), so
+			// anchoring at the box edge left a dead gap between mark and
+			// headline instead of the described overlap. Pulled up so the
+			// dominant group's upper glyphs sit within the tendrils' own
+			// reach.
 			align-self: start;
-			margin-top: 70vh;
+			margin-top: 52vh;
 			column-gap: tokens.$space-lg;
 		}
 	}

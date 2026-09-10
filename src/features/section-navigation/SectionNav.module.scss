@@ -26,9 +26,54 @@ $mobile-nav-height: 3rem;
 		z-index: 10;
 		height: $nav-height;
 		padding: 0 tokens.$space-md;
-		background-color: tokens.$color-base-bg;
-		border-bottom: 1px solid rgba(tokens.$color-base-fg, 0.15);
 	}
+}
+
+// Divider line (Commitment 8) — structurally two independent segments,
+// each a plate's own border-bottom, not one continuous line with a mark
+// rendered on top to visually cover it (technical-design.md, Design
+// Decision 7). The gap between the two plates is genuinely unpainted —
+// not merely visually hidden — so whichever mark occupies the row's
+// center (this Feature's own compact logo, or Hero's mark, observed via
+// its sentinel) actually shows through from beneath, rather than sitting
+// on top of an opaque bar. `z-index: -1` (within `.nav`'s own stacking
+// context, established by its `z-index: 10`) keeps this behind the
+// wordmark/links/compact-logo content painted after it in source order.
+.navBackdrop {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	--divider-gap: 0%;
+
+	&[data-divider-state='logo'] {
+		// About/Contact: segments flank this Feature's own compact logo
+		// (ui.md: ≈19% gap of the bar width, for the compact-logomark
+		// case).
+		--divider-gap: 19%;
+	}
+
+	&[data-divider-state='hero-mark'] {
+		// Introduction, while Hero's own (larger) mark remains visible at
+		// the nav row (ui.md: ≈52% gap, for Hero's own mark case).
+		--divider-gap: 52%;
+	}
+}
+
+.navPlateLeft,
+.navPlateRight {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: calc((100% - var(--divider-gap)) / 2);
+	background-color: tokens.$color-base-bg;
+	border-bottom: 1px solid tokens.$color-nav-divider;
+}
+.navPlateLeft {
+	left: 0;
+}
+.navPlateRight {
+	right: 0;
 }
 
 .wordmark {
@@ -39,19 +84,29 @@ $mobile-nav-height: 3rem;
 	text-transform: lowercase;
 }
 
-// Compact Logomark Icon (Commitment 4) — background-layer placeholder
-// standing in for the shared ornamental-mark asset, which is out of this
-// Feature's scope (ux.md: "Pending... shared project-wide substrate").
-// Centered in the bar, spanning close to its full height (ui.md).
+// Ornamental Logo Home-Link (Commitment 4) — the real, shared compact-
+// mark asset (ui.md: a symmetric, spiked, hourglass-shaped mini-mark,
+// 117:216 aspect ratio, spanning the row's full height), centered in the
+// bar's divider gap; its own gradient fill comes from the SVG asset
+// itself, not an independently authored CSS gradient.
 .compactMark {
 	position: absolute;
 	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
-	width: tokens.$space-md;
-	height: calc(#{$nav-height} - #{tokens.$space-sm});
-	border-radius: 999px;
-	background: linear-gradient(160deg, tokens.$color-gradient-start, tokens.$color-gradient-end);
+	top: 0;
+	transform: translateX(-50%);
+	height: 100%;
+	width: calc(#{$nav-height} * 117 / 216);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		pointer-events: none;
+	}
 }
 
 // Right-hand group: "about"/"contact" grouped together, closest to the

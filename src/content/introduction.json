@@ -1,6 +1,7 @@
 {
   "en": {
     "placeholder": "TODO",
+    "wordmark": "javimorala.com",
     "headlinePrimary": "Building",
     "headlineSecondaryLine1": "the web",
     "headlineSecondaryLine2": "with a rebellious streak",
@@ -8,6 +9,7 @@
   },
   "es": {
     "placeholder": "TODO",
+    "wordmark": "javimorala.com",
     "headlinePrimary": "Construyendo",
     "headlineSecondaryLine1": "la web",
     "headlineSecondaryLine2": "con un toque rebelde",
@@ -15,6 +17,7 @@
   },
   "eu": {
     "placeholder": "TODO",
+    "wordmark": "javimorala.com",
     "headlinePrimary": "Eraikitzen",
     "headlineSecondaryLine1": "sarea",
     "headlineSecondaryLine2": "izaera errebeldez",

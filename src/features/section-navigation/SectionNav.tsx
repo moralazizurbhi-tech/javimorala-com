@@ -45,6 +45,20 @@ import styles from './SectionNav.module.scss';
 // proceed in the same interaction (Commitment 6, AC2); the separate
 // close control only closes, with no href and no navigation side effect
 // (Commitment 6, AC3).
+//
+// Divider line (Commitment 8): a second, independent runtime state from
+// "active section" (technical-design.md, Owned Concepts) — whether a
+// mark currently occupies the bar's center gap. On Personal Narrative/
+// Connection it's constant, derived from the same compact-logomark
+// condition above. On Introduction it's scroll-derived, observing
+// Hero's own mark-visibility sentinel (`#hero-mark-boundary`) the same
+// way Domain Section boundaries are already observed above — this
+// component depends outward on that marker's existence, never the
+// reverse. A plain (no rootMargin) intersection test is sufficient: the
+// sentinel sits at the mark's own bottom edge, so it stops intersecting
+// the viewport at exactly the scroll offset where the mark's full box
+// (anchored to the page's own top, same as this nav) has scrolled clear
+// of the fixed nav row — independent of the nav's own height.
 
 export type SectionId = 'introduction' | 'personal-narrative' | 'connection';
 
@@ -59,6 +73,10 @@ interface Props {
 export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }: Props) {
 	const [activeSection, setActiveSection] = useState<SectionId>('introduction');
 	const [overlayOpen, setOverlayOpen] = useState(false);
+	// Default true: a visitor's first paint is at scroll 0, where Hero's
+	// mark is trivially visible — mirrors Design Decision 5's pre-
+	// hydration baseline assumption (Introduction active on load).
+	const [heroMarkVisible, setHeroMarkVisible] = useState(true);
 
 	useEffect(() => {
 		const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
@@ -103,16 +121,39 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 		return () => observer.disconnect();
 	}, []);
 
+	useEffect(() => {
+		const sentinel = document.getElementById('hero-mark-boundary');
+		if (!sentinel) return;
+
+		const observer = new IntersectionObserver(([entry]) => setHeroMarkVisible(entry.isIntersecting), {
+			threshold: 0,
+		});
+		observer.observe(sentinel);
+		return () => observer.disconnect();
+	}, []);
+
 	const isIntroduction = activeSection === 'introduction';
+	// Commitment 8 — Segmented whenever a mark occupies the gap: this
+	// Feature's own compact logomark (Personal Narrative/Connection,
+	// constant), or Hero's own mark while it remains visible at the nav
+	// row (Introduction, scroll-derived); Continuous only once neither
+	// holds (Introduction, mark scrolled past).
+	const dividerState = isIntroduction ? (heroMarkVisible ? 'hero-mark' : 'continuous') : 'logo';
 
 	return (
 		<>
 			<nav className={styles.nav} aria-label="Primary">
+				<div className={styles.navBackdrop} data-divider-state={dividerState} data-testid="nav-divider">
+					<span className={styles.navPlateLeft} />
+					<span className={styles.navPlateRight} />
+				</div>
 				<a href="#introduction" className={styles.wordmark}>
 					{wordmark}
 				</a>
 				{!isIntroduction && (
-					<a href="#introduction" className={styles.compactMark} aria-label="Introduction" />
+					<a href="#introduction" className={styles.compactMark} aria-label="Introduction">
+						<img src="/ornamental-logo.svg" alt="" aria-hidden="true" />
+					</a>
 				)}
 				<div className={styles.navEnd}>
 					<ul className={styles.links}>

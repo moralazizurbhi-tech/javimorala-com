@@ -20,3 +20,9 @@ $color-gradient-end: #4b2178; // deep purple
 // ... the vivid gradient/colour Visual Foundations reserves for
 // emphasis").
 $color-accent: $color-gradient-start;
+
+// section-navigation/ui.md's Colour Application: the nav's connecting
+// line — observed directly in Figma, distinct from both the Ornamental
+// Mark/Logo's own gradient and the flat $color-accent above, despite
+// being in the same accent family.
+$color-nav-divider: #e6bdfb;
