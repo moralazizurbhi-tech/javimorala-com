@@ -125,12 +125,16 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// H/2 + (W+H)/(2√2) = 0.9011×W below `top: 0`. Kept in sync with
 		// `.hero__mark`'s own `width`/rotation below by hand, since a
 		// shared Sass variable can't cross into a pseudo-element's
-		// generated box from here cleanly.
+		// generated box from here cleanly. The `- 22vw` pulls the
+		// headline up into deliberate overlap with the mark's own visual
+		// footprint (developer direction: read as too far apart at a
+		// small fixed-rem overlap, which barely mattered against a value
+		// this large — needed a viewport-proportional reduction instead).
 		&::before {
 			content: '';
 			display: block;
 			width: 100%;
-			height: calc(115vw * 0.9011 - 3rem);
+			height: calc(115vw * 0.9011 - 22vw);
 		}
 
 		@include mixins.desktop-up {
