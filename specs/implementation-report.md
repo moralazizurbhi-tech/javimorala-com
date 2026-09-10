@@ -2,47 +2,71 @@
 
 ## Progress Summary
 
-Phase 0 (Project Foundations, T-001–T-004) and Phase 1 (Feature
-Foundation: Localization, T-005–T-008) are both complete, unchanged from
-the prior report — Phase 0 merged into `main`; Phase 1 lives on branch
-`worktree-t005-override-store`, pushed to origin, not yet merged into
-`main`.
+**Phase 0 (T-001–T-004) and Phase 1 (T-005–T-008) are now merged into
+`main`.** The prior report described Phase 1 as living on its own
+unmerged branch; that is no longer the case.
 
 **Phase 2 (Hero Presentation + Section Navigation, T-009–T-012) is now
-individually complete at the task level — 12 of 32 catalog tasks — but
-split across two independent, non-stacked branches, neither merged.**
-`worktree-t009-hero-composition` (T-009, T-010) and
-`worktree-t011-section-navigation` (T-011, T-012) both branch from
-Phase 1's own `dc0ce4e`; neither contains the other's work.
-`content-localization`'s and `language-override`'s Phase 1 mechanisms are
-now exercised against real (not merely structural-placeholder) content
-for the first time — Hero's headline/tagline/scroll-cue and Section
-Navigation's wordmark/nav-labels, in English, Spanish, and Euskera.
-`hero-presentation`'s own Commitment 5 (Presence Links inclusion) remains
-pending Phase 5's T-018, so the Feature itself isn't fully technically
-complete even though both of its Phase 2 tasks are.
-`section-navigation` is fully technically complete — T-011 + T-012 cover
-all 7 of its Contract Commitments.
+merged into `main` as a single, integrated experience — the prior
+report's flagged gap ("M2 not met as a single integrated level," since
+Phase 2 was split across two independent branches) is resolved.** Merge
+commits `824b880` (`worktree-t009-hero-composition`) and `32f1d3b`
+(`worktree-t011-section-navigation`) integrated both halves; the
+Introduction Domain Section now contains Hero's real composition
+alongside a fully functional Section Navigation in one state on `main`.
+**Milestone M2 is now genuinely met**, not merely at the per-task level.
 
-**Observation:** Milestone M2 ("Hero & Navigation Live... render real
-content... with the language switcher functional from its nav slot") is
-met at the *per-task* level but not yet at the *single, integrated*
-level: the T-011/T-012 branch's Introduction Domain Section still shows
-Phase 1's scaffold placeholder (`<h1>Javi Morala</h1>` +
-`IntegrationCheck`), not Hero's real composition, since it doesn't
-contain T-009/T-010's work; conversely the T-009/T-010 branch has no
-Section Navigation at all. Recorded here for reconciliation, not a
-defect in either task pair's own completed work — the same class of gap
-the prior report flagged for Phase 1's M1.
+**A Mark/Logo split refinement (`7b324fe`, spec/asset-only, no source
+changes) landed on `main` after that merge**, formalizing a distinction
+between Hero's large Ornamental Mark and Section Navigation's compact
+Ornamental Logo: added a real Ornamental Logo SVG asset, corrected the
+mark's gradient direction back to the Figma-sourced lilac-dominant read,
+reworked the mark/headline relationship into "one true compositional
+gesture," and added Section Navigation Contract Commitment 8 (the nav
+divider line renders as two segments around whichever mark occupies the
+row's center). Four small fix commits on `main` immediately preceded it
+(`e9d3676`, `3fc9978`, `0f3f941`, `2c9ab23`), replacing Hero's mark
+placeholder with the real SVG asset and tuning mark/headline vertical
+positioning.
+
+**This session's own work (16 commits on branch
+`worktree-hero-nav-mark-logo-refinement`, not yet merged, fully pushed)
+first reconciled T-009/T-010/T-011 against that refinement, then carried
+out an extended, multi-round post-implementation correction pass on
+Hero's mobile and desktop composition** — the divider line, mark colour
+and geometry, mark-relative headline anchoring, a full typography-system
+change, and, after a developer-supplied real-device screenshot revealed
+several further mobile defects (crop, rotation direction, scroll-cue
+placement, grouping the mark and headline as one visually centered
+unit), a further nine rounds of targeted fixes on top of that. Three of
+those rounds were spent finding and fixing **two genuine desktop
+regressions introduced by this session's own mobile-composition
+refactor** — one from a CSS Grid behavior (a pseudo-element spacer
+leaking into desktop's grid sizing via `display: contents`), the other
+from a subtler one (an absolutely-positioned grid item's inset
+properties resolving against its own named grid area, not the whole
+grid, once that area assignment moved off the element). Both are now
+fixed and verified via commit bisection and pixel-level screenshot
+comparison against the pre-refactor state. Full detail in Completed
+Work / Implementation Decisions below.
+
+**A significant tooling limitation was also discovered and documented
+this session**: this environment's headless Chrome screenshot tool
+silently clamps any requested viewport width below ~500px to ~500px
+internally while still labeling the output by the requested (smaller)
+size — meaning automated "mobile" screenshots at 360–430px were not
+trustworthy self-verification for part of this session, addressed by
+having the developer supply real-device screenshots directly and by
+using a ≥500px proxy width for automated checks from that point on.
 
 ## Feature Realization
 
 | Feature | Technically Complete? | Realization Status |
 | --- | --- | --- |
-| content-localization | Yes (T-006, T-007 done; T-029 real-content exercise still pending) | Provisional — mechanism now exercised against some real content (Hero's and Section Navigation's own copy, Phase 2) alongside structural placeholders elsewhere (about-narrative, direct-contact, presence-links not yet authored); full real-content coverage still deferred to those Features' own later phases |
-| language-override | Yes (T-005, T-008 done; both Feature Contract `realizesCommitments` fully covered) | No longer Blocked — T-012 now hosts the Language Switcher in both nav forms (desktop bar and mobile overlay), on `worktree-t011-section-navigation`, not yet merged. Realized on that branch, pending merge into a shared integration. Still carries the pre-existing Implementation Placeholder (`"EN"`/`"ES"`/`"EU"` labels standing in for `ux.md`/`ui.md`'s own Pending exact-copy items) |
-| hero-presentation | Partial — T-009, T-010 done (Commitments 1-4); Commitment 5 (Presence Links inclusion) is T-018, Phase 5, not started | Provisional — real, Confirmed English headline/tagline/scroll-cue copy; Spanish/Euskera copy is AI-drafted (Provisional Product Value, pending native-speaker review, per the Implementation Plan's own Phase 2 assignment of translation authoring to this phase); ornamental-mark asset is an Implementation Placeholder (CSS-gradient stand-in for the out-of-scope shared SVG asset); device-class responsive treatment (T-010) real and verified |
-| section-navigation | Yes — T-011, T-012 done, all 7 Contract Commitments covered | Realized — real, functional desktop bar and mobile toggle/overlay, verified end-to-end (links, active-section tracking, logomark, language-control hosting) via headless-browser interaction, on `worktree-t011-section-navigation`, not yet merged. Two Implementation Placeholders remain: the compact-logomark icon and hamburger/close glyphs stand in for out-of-scope shared visual assets; the Active Screen Indicator's final visual anatomy (colour/underline/weight) remains Pending per the Feature's own UX/UI Definition (Implementation Plan Readiness Issue 1) — the state-tracking mechanism itself is fully delivered regardless, per the Task Catalog's own readiness note |
+| content-localization | Yes (T-006, T-007 done; T-029 real-content exercise still pending) | Provisional — unchanged from the prior report; full real-content coverage still deferred to later Features' own phases |
+| language-override | Yes (T-005, T-008 done) | **Realized and merged** — the prior report's "pending merge" is resolved; T-012's hosting now lives on `main`. Still carries the pre-existing Implementation Placeholder (`"EN"`/`"ES"`/`"EU"` labels) |
+| hero-presentation | Partial — T-009, T-010 done (Commitments 1–4); Commitment 5 (Presence Links inclusion) still owned by T-018/Phase 5, not started | **Provisional, materially improved this session.** Real Ornamental Mark SVG asset (no longer a CSS-gradient placeholder); gradient colours corrected to match the Figma-sourced lilac-dominant read; headline anchored to the mark's own measured/rotated geometry rather than the viewport, on both device classes; new mark-visibility sentinel exposed for Section Navigation's Commitment 8. Spanish/Euskera copy remains AI-drafted, still pending native-speaker review. All of this session's work lives only on the unmerged `worktree-hero-nav-mark-logo-refinement` branch |
+| section-navigation | Task Catalog's T-011 entry predates Commitment 8 (added by `7b324fe`) and still lists only Commitments 1–5 | **Realized, on the unmerged branch.** Commitment 8 (segmented divider line) newly built: two structurally independent plate elements, driven by the compact-logo condition (Personal Narrative/Connection) or Hero's mark-visibility sentinel (Introduction, scroll-derived). Real Ornamental Logo SVG replaces the gradient-pill placeholder. **Known inconsistency:** the Task Catalog's own T-011 entry was written before Commitment 8 existed — see Known Issues |
 | about-narrative | Pending (no task started) | — |
 | direct-contact | Pending (no task started) | — |
 | presence-links | Pending (no task started) | — |
@@ -51,428 +75,282 @@ the prior report flagged for Phase 1's M1.
 
 ## Completed Work
 
-- **T-001 — Scaffold Project Initialization.** Astro + React + Sass +
-  Framer Motion + Radix UI (headless, `radix-ui` package) + Vitest wired
-  in; hand-authored global browser-default reset (not
-  `@radix-ui/themes`, which doesn't cascade document-wide). Commit
-  `aa5e600`.
-- **T-002 — Styling System Foundation.** Sass token/mixin partials
-  (colour, typography, spacing, breakpoints, motion, interaction mixins
-  incl. focus-ring); fixed the previously-Pending focus-ring/gradient/
-  accent colour values, verified by an automated WCAG contrast-ratio
-  Vitest suite (4 tests, all passing). Commit `041326d`.
-- **T-003 — Content Layer Schema.** Three locale-keyed Astro content
-  collections (introduction, personalNarrative, connection),
-  structure-only per-locale schema; placeholder en/es/eu entries
-  validated (and a deliberate invalid-entry case confirmed the schema
-  rejects bad data, then reverted). Commit `1c8aa63`.
-- **T-004 — Root Layout Composition.** Three Domain Section placeholders
-  (introduction/personal-narrative/connection) composed in fixed order
-  via a new `RootLayout.astro`; T-002's theme tokens applied to `body`;
-  T-001's `BaseLayout.astro` left untouched. Commit `71b1d73`.
-- **T-005 — Override Store.** Tri-state (unset/en/es/eu), synchronously-
-  readable, durable client-side store (`localStorage`-backed); no
-  clear/reset operation exists anywhere in the module interface
-  (Commitment 5); write path exposed only as an explicit function, never
-  invoked as a read-time side effect (Commitment 3); degrades silently
-  (no throw) when storage is unavailable. 6 Vitest tests. Commit
-  `238579b`.
-- **T-006 — i18n/Routing Layer Core.** Locale detection
-  (`detectBrowserLocale`), pure resolution-priority logic
-  (`resolveActiveLocale`: override > detected-supported > English), the
-  `/en/`, `/es/`, `/eu/` static routes (via `getStaticPaths()`) each
-  resolving `html lang` and meta description from the Content Layer, and
-  the root (`/`) rewritten as a content-free bootstrap that reads the
-  Override Store, detects the browser locale, and redirects before
-  anything paints, with a `<noscript>` meta-refresh fallback to `/en/`.
-  `BaseLayout`/`RootLayout` extended to accept `lang`/`description` props
-  (previously hardcoded to English). 8 Vitest tests; build produces
-  exactly the 4 expected routes; live dev-server fetch confirmed correct
-  `html lang`/meta description per route and the root's content-free
-  bootstrap/noscript markup. Commit `81ec80d`.
-- **T-007 — Cross-Locale Content-Coverage Build Check.**
-  `findCoverageGaps()` compares field-key sets across en/es/eu for each
-  domain collection, reading the Content Layer's raw JSON directly (not
-  `astro:content`, which isn't reachable from a plain Vitest process
-  outside `astro build`/`dev` — an established limitation from T-003).
-  4 Vitest tests (3 synthetic pass/fail cases + 1 running against real
-  content); additionally verified live end-to-end by deliberately
-  introducing a real coverage gap in `introduction.json`, confirming the
-  check failed with the correct locale/key identified, then reverting.
-  Commit `23f3f0f`.
-- **T-008 — Language Switcher Component.** Hydrated dropdown built on
-  Radix `DropdownMenu` (Accessible Primitives Layer): selecting a
-  different language writes the Override Store then lets the anchor's
-  default click complete navigation (Commitment 1); reselecting the
-  active language calls `preventDefault()` and skips the write
-  (Commitment 2); the matching item is bold-weighted from the current
-  override on render (contributes to Commitment 4). Deliberately
-  unplaced — no page composes it (hosting is T-012's job). Added `jsdom`
-  + `@testing-library/react`/`user-event` as dev dependencies (none
-  existed previously) to genuinely exercise Radix's pointer-driven
-  open/select interactions under Vitest, since static HTML inspection
-  can't verify click/no-op behavior. 4 interaction tests; additionally
-  verified with a temporary live mount into a real locale route via the
-  dev server (SSR markup, ARIA attributes, CSS module class all
-  confirmed), then reverted. Commit `9c29130`.
-- **T-009 — Hero Composition: Elements & Content.** Static Astro
-  component (no client hydration) rendering headline/tagline,
-  ornamental-mark placeholder, and scroll cue as one unconditional
-  composition — never sequenced at runtime, so completeness (Commitment
-  1) is structurally guaranteed regardless of asset weight. Content
-  consumed as props already resolved by the i18n/Routing Layer's
-  per-locale route, never re-read from the Content Layer or re-resolved
-  (Commitment 2). Scroll cue is plain, non-focusable markup — no
-  button/link/tabindex — since activation must have no effect
-  (Commitment 3). Authored real English, Spanish, and Euskera
-  headline/tagline/scroll-cue content in the Content Layer, per the
-  Implementation Plan's own Phase 2 assignment of translation authoring
-  to this phase. Replaced T-006's scaffold placeholder in the
-  Introduction slot. Commit `a4d6113`, branch
-  `worktree-t009-hero-composition`.
-- **T-010 — Hero Responsive Treatment.** Device-class-specific layout
-  within the same shared markup — CSS Grid `grid-template-areas` swapped
-  via the existing `desktop-up` breakpoint mixin (Technical Design's
-  single-template Design Decision), not two separate template paths.
-  Mobile: dominant headline word rotated 90° and anchored left, mark
-  cropped/bled off the top-right edge, scroll cue full-width at the
-  bottom. Desktop/tablet: asymmetric lower-left/lower-right headline
-  spread, mark centered near the top, scroll cue in the bottom-right
-  corner. Neither treatment is a scaled/wrapped copy of the other.
-  Verified by building and visually inspecting the built site at
-  390px/800px/1440px viewports via headless Chromium. Commit `e6896c5`,
-  branch `worktree-t009-hero-composition`.
-- **T-011 — Section Navigation: Core Bar & Active-Section State.**
-  Desktop nav bar (wordmark, "about"/"contact" anchors, conditionally
-  rendered compact logomark) hydrated at Root Layout level, outside all
-  three Domain Sections (Commitments 1-4). A single hydrated island
-  tracks which Domain Section is active via IntersectionObserver
-  (Commitment 5), driving both the Active Screen Indicator and the
-  compact-logomark condition from one shared state. Static
-  pre-hydration baseline: wordmark/links work via native anchor
-  navigation before hydration completes. A real defect was found and
-  fixed during manual verification — a viewport-centre scroll-spy
-  heuristic could hand initial-load activation to Personal Narrative
-  whenever Introduction's content is shorter than the trigger band,
-  breaking Commitment 5 AC1 regardless of actual scroll position;
-  replaced with a top-crossing band plus an earliest-wins tie-break over
-  a running intersecting-set, covered by a regression test. Authored
-  real English, Spanish, and Euskera nav-label/wordmark content. Commit
-  `85449e3`, branch `worktree-t011-section-navigation`.
-- **T-012 — Section Navigation: Mobile Overlay & Language-Control
-  Hosting.** Mobile toggle/full-screen overlay built on Radix UI
-  `Dialog` (Accessible Primitives Layer) — its modal focus-trap and
-  backdrop satisfy Commitment 6 AC4 (underlying page not interactable
-  while open) without custom focus-management code; each overlay link
-  wrapped in `Dialog.Close` (`asChild`) so activating it both closes the
-  overlay and lets the anchor's own navigation proceed (AC2); the
-  separate close control only closes, with no navigation side effect
-  (AC3). Hosts the Language Switcher (T-008) in both the desktop bar and
-  the mobile overlay (Commitment 7), without altering its own
-  switching/detection/persistence behavior. A real desktop-layout
-  defect was found and fixed during verification — adding the language
-  control as a third flex sibling had pushed "about"/"contact" to the
-  bar's centre instead of grouping them at the right edge next to it,
-  contradicting `ui.md`; restructured into a wordmark-left /
-  (links + language-control)-right two-group layout. Commit `3d62f0f`,
-  branch `worktree-t011-section-navigation`.
+*T-001–T-012 unchanged from the prior report's own account of that work
+— preserved below for continuity; only their merge/branch status has
+changed (see Progress Summary).*
+
+- **T-001–T-008** (Scaffold, Styling System, Content Layer, Root Layout,
+  Override Store, i18n/Routing Layer, Cross-Locale Coverage Check,
+  Language Switcher) — as previously reported; all now on `main`.
+- **T-009 / T-010** (Hero Composition: Elements & Content; Responsive
+  Treatment) — as previously reported; now on `main`, and materially
+  reworked by this session's own commits (below).
+- **T-011 / T-012** (Section Navigation: Core Bar & Active-Section
+  State; Mobile Overlay & Language-Control Hosting) — as previously
+  reported; now on `main`, and extended by this session's own commits
+  (below) to realize Commitment 8.
+
+**This session's work, in sequence:**
+
+- **`0c462b8` — Realize Mark/Logo split refinement in Hero & Section
+  Navigation.** Added Hero's mark-visibility sentinel
+  (`#hero-mark-boundary`). Implemented Section Navigation Commitment 8
+  (two independent divider segments, `#e6bdfb` colour token, driven by
+  the compact-logo condition or Hero's sentinel); swapped the
+  compact-logo placeholder for the real Ornamental Logo SVG. Extended
+  `SectionNav.test.tsx`'s `IntersectionObserver` mock to track multiple
+  observer instances; added Commitment 8 test coverage (test count:
+  37 → 41).
+- **`90a779c`, `77434e0` — Correct Hero desktop mark colours/crop/
+  alignment; mark-relative headline anchoring, Figma typography,
+  Building/secondary ratio.** Corrected `ornamental-mark.svg`'s gradient
+  to Figma's literal values (verified via raw SVG export, since Figma's
+  node API doesn't expose gradient-stop data); fixed bottom-cropping
+  (`object-fit: cover` → `contain`); rebuilt desktop headline positioning
+  as percentages of the mark's own rendered box, measured directly from
+  the production SVG via a `getBBox()` harness; replaced the
+  never-actually-imported Fredoka with Gothic A1 (headings) / Darker
+  Grotesque (body), both self-hosted, OFL-licensed; widened the
+  Building/secondary size ratio toward Figma's measured ~3.08x.
+- **`7de1543`, `7c27462` — Nav/scroll-cue sizes to Figma values; Pascal
+  Case; capitalize-bug fix.** Raised nav/scroll-cue tiers toward Figma's
+  measured values; Pascal Case via `text-transform: capitalize`; fixed
+  (via `::first-letter`) a real bug where `capitalize`'s word-boundary
+  detection silently merges across `position: absolute` siblings once
+  the whitespace between them collapses away.
+- **`41e0b05`, `dd73d83`, `1a90f99` — Mobile view overhaul, prompted by
+  a real-device screenshot showing several defects a desktop-viewport
+  proxy hadn't caught.** Switched `.hero`'s `min-height` to `100dvh`
+  (falls back to `100vh`) so the scroll cue doesn't land below the real
+  visible fold on mobile browsers with a collapsing address bar;
+  rebuilt the mark's mobile crop after discovering it was 45° rotated in
+  Figma's own mobile frame (first attempt had the rotation direction
+  reversed, corrected the next round); restructured the two secondary
+  headline lines into their own flex-column wrapper after a CSS Grid
+  quirk (a spanning sibling forcing extra space into a two-row track)
+  inflated their mutual gap; fixed a real CSS Grid overflow bug
+  (`min-width: auto` letting long copy blow out its 1fr column instead
+  of wrapping) that a later round's `justify-content: flex-end` change
+  exposed. **Discovered and documented the headless-Chrome viewport-
+  clamp tooling limitation** described in Progress Summary, via a
+  from-scratch investigation (an iframe-based measurement harness,
+  a temporary in-page debug script, and finally direct pixel-cropping of
+  screenshots) after visually "fixed" mobile states kept not matching
+  what a real device showed.
+- **`31c7232`, `d509220`, `cebe2f1`, `d482ffe`, `0d50926` — Group Hero's
+  mark and headline as one visually centered mobile unit; five rounds of
+  developer-directed tuning.** Wrapped the mark and headline in a new
+  `.hero__display` element so they move and center together, using a
+  `::before` spacer to make the browser's auto-centering account for the
+  mark's own (otherwise `position: absolute`-invisible) visual bulk;
+  corrected the spacer's own height formula twice (first used the mark's
+  full rotated bounding height, then a wrong "flush at the wrapper's own
+  bottom" anchor, before landing on the correct "how far the mark's
+  visual bottom sits below its own `top: 0`" derivation) — then
+  developer-specified exact values directly replaced the derived formula
+  entirely once real-device screenshots showed it still didn't match:
+  final mark size/position, spacer height, headline left margin,
+  secondary-headline size, and column-gap all set to precise
+  developer-supplied numbers rather than further derived/estimated ones.
+- **`f4dcf24`, `afed50d` — Two genuine desktop regressions found and
+  fixed, both introduced by the grouping work above and both missed by
+  this session's own "desktop confirmed unaffected" checks at the time
+  they were introduced.** (1) `display: contents` on `.hero__display`
+  removes *its own* box but not its `::before` pseudo-element's — that
+  pseudo-element was still generating a box, promoted into `.hero`'s
+  desktop grid, where its height forced that row to grow and pushed the
+  composition around; fixed with `content: none` on the pseudo-element
+  itself under desktop-up. (2) A second, independent regression the
+  first fix didn't touch: moving `grid-area: headline` off
+  `.hero__headline` onto the wrapper meant `.hero__headline`'s
+  `position: absolute` offsets no longer resolved against the
+  'headline' grid area's own box, falling back to `.hero`'s entire
+  padding box instead — a different reference box, silently shifting
+  the headline's desktop position despite its `top: calc(...)`
+  formula's text never changing. Found via commit bisection (rebuilding
+  and screenshotting the pre-regression commit, the regression commit,
+  and two failed fix attempts in isolation) and a byte-level compiled-
+  CSS diff; verified by pixel-comparing "Building"'s rendered position
+  before and after (off by ~3px at 1440×900, within rendering-precision
+  noise) and confirmed stable across repeated captures.
 
 ## Pending Work
 
-- T-013–T-032 (20 tasks) — not started.
-- hero-presentation's Commitment 5 (Presence Links as a minor/secondary
-  Hero element) — owned by T-018 (Phase 5), which itself depends on
-  T-017 (Presence Link Group Component, not started).
-- **Reconciling the two independent Phase 2 branches** (and Phase 1's
-  own still-unmerged branch) into a single integrated state — required
-  before M2 is met end-to-end, not merely per-task. Not a fast-forward
-  merge; see Known Issues for the specific files that will conflict.
-- T-011's Active Screen Indicator visual anatomy remains Pending, still
-  gating T-021/T-022 per the Implementation Plan's own Readiness
-  Issues — unaffected by, and unresolved by, Phase 2's completion.
-- Native-speaker review of Hero's and Section Navigation's AI-drafted
-  Spanish/Euskera copy — recommended before launch, not a blocker to
-  Phase 2's own completion (translation authoring was this phase's own
-  confirmed scope per the Implementation Plan).
+- T-013–T-032 (20 tasks) — unchanged, not started.
+- hero-presentation's Commitment 5 — unchanged, owned by T-018/Phase 5.
+- **This session's 16 commits remain unmerged**, on
+  `worktree-hero-nav-mark-logo-refinement`, pushed to origin, working
+  tree clean at HEAD (`afed50d`) — the same unmerged-branch pattern the
+  prior two reports flagged for their own phases.
+- T-011's Active Screen Indicator visual anatomy (colour/underline/
+  weight) — unchanged, still Pending in `section-navigation/ux.md`/
+  `ui.md`, still gates `motion-interaction`'s T-021/T-022.
+- Native-speaker review of Hero's/Section Navigation's AI-drafted
+  Spanish/Euskera copy — unchanged, recommended before launch.
+- Task Catalog's T-011 entry needs its own refresh to list Commitment 8
+  (owned by Planning, not performed here).
+- `motion-interaction`'s Nav Progress Overlay (T-022) still assumes one
+  continuous divider line — factually superseded by Commitment 8's
+  two-segment line; flagged in `7b324fe`'s own commit message as a
+  deferred follow-up, carried forward here.
+- Decorative Mark/Logo instances still lack an explicit `aria-hidden`
+  commitment; also flagged in `7b324fe` as deferred.
 
 ## Generated Artifacts
 
-- **Config:** `package.json`, `package-lock.json` (T-008 added `jsdom`,
-  `@testing-library/react`, `@testing-library/user-event` as dev
-  dependencies), `astro.config.mjs`, `tsconfig.json`, `vitest.config.ts`,
-  `src/content.config.ts`
-- **Layouts:** `src/layouts/BaseLayout.astro`,
-  `src/layouts/RootLayout.astro` (T-006 added `lang`/`description`
-  props; T-011/T-012 — on `worktree-t011-section-navigation` only —
-  compose `SectionNav` and add `scroll-margin-top` for both fixed bars)
-- **Pages:** `src/pages/index.astro` (T-006 rewrote as the content-free
-  root bootstrap), `src/pages/[locale]/index.astro` (T-006, new —
-  per-locale static route; independently extended on both Phase 2
-  branches — T-009 wires in `HeroComposition`, T-011/T-012 resolves nav
-  content and passes the new `RootLayout` props — **not unified**)
-- **Components:** `src/components/IntegrationCheck.tsx` (still present
-  in the Introduction slot on `worktree-t011-section-navigation`, since
-  T-009's replacement of it lives only on the other Phase 2 branch)
-- **Feature modules:**
-  `src/features/language-override/overrideStore.ts` (T-005),
-  `src/features/language-override/LanguageSwitcher.tsx` (T-008),
-  `src/features/language-override/LanguageSwitcher.module.scss` (T-008),
-  `src/features/content-localization/localeResolution.ts` (T-006),
-  `src/features/content-localization/crossLocaleCoverage.ts` (T-007),
-  `src/features/hero-presentation/HeroComposition.astro` (T-009, T-010 —
-  branch `worktree-t009-hero-composition`),
-  `src/features/section-navigation/SectionNav.tsx`,
-  `src/features/section-navigation/SectionNav.module.scss` (T-011,
-  T-012 — branch `worktree-t011-section-navigation`)
-- **Styles:** `src/styles/_reset.scss`, `src/styles/global.scss`,
-  `src/styles/tokens/{_colors,_typography,_spacing,_breakpoints,_motion,_index}.scss`,
-  `src/styles/mixins/{_fluid,_breakpoints,_interaction,_index}.scss`
-- **Content data:** `src/content/introduction.json` — extended
-  independently on both Phase 2 branches with *different* new keys
-  (`headlinePrimary`/`headlineSecondaryLine1`/`headlineSecondaryLine2`/
-  `scrollCue` on `worktree-t009-hero-composition`; `wordmark` on
-  `worktree-t011-section-navigation`); `src/content/personal-narrative.json`,
-  `src/content/connection.json` — extended with `navLabel`
-  (`worktree-t011-section-navigation` only)
-- **Tests:** `src/scaffold.test.ts`,
-  `src/styles/tokens/{contrast.ts,colors.contrast.test.ts}`,
-  `src/features/language-override/overrideStore.test.ts` (T-005),
-  `src/features/language-override/LanguageSwitcher.test.tsx` (T-008),
-  `src/features/content-localization/localeResolution.test.ts` (T-006),
-  `src/features/content-localization/crossLocaleCoverage.test.ts`
-  (T-007), `src/features/section-navigation/SectionNav.test.tsx` (T-011,
-  T-012 — 11 tests, branch `worktree-t011-section-navigation`)
+*(new/changed since the prior report's own snapshot, `35526fc`)*
+
+- **Assets:** `public/ornamental-mark.svg` (gradient corrected),
+  `public/ornamental-logo.svg` (new, `7b324fe`, wired into Section
+  Navigation this session)
+- **Config:** `package.json`/`package-lock.json` — removed
+  `@fontsource-variable/fredoka`; added `@fontsource/gothic-a1`,
+  `@fontsource-variable/darker-grotesque`
+- **Styles:** `src/styles/global.scss` (real `@font-face` imports);
+  `src/styles/tokens/_typography.scss` (two-family system, size-tier
+  recalibration); `src/styles/tokens/_colors.scss`
+  (`$color-nav-divider`)
+- **Feature modules:** `src/features/hero-presentation/
+  HeroComposition.astro` (extensively reworked — mark geometry,
+  mark/headline grouping, device-class typography); `src/features/
+  section-navigation/SectionNav.tsx`/`.module.scss` (Commitment 8, real
+  logo asset); `src/features/language-override/
+  LanguageSwitcher.module.scss` (minor)
+- **Tests:** `src/features/section-navigation/SectionNav.test.tsx`
+  extended (Commitment 8 coverage) — 41 tests total, up from 37
+- **Content data:** `src/content/{introduction,personal-narrative,
+  connection}.json` — minor updates
+- **Layouts/pages:** `src/layouts/RootLayout.astro`, `src/pages/
+  [locale]/index.astro` — minor updates
+- **Specs (via `7b324fe`, not this session's own work):** Mark/Logo
+  split formalized across `project-ux.md` and the `hero-presentation`/
+  `section-navigation`/`about-narrative`/`direct-contact`/
+  `motion-interaction` Feature specs
 
 ## Implementation Decisions
 
-- Dropped `@radix-ui/themes` (not part of the approved headless-only
-  Technology Selection; its `.rt-reset` class is a per-element opt-in,
-  not a document-wide cascade) — hand-authored an equivalent global
-  reset instead.
-- Base colours (`#221e24`, `#ebeaec`) reused from values already
-  Observed/Confirmed in approved Feature UI Definitions
-  (section-navigation, direct-contact, language-override), not
-  reinvented.
-- Fixed the gradient/accent/focus-ring values via explicit WCAG
-  luminance-contrast computation, verified by an automated test — per
-  the Implementation Plan's own Phase 0 authorization to fix these as a
-  non-blocking implementation detail.
-- Fredoka chosen as the "rounded, geometric... warm, current"
-  sans-serif; 768px chosen as the one mobile/desktop breakpoint; fluid
-  `clamp()` scaling anchored to Project UX's own cited Figma reference
-  frames (390px/1728px) — all as Implementation Details, not new
-  product decisions.
-- T-003's schema leaves per-locale field names open
-  (`z.record(string,string)`) rather than pre-inventing each Feature's
-  content fields, which the Plan reserves for each Feature's own later
-  phase.
-- T-004 kept `BaseLayout.astro` untouched at the time; `RootLayout.astro`
-  reaches `body` via `:global()` from its own scoped style; the three
-  placeholder sections carry no `aria-label` yet, deliberately, so as
-  not to preempt each Domain Feature's own localized accessible-naming
-  work.
-- Override Store persisted via `localStorage` directly (Technical Design
-  left the exact storage API open); storage access wrapped so a
-  blocked/unavailable store degrades silently rather than throwing.
-- i18n/Routing Layer's three locale routes implemented as one dynamic
-  Astro route (`src/pages/[locale]/index.astro` + `getStaticPaths()`)
-  rather than three duplicated files — an equivalent implementation
-  mechanism with no externally meaningful consequence.
-- Root bootstrap's redirect uses `window.location.replace()` (not
-  `href=`/`assign()`) so the content-free root never enters browser
-  history — a Local coding decision with no product-visible effect.
-- Cross-locale coverage check reads the Content Layer's raw JSON files
-  directly rather than via `astro:content`, continuing T-003's own
-  documented Vitest/content-layer limitation.
-- Meta description for each locale route reuses T-003's existing
-  placeholder value (`"TODO"`) rather than inventing new SEO copy —
-  actual copy authoring is explicitly out of scope per
-  `content-localization/ux.md` ("authoring the actual values is each
-  surface-owning Feature's concern").
-- Language Switcher's display labels use plain locale codes
-  (`"EN"`/`"ES"`/`"EU"`) as an explicit Implementation Placeholder, since
-  `language-override/ux.md` and `ui.md` leave the exact display copy
-  Pending — chosen to avoid inventing final product copy while still
-  fully demonstrating the functional mechanism.
-- Language Switcher's active-indicator reads the Override Store directly
-  (matching Technical Design's literal wording and T-008's own
-  acceptance criterion "matching the current override"), rather than
-  also considering the page's merely-*detected* (non-overridden) locale
-  — the latter would require a reverse dependency on
-  `content-localization`, which that Feature's own Technical Design
-  forbids.
-- Added `jsdom` + `@testing-library/react`/`user-event` as dev
-  dependencies — the project's only prior test tool (Vitest, environment
-  `node`) had no way to exercise real click/pointer interaction; scoped
-  to the one test file that needs it via a per-file `@vitest-environment
-  jsdom` pragma, leaving all other tests on the faster default
-  environment.
-- Hero Composition (T-009) built as a purely static Astro component, no
-  client island, per Technical Design's explicit constraint that none of
-  Commitments 1-3 need runtime state.
-- Hero's and Section Navigation's Spanish/Euskera copy authored directly
-  (AI-drafted) rather than left as structural placeholders, per the
-  Implementation Plan's own Phase 2 assignment of translation authoring
-  to this phase — flagged as a Provisional Product Value pending native
-  review, not an invented product decision.
-- Device-class layout (T-010) realized as one shared markup with CSS
-  Grid areas swapped via the existing breakpoint mixin — no separate
-  template paths, per Technical Design's Design Decision.
-- Resolved an apparent tension between Commitment 3 ("logomark always
-  links home, including partway through Introduction") and Commitment 4
-  ("compact logomark icon absent while Introduction is active") by
-  treating the always-present wordmark as a second, ever-present
-  home-link alongside the conditionally-shown icon — an Implementation
-  Detail resolving the mechanism, not a new product decision.
-- Active-section tracking (T-011) implemented via a top-crossing
-  IntersectionObserver band plus an earliest-wins tie-break over a
-  running intersecting-set, chosen after a centre-line heuristic was
-  found, during manual verification, not to structurally guarantee
-  Commitment 5 AC1 when Introduction's content is shorter than its
-  neighbour.
-- Section Navigation's own content (wordmark, nav-label translations)
-  placed within the existing per-domain Content Layer collections
-  (wordmark → introduction; "about" → personal-narrative; "contact" →
-  connection), since the approved Content Layer schema has no dedicated
-  cross-cutting/global collection — a content-placement decision, not a
-  schema change.
-- Mobile toggle/overlay (T-012) built on Radix UI's `Dialog` primitive
-  per Technical Design's explicit Accessible-Primitives-Layer
-  constraint.
-- Fixed a real desktop-layout defect found in manual verification: the
-  Language Switcher, added as a third flex child, broke
-  `justify-content: space-between`'s intended grouping — restructured
-  into a wordmark-left / (links + language-control)-right two-group
-  layout.
-- `scroll-margin-top` added for both the desktop and mobile fixed nav
-  bars so anchor-link jumps land clear of them — a necessary consequence
-  of introducing fixed positioning, not a scope expansion.
+*(new this session; full rationale in each commit's own message)*
+
+- Mark gradient corrected to Figma's literal lilac-dominant values,
+  matching `7b324fe`'s own project-ux.md correction — no longer a
+  divergence from spec (a prior report round of this session had flagged
+  this as a known inconsistency; `7b324fe` and this session's colour fix
+  independently converged on the same correction, so it's resolved, not
+  carried forward).
+- Two-family typography (Gothic A1 / Darker Grotesque) adopted per
+  direct developer instruction, sourced from their own Figma inspection
+  (font configuration wasn't retrievable via the Figma MCP toolset —
+  confirmed as a real tool limitation). **This is a still-open
+  divergence from `project-ux.md`'s own text**, which still describes
+  "a single rounded, geometric sans-serif family... expressed through
+  weight and size" (confirmed unchanged by `7b324fe`, which touched
+  `project-ux.md` extensively but not this passage) — see Known Issues.
+- Commitment 8's divider line built as two real, independently-sized DOM
+  elements (plates with their own `border-bottom`), not a continuous
+  line hidden behind a mark, so the gap is genuinely unpainted and
+  whichever mark occupies the row's center visually shows through.
+- Mark-relative headline anchoring (desktop) derived from the mark's own
+  measured SVG geometry (`getBBox()`), not guessed percentages — holds
+  regardless of desktop viewport size.
+- Building/secondary headline ratio kept Hero-local (a `calc()` off
+  `$font-size-display`), deliberately not coupled to the shared
+  `$font-size-heading` token, so other Features' future section
+  headings aren't bound to Hero's own ratio.
+- Pascal Case applied via CSS (`text-transform: capitalize` +
+  `::first-letter` for the cross-sibling word-boundary bug), not by
+  editing each locale's own content string, so it holds uniformly across
+  English/Spanish/Euskera.
+- Mobile mark/headline grouped as one composed unit (a new
+  `.hero__display` wrapper) per explicit developer direction that they
+  should read and move as a single element, not two independently-placed
+  ones — final size/position/spacing values developer-specified directly
+  after several derived-formula attempts didn't match their own visual
+  target.
+- Both desktop regressions from the grouping work were root-caused
+  methodically rather than patched by trial and error: the first via
+  reasoning about `display: contents`'s interaction with pseudo-elements
+  (confirmed by screenshot); the second only after two plausible-seeming
+  fixes failed, via git-commit bisection and a byte-level compiled-CSS
+  diff between the working and regressed states — a deliberate escalation
+  from "reason about the likely cause" to "measure the actual cause"
+  once the first two attempts didn't hold up under verification.
 
 ## Known Issues
 
-- **Phase 2's two task pairs live on two independent branches that
-  don't contain each other's work.** `worktree-t009-hero-composition`
-  (T-009, T-010) and `worktree-t011-section-navigation` (T-011, T-012)
-  both branch from Phase 1's own `dc0ce4e`; neither is merged into the
-  other or into `main`. Concretely: the T-011/T-012 branch's
-  Introduction Domain Section still shows Phase 1's scaffold placeholder
-  (`<h1>Javi Morala</h1>` + `IntegrationCheck`), not Hero's real
-  composition; the T-009/T-010 branch has no Section Navigation at all.
-  **M2 ("Hero & Navigation Live") is not yet met as a single, integrated
-  experience** — each half is independently complete and verified, but
-  they have not been composed together. A merge/integration step is
-  required, and it will not be a fast-forward: both branches
-  independently modified `src/content/introduction.json` (different new
-  keys — `headlinePrimary`/`headlineSecondaryLine1`/
-  `headlineSecondaryLine2`/`scrollCue` on one side, `wordmark` on the
-  other) and `src/pages/[locale]/index.astro` (Hero composition wiring
-  on one side, Section Navigation content resolution + `RootLayout`
-  props on the other) — both will need manual conflict resolution.
-- Carried forward: several other unmerged worktree branches in this
-  repository claim overlapping/related task work (a longer list now per
-  `git branch -a`, including e.g. `worktree-t008-hero-composition`,
-  `worktree-section-navigation-feature`,
-  `worktree-hero-presentation-feature-dev`) — none inspected or
-  reconciled here, consistent with the prior report's explicit-decision
-  framing to work fresh from `main`/the Task Catalog's own dependency
-  graph rather than reconcile every stray branch.
-- hero-presentation's Commitment 5 (Presence Links as a minor/secondary
-  Hero element) is not yet realized — owned by T-018 (Phase 5), which
-  itself depends on T-017 (Presence Link Group Component, not started).
-  Expected per the Task Catalog, not a Phase 2 defect.
-- Hero's and Section Navigation's Spanish and Euskera copy
-  (headline/tagline/scroll-cue; "about"/"contact" nav labels) is
-  AI-drafted, not reviewed by a native speaker — flagged as a
-  Provisional Product Value in both tasks' own execution; recommended
-  before launch, not before Phase 2 is considered done per the
-  Implementation Plan's own framing (translation authoring was this
-  phase's own confirmed scope).
-- T-011's Active Screen Indicator visual anatomy (colour/underline/
-  weight) remains Pending in `section-navigation/ux.md`/`ui.md`
-  (Implementation Plan Readiness Issue 1) — still gates
-  `motion-interaction`'s T-021/T-022 in Phase 6. Unaffected by, and
-  unresolved by, Phase 2's completion; the state-tracking mechanism
-  itself (Commitment 5) is fully delivered regardless, per the Task
-  Catalog's own readiness note on T-011.
-- Carried forward: language-override's two Pending copy items
-  (`ux.md`/`ui.md` — exact display labels; closed-trigger displayed
-  value) remain open, still stood in for with the same Implementation
-  Placeholder (`"EN"`/`"ES"`/`"EU"`) from T-008.
-- Carried forward: `@fontsource-variable/fredoka` is installed but its
-  `@font-face` CSS is not yet imported anywhere — the `font-family`
-  token falls back to `system-ui` until whichever task first renders
-  real text wires it in. Unaffected by Phase 2 (Hero/Nav text renders,
-  just not in the intended webfont yet).
-- The compact-logomark icon (Section Navigation) and the ornamental-mark
-  placeholder (Hero) are both stand-in CSS-gradient shapes for the same
-  shared, project-wide SVG asset, which remains out of both Features'
-  own scope to design — an explicit Implementation Placeholder in both
-  tasks, not a gap either task itself needed to close.
-- T-002's accent/focus-ring colour is verified against near-black and
-  the gradient's darkest stop only; full verification "against every
-  background it appears on" across the fully composed UI is explicitly
-  deferred to T-028 per the Implementation Plan's own phasing —
-  expected, not a gap in T-002 itself.
+- **Task Catalog inconsistency:** T-011's `realizesCommitments` predates
+  Commitment 8 and doesn't list it; T-009/T-010's entries don't
+  reference the mark-visibility-sentinel collaboration Technical Design
+  now requires. Both are realized in the implementation. Owning
+  artifact: `specs/task-catalog.md` (Planning Workflow) — not modified
+  here.
+- **`project-ux.md`'s Typography passage still says "a single... sans-
+  serif family... expressed through weight and size,"** now diverging
+  from the implemented two-family Gothic A1/Darker Grotesque system — a
+  deliberate, developer-confirmed correction, not an error, but the spec
+  text itself needs its own reconciliation pass. (The Colour/gradient
+  passage was independently corrected by `7b324fe` and is no longer a
+  known issue — see Implementation Decisions.) Owning artifact:
+  `project-ux.md`.
+- This session's 16 commits are unmerged (branch
+  `worktree-hero-nav-mark-logo-refinement`).
+- **Tooling limitation (this session's own environment, not the
+  product):** this environment's headless Chrome screenshot tool clamps
+  any requested viewport width below ~500px to ~500px internally while
+  still labeling output by the requested size — self-verified "mobile"
+  screenshots below that threshold are not reliable. Worked around by
+  using real-device screenshots and a ≥500px proxy width; no fix to the
+  tooling itself was found or attempted this session.
+- Carried forward unchanged: T-011's Active Screen Indicator visual
+  anatomy still Pending; AI-drafted ES/EU copy still needs native
+  review; `motion-interaction`'s Nav Progress Overlay now additionally
+  outdated per Commitment 8; decorative Mark/Logo `aria-hidden`
+  commitment still missing (both flagged in `7b324fe`, not yet
+  actioned); several other long-unmerged worktree branches from earlier
+  reports remain unreconciled (not re-investigated here).
 
 ## Execution Evidence
 
-- `npm run build` (astro build) passing after each of T-001–T-008;
-  produces exactly `/`, `/en/`, `/es/`, `/eu/` since T-006.
-- `npm run test` (Vitest) — 26/26 passing through T-008: 1 scaffold
-  smoke test, 4 WCAG contrast-ratio assertions (T-002), 6 Override Store
-  tests (T-005), 8 locale-resolution tests (T-006), 4
-  cross-locale-coverage tests (T-007, including 1 running against real
-  content), 4 Language Switcher interaction tests (T-008, `jsdom`
-  environment).
-- Live `astro dev` HTTP fetches confirming: rendered output matches
-  build output for T-001/T-004 (section order, theme CSS values); the
-  root's content-free bootstrap script/noscript markup and correct
-  `html lang`/meta description per locale route (T-006); the Language
-  Switcher's SSR markup, ARIA attributes, and CSS module class on all
-  three locale routes (T-008, mounted temporarily then reverted).
-- Direct HTML inspection of build output: reset CSS present, theme CSS
-  values (`#221e24`/`#ebeaec`/Fredoka/500) present on `body`, sections in
-  exact order `introduction`/`personal-narrative`/`connection`.
-- Deliberate negative-case test for T-003: an invalid (non-string) entry
-  caused `astro build` to fail with a precise Zod validation error
-  naming collection/locale/field; reverted afterward.
-- Deliberate negative-case test for T-007: a real coverage gap
-  temporarily introduced in `introduction.json` caused the coverage test
-  to fail with the exact locale(s)/key(s) named; reverted afterward,
-  confirmed clean via `git diff`.
-- **`worktree-t009-hero-composition`** (HEAD `e6896c5`): `npm run test`
-  26/26 passing; `astro build` producing the 4 expected routes; built
-  HTML inspected directly for all three locales, confirming Commitment 1
-  (all three composition elements present unconditionally) and
-  Commitment 2 (each locale's own resolved text, no override); real
-  headless-Chromium screenshots at 390px, 800px, and 1440px viewports
-  confirming Commitment 4's distinct, non-reflowed device-class
-  treatments.
-- **`worktree-t011-section-navigation`** (HEAD `3d62f0f`): `npm run
-  test` 37/37 passing (11 SectionNav-specific tests, including a
-  regression test for the scroll-spy defect found and fixed during
-  verification); `astro build` producing the 4 expected routes; real
-  headless-Chromium sessions driving: a full scroll sequence confirming
-  Commitment 5's active-section tracking (AC1-AC4) and Commitment 4's
-  conditional compact-logomark presence; a logomark click from
-  Connection confirming Commitment 3 (`scrollY: 0` after); a full mobile
-  toggle → open → link-click/close cycle confirming Commitment 6
-  (AC1-AC4, including an `elementFromPoint` hit-test proving the
-  underlying page is genuinely uninteractable while the overlay is
-  open); the desktop bar's corrected right-hand-group layout confirmed
-  visually after the fix.
-- Commits: `aa5e600` (T-001), `041326d` (T-002), `1c8aa63` (T-003),
-  `71b1d73` (T-004) — merged into `main`/`origin/main`. `238579b`
-  (T-005), `81ec80d` (T-006), `23f3f0f` (T-007), `9c29130` (T-008) — all
-  on `worktree-t005-override-store`, pushed to
-  `origin/worktree-t005-override-store`; working tree clean, `npm run
-  test` green at HEAD (`9c29130`). `a4d6113` (T-009), `e6896c5` (T-010)
-  — on `worktree-t009-hero-composition`, pushed to
-  `origin/worktree-t009-hero-composition`; working tree clean at HEAD.
-  `85449e3` (T-011), `3d62f0f` (T-012) — on
-  `worktree-t011-section-navigation`, pushed to
-  `origin/worktree-t011-section-navigation`; working tree clean at HEAD.
+- `npm run test` (Vitest) — 41/41 passing (7 test files), current HEAD
+  (`afed50d`); up from 37/37 at the prior report.
+- `npm run build` (astro build) — clean after every commit this session;
+  produces the 4 expected routes throughout.
+- Figma verification: file `CCwye9dUj8Sy4f2lgy6i9f` — gradient colours
+  confirmed via raw SVG export (node API doesn't expose gradient
+  stops); headline size ratio confirmed via node dimensions; the mobile
+  frame's mark rotation/scale confirmed via its own exported image (no
+  rotation value exposed by the API either — confirmed via visual
+  comparison and developer-supplied exact angle); font
+  family/configuration and node x/y positions confirmed not retrievable
+  via this Figma MCP toolset at any detail level.
+- Custom `getBBox()` measurement harness (headless Chrome + inline SVG +
+  `getPointAtLength` sampling) run against the production
+  `ornamental-mark.svg` for exact tendril-tip coordinates.
+- Isolated minimal-HTML reproductions used twice this session before
+  touching real components: once for the `text-transform: capitalize`
+  cross-sibling bug (reproduce → verify fix → apply), once implicitly
+  via the CDP/iframe/direct-debug-script investigation chain that
+  surfaced the viewport-clamp tooling limitation.
+- **Commit bisection** (checking out `1a90f99`, `31c7232`, and an
+  isolated `31c7232` + single-fix patch, rebuilding and screenshotting
+  each) used to root-cause the second desktop regression, after two
+  direct fix attempts had already been tried and verified-by-screenshot
+  yet still didn't resolve it — escalated to bisection specifically
+  because casual visual comparison wasn't catching a real, ~60px
+  regression.
+- Headless-Chrome screenshots across the session at 360–1920px and
+  `en`/`es`/`eu` locale routes; ≥500px used exclusively for
+  self-verification once the viewport-clamp limitation was identified.
+  Two real-device screenshots supplied directly by the developer (412px)
+  were the actual verification authority for the mobile-specific defects
+  found in that range.
+- Commits: `aa5e600`…`3d62f0f` (T-001–T-012) — on `main`. `824b880`,
+  `32f1d3b` — Phase 2 merges, on `main`. `e9d3676`, `3fc9978`,
+  `0f3f941`, `2c9ab23` — pre-session Hero fixes, on `main`. `7b324fe` —
+  Mark/Logo split spec refinement, on `main`. `0c462b8` through
+  `afed50d` (16 commits) — this session's work, on
+  `worktree-hero-nav-mark-logo-refinement`, pushed to origin, working
+  tree clean at HEAD.
 
 ---
 
-*Created: 2026-09-09*
+*Created: 2026-09-09. Refined: 2026-09-11.*
