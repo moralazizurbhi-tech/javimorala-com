@@ -29,7 +29,16 @@ $font-weight-label: 400; // nav links, small labels
 $font-size-display: fluid.fluid-size(2.75rem, 5.5rem);
 $font-size-heading: fluid.fluid-size(1.75rem, 2.75rem);
 $font-size-body: fluid.fluid-size(1rem, 1.125rem);
-$font-size-label: fluid.fluid-size(0.8125rem, 0.9375rem);
+// Nav/label tier — raised to match Figma's own measured desktop value
+// (40px) per developer review; scaled fluidly (not a flat 40px) while
+// preserving the tier's own existing min:max growth ratio, so mobile
+// scales proportionally rather than jumping straight to a desktop-only
+// value.
+$font-size-label: fluid.fluid-size(2.1667rem, 2.5rem);
+// Scroll cue's own tier — previously shared $font-size-label with nav,
+// but the developer's own Figma measurement gives it a distinct value
+// (24px desktop) from nav's (40px) — no longer identical sizes.
+$font-size-caption: fluid.fluid-size(1.3rem, 1.5rem);
 
 // Tight tracking for Gothic A1 headings — "letters just touching
 // themselves," per the Figma source's own configuration.

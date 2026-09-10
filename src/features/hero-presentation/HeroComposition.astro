@@ -152,6 +152,12 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		font-family: tokens.$font-family-heading;
 		font-weight: tokens.$font-weight-display;
 		letter-spacing: tokens.$letter-spacing-heading;
+		// Pascal Case — every word's first letter capitalized — per
+		// developer direction, applied via CSS rather than editing each
+		// locale's own content string, so it holds uniformly across
+		// English/Spanish/Euskera without this Feature re-deciding
+		// per-language capitalization rules.
+		text-transform: capitalize;
 		color: tokens.$color-base-fg;
 
 		// Mobile: dominant word anchored to the left edge, both secondary
@@ -215,19 +221,29 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 			position: absolute;
 			left: 12%;
 			top: 0;
+			// A little tighter than the shared heading tracking above —
+			// developer direction, scoped to the dominant word specifically.
+			letter-spacing: -0.09em;
 		}
 	}
 
 	.hero__headline-secondary {
 		// Derived directly from the primary size (not the shared
-		// $font-size-heading token) so the two stay in a fixed ~3x ratio
-		// at every viewport width, matching Figma's own measured ratio
-		// (185:60 ≈ 3.08x) — a Hero-local relationship, deliberately not
-		// coupled to $font-size-heading, which stays free for other
-		// Features' own future section headings.
-		font-size: calc(#{tokens.$font-size-display} / 3);
+		// $font-size-heading token) so the two stay in a fixed ratio at
+		// every viewport width, close to Figma's own measured ratio
+		// (185:60 ≈ 3.08x) — sized up slightly from that exact ratio per
+		// developer direction ("a little bit bigger") — a Hero-local
+		// relationship, deliberately not coupled to $font-size-heading,
+		// which stays free for other Features' own future section
+		// headings.
+		font-size: calc(#{tokens.$font-size-display} / 2.6);
 		line-height: 1.1;
 	}
+
+	// Shared vertical offset for both secondary lines — kept in one place
+	// so "the web" and "with a rebellious streak" stay level with each
+	// other (ui.md) even as this value is tuned.
+	$secondary-top-offset: calc(#{tokens.$font-size-display} * 0.85);
 
 	.hero__headline-secondary--1 {
 		grid-area: secondary1;
@@ -235,10 +251,12 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		@include mixins.desktop-up {
 			// Same left anchor as the primary word, directly below it —
 			// together they form the "dominant word group" the left
-			// tendril cluster reaches into (ui.md).
+			// tendril cluster reaches into (ui.md). Tightened from the
+			// primary word's own full font-size (developer direction: less
+			// vertical spacing between "Building" and "the web").
 			position: absolute;
 			left: 12%;
-			top: calc(#{tokens.$font-size-display} + #{tokens.$space-xs});
+			top: $secondary-top-offset;
 		}
 	}
 
@@ -254,7 +272,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 			// (ui.md), via the same top offset.
 			position: absolute;
 			right: 12%;
-			top: calc(#{tokens.$font-size-display} + #{tokens.$space-xs});
+			top: $secondary-top-offset;
 		}
 	}
 
@@ -270,7 +288,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		gap: tokens.$space-xs;
 		margin: 0;
 		font-family: tokens.$font-family-body;
-		font-size: tokens.$font-size-label;
+		font-size: tokens.$font-size-caption;
 		font-weight: tokens.$font-weight-label;
 		color: tokens.$color-base-fg;
 
