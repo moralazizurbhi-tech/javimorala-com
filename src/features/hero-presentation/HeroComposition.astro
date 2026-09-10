@@ -66,13 +66,17 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 
 	// Background-layer ornamental mark — shared static SVG asset (Figma
 	// "Porifolio" file, "Metal logogogog 1"; shape traced from that
-	// reference, gradient recoloured to the Styling System's confirmed
-	// lilac-to-purple tokens rather than the reference's own placeholder
-	// hue). Its own visual design is a shared substrate, not owned by this
-	// Feature (technical-design.md, Dependencies) — only placement/crop/
-	// z-order below are this Feature's concern.
+	// reference, gradient corrected to Figma's own literal colour values
+	// — #F5D8FC fading to #F0D8FC at 5% opacity — after a developer
+	// visual review found the prior lilac-to-purple recolouring didn't
+	// match the source). Its own visual design is a shared substrate,
+	// not owned by this Feature (technical-design.md, Dependencies) —
+	// only placement/crop/z-order below are this Feature's concern.
 	// Mobile: cropped toward the top-right, bleeding off the right edge.
-	// Desktop/tablet: centered, contained within the viewport width — a
+	// Desktop/tablet: centered, with a small top offset (below) so its
+	// crown isn't flush against the very top of the viewport, and
+	// `object-fit: contain` so the full artwork stays visible instead of
+	// cropping its lower portion (developer visual review finding) — a
 	// distinct crop per device class, not a scaled copy (ui.md).
 	.hero__mark {
 		position: absolute;
@@ -92,23 +96,36 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		pointer-events: none;
 
 		@include mixins.desktop-up {
-			top: 0;
+			// A small breathing-room offset instead of sitting flush on the
+			// viewport's own top edge — still comfortably tall enough (70vh)
+			// to visually reach the nav row above it, per ux.md's Feature
+			// Components ("top-anchored height is tall enough to visually
+			// reach the nav row"), which this modest offset doesn't disturb.
+			top: tokens.$space-md;
 			left: 50%;
 			right: auto;
 			width: 70vw;
 			height: 70vh;
+			// `contain`, not `cover`: guarantees the full artwork renders
+			// within its box on every viewport aspect ratio, rather than
+			// `cover` cropping whichever dimension the box exceeds the
+			// artwork's own proportions in (developer visual review found
+			// the mark's bottom portion cropped away under `cover`).
+			object-fit: contain;
 			transform: translateX(-50%);
 		}
 	}
 
 	// Mark-visibility sentinel (technical-design.md, Collaborations) — a
 	// passive marker at the Ornamental Mark's own effective lower
-	// boundary (its box height, 70vh, is shared by both device classes,
-	// so one position works for both). Section Navigation observes this
-	// the same way it already observes Domain Section boundaries, to
-	// drive its own divider-line segmented/continuous state
-	// (section-navigation Contract Commitment 8) — this component has no
-	// knowledge of, or dependency on, that consumer.
+	// boundary. Positioned to track `.hero__mark`'s own box bottom edge
+	// on each device class (top offset + height), so it stays accurate
+	// even though desktop now carries a small top offset mobile doesn't.
+	// Section Navigation observes this the same way it already observes
+	// Domain Section boundaries, to drive its own divider-line
+	// segmented/continuous state (section-navigation Contract Commitment
+	// 8) — this component has no knowledge of, or dependency on, that
+	// consumer.
 	.hero__mark-boundary {
 		position: absolute;
 		top: 70vh;
@@ -116,6 +133,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		width: 100%;
 		height: 1px;
 		pointer-events: none;
+
+		@include mixins.desktop-up {
+			top: calc(#{tokens.$space-md} + 70vh);
+		}
 	}
 
 	.hero__headline {
@@ -157,9 +178,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 			// anchoring at the box edge left a dead gap between mark and
 			// headline instead of the described overlap. Pulled up so the
 			// dominant group's upper glyphs sit within the tendrils' own
-			// reach.
+			// reach; offset by the mark's own top margin (above) so the
+			// relationship holds regardless of that margin's exact value.
 			align-self: start;
-			margin-top: 52vh;
+			margin-top: calc(#{tokens.$space-md} + 52vh);
 			column-gap: tokens.$space-lg;
 		}
 	}
@@ -191,6 +213,15 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 
 	.hero__headline-secondary--2 {
 		grid-area: secondary2;
+
+		@include mixins.desktop-up {
+			// Pushed to the far right of its column — and so toward the
+			// mark's own right tendril / the viewport's right edge — rather
+			// than left-aligning within the column's own width, matching
+			// ui.md's "lower-right region" (developer visual review found
+			// it sitting nearer the horizontal center instead).
+			justify-self: end;
+		}
 	}
 
 	// Passive affordance only — plain text, no interactive semantics
