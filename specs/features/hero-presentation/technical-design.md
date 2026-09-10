@@ -37,6 +37,21 @@ coordinated arrival presentation, per device class.
 - Render the ornamental mark as a background-layer reference (the asset
   itself out of scope), stacked behind the headline/scroll cue via the
   Styling System's z-index/layering convention.
+- Derive the headline groups' vertical position from the Ornamental
+  Mark's own geometry — not an independently authored offset — per
+  device class: on desktop/tablet, the dominant-word group's position
+  allows the mark's left tendrils to reach into its upper region, and
+  the secondary line's position allows the mark's right tendril to
+  approach without crossing it; on mobile, the dominant-word group's
+  position allows the mark's trailing tendril to nearly reach it, with
+  the secondary lines positioned clear of the mark's footprint (Feature
+  UI Definition, Spacing and Layout).
+- Expose a scroll-position signal (e.g. a sentinel element positioned at
+  the Ornamental Mark's own effective lower-visibility boundary,
+  informed by the mark-relative anchoring mechanism above) that other
+  Features may observe to determine whether the mark remains visible at
+  a given fixed screen position — without those Features needing any
+  other knowledge of this component's internals.
 
 **Owned Concepts**
 
@@ -44,6 +59,11 @@ coordinated arrival presentation, per device class.
 - The mapping from Feature UI's two device-class layout descriptions to
   Styling System breakpoints.
 - The scroll cue's non-interactive rendering decision.
+- The mark-relative headline anchoring mechanism — headline position as
+  a function of the Ornamental Mark's own geometry, not an independently
+  authored layout value.
+- The mark-visibility sentinel — a marker at the mark's own effective
+  visible boundary, exposed for external observation only.
 
 **Collaborations**
 
@@ -52,6 +72,11 @@ coordinated arrival presentation, per device class.
 - Styling System — supplies breakpoint tokens, off-white/accent-gradient
   colour tokens, and the layering convention placing the mark behind the
   text.
+- Section Navigation Composition — observes (does not own) this
+  component's exposed mark-visibility sentinel to drive its own
+  divider-line segmented/continuous state (`section-navigation` Contract
+  Commitment 8); this component has no dependency back on Section
+  Navigation.
 
 **Dependencies**
 
@@ -78,6 +103,14 @@ coordinated arrival presentation, per device class.
   for the headline/tagline (Feature UX's two Pending translations) is
   assumed guaranteed before a given locale route is built; no runtime
   fallback for missing locale content is defined here.
+- Any anchor value derived from the mark's geometry must be re-derived
+  if the Ornamental Mark asset itself changes (a new SVG revision),
+  since the relationship is defined relative to the asset's own shape,
+  not an independent constant.
+- The sentinel's position must track the mark's own actual visible
+  boundary (informed by the mark-relative headline anchoring mechanism),
+  not an independently authored value — the same re-derive-if-the-asset-
+  changes constraint above applies here too.
 
 **Design Decisions**
 
@@ -94,13 +127,28 @@ coordinated arrival presentation, per device class.
   misrepresent itself to keyboard/AT users. This resolves Feature UX's
   conditional ("if it is interactive") toward non-interactive, per
   explicit confirmation.
+- Headline vertical position is derived from the Ornamental Mark asset's
+  own geometry (anchor points or proportional offsets relative to the
+  mark's bounding shape), not authored as an independent layout value.
+  Rationale: Feature UI Definition specifies the mark and headline as
+  one compositional gesture with a precise, asset-dependent relationship
+  — an independently authored offset can't preserve that relationship if
+  the mark asset changes, and previously drifted away from it for
+  exactly that reason.
 
 **Contract Traceability**
 
 - Commitment 1 → single-template rendering.
 - Commitment 2 → i18n/Routing Layer consumption.
 - Commitment 3 → non-interactive scroll-cue rendering.
-- Commitment 4 → CSS-breakpoint-driven layout per Feature UI Definition.
+- Commitment 4 → CSS-breakpoint-driven layout per Feature UI Definition,
+  including the mark-relative headline anchoring mechanism above, itself
+  derived from Feature UI's precise per-device relationship description.
+- Note: the mark-visibility sentinel isn't required by any of this
+  Feature's own Commitments 1-4; it exists solely as a cross-Feature
+  technical provision enabling `section-navigation`'s Commitment 8,
+  consistent with Collaborations describing relationships beyond this
+  Feature's own contract.
 
 ## Cross-Component Relationships
 
@@ -113,7 +161,11 @@ coordinated arrival presentation, per device class.
 - `motion-interaction`'s technical design (out of scope here) may
   wrap/hydrate elements this component renders; it depends outward on
   Hero Composition's static output, not the reverse.
-- No dependency on `section-navigation` (boundary preserved).
+- No dependency on `section-navigation` — this component has no
+  awareness of or reliance on it; it exposes the mark-visibility
+  sentinel as a passive marker for any observer, without depending back
+  on whoever consumes it (`section-navigation` is one such consumer, per
+  that Feature's own Technical Design).
 
 No circular dependencies: Hero Composition depends outward on i18n/
 Routing Layer and the Styling System; neither depends back on it.

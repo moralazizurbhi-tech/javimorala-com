@@ -51,11 +51,18 @@ Existing identity, from Project UX's Screens.
   below/alongside it (Contract Commitment 4); Presence Links
   (presence-links' own content) appear as a secondary group; the farewell
   line closes the screen as two lines — a primary line, then a secondary
-  line nodding toward Presence Links. The ornamental mark renders as a
-  background layer, purely decorative and non-interactive, subordinate
-  to the CTA at all times (Contract Commitment 6) — it never competes
-  with the CTA for primary attention, mirroring Hero's own
-  mark-subordination pattern. The whole composition fills exactly
+  line nodding toward Presence Links. The Ornamental Logo, at a large
+  scale, renders as an extremely low-opacity, full-bleed ambient
+  background texture across the whole screen — present identically on
+  desktop and mobile — purely decorative, non-interactive, and
+  subordinate to the CTA at all times (Contract Commitment 6); it never
+  competes with the CTA for primary attention and carries no positional
+  relationship to the CTA/farewell text, functioning as pure ambient
+  atmosphere rather than a composed gesture (distinct from Hero's own
+  Ornamental Mark, which does relate positionally to its headline). This
+  large-scale instance is distinct from the small, opaque Ornamental
+  Logo instance already present in the nav bar above this screen. The
+  whole composition fills exactly
   one viewport's height, not a taller, scrolled block. Exact spatial
   layout, sizing, and positioning are Pending, left entirely to Feature
   UI.
@@ -93,11 +100,14 @@ Existing identity, from Project UX's Screens.
   technique itself Pending, Technical Design.
 - **Farewell Line** — two short closing text lines presented statically,
   positioned after/alongside the CTA and Presence Links.
-- **Ornamental Mark (Connection background placement)** — specializes
-  Project UX's Visual Identity note on the mark's role; the mark's own
-  visual design/asset is not owned here (Feature Definition boundary);
-  purely decorative, non-interactive, subordinate to the CTA (Contract
-  Commitment 6).
+- **Ornamental Logo (Connection background placement)** (renamed from
+  Ornamental Mark) — a large-scale, extremely low-opacity ambient
+  texture instance of Project UX's compact Ornamental Logo (distinct
+  from Hero's separate Ornamental Mark, and from the small opaque
+  nav-bar instance of this same Logo); its own visual design/asset is
+  not owned here (Feature Definition boundary); purely decorative,
+  non-interactive, subordinate to the CTA, no positional relationship to
+  other content (Contract Commitment 6).
 
 ## Content and Assets
 
@@ -140,8 +150,10 @@ Existing identity, from Project UX's Screens.
 - The Connection screen's composition fills exactly one viewport's
   height on desktop and mobile alike — not a taller, scrolled
   composition.
-- The ornamental mark must remain visually subordinate to the CTA and
-  carry no interactive affordance (Contract Commitment 6).
+- The Ornamental Logo (large-scale background instance) must remain
+  visually subordinate to the CTA, carry no interactive affordance, and
+  require no positional relationship to other content (Contract
+  Commitment 6).
 
 ---
 

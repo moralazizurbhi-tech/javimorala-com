@@ -8,8 +8,9 @@ Specializes Project UX's Introduction screen, the "Get an impression of
 who Javi is" User Flow, the Scroll/Continue Cue UI Component, the
 Presence Links UI Component's minor/secondary Introduction-screen role,
 and the Visual Identity's decorative-mark entrance role — for the
-composition of headline/tagline, ornamental-mark placement, entry scroll
-cue, and Presence Links' conditional placement as one arrival moment.
+composition of headline/tagline, the Ornamental Mark's placement, entry
+scroll cue, and Presence Links' conditional placement as one arrival
+moment.
 Consistent with Feature Solution/Contract's boundary: excludes nav,
 Presence Links' own link content, the ornamental mark's visual asset, and
 motion timing/sequencing.
@@ -49,12 +50,24 @@ Existing identity, from Project UX's Screens.
   composition.
 - Perceptual/experience direction: the headline is the primary,
   first-perceived element carrying Javi's voice and character; the
-  ornamental mark reads as a secondary, anchoring visual presence
-  alongside the headline, not competing with it for primary attention;
-  the scroll cue is the last, quieter invitation, perceived only after
-  headline and mark have landed. This is the experience Feature UI must
-  realize — exact spatial layout, sizing, and positioning are Pending,
-  left entirely to Feature UI.
+  Ornamental Mark reads as a secondary, anchoring presence — but the two
+  aren't independently placed elements that merely coexist. The mark's
+  own descending form and the headline's two-group arrangement (a
+  dominant word group, a lighter secondary-line group) are one
+  compositional gesture: the mark reaches down toward each group at a
+  different depth of connection matching that group's own weight —
+  closer, interleaved contact with the dominant group; a lighter,
+  proximate touch with the secondary group — so the mark reads as
+  growing into/framing the headline rather than sitting behind it. On
+  mobile, where the mark is cropped to bleed off-screen, only its
+  trailing tendril reaches the dominant word — a lighter, single-point
+  version of the same relationship; the secondary lines sit clear of the
+  mark entirely, appropriate to its reduced footprint there. The mark
+  never compromises legibility where it nears or crosses text (Project
+  UX's Mark/Logo legibility constraint). The scroll cue is perceived only
+  after headline and mark have landed together as this one composition.
+  Exact spatial values are Feature UI's decision; this direction
+  constrains their relationship, not literal coordinates.
 - Desktop/tablet and mobile both realize this same experience, each
   through its own purpose-built treatment, not a generic reflow (Contract
   Commitment 4) — the specific per-device-class realization is Pending,
@@ -75,10 +88,14 @@ Existing identity, from Project UX's Screens.
 
 - **Headline/tagline block** — Feature-specific text presentation of the
   arrival message; content confirmed below.
-- **Ornamental mark (Hero centerpiece placement)** — specializes Project
-  UX's Visual Identity note on the larger, decorative mark's
-  entrance-moment role; the mark's own visual design/asset is not owned
-  here (Feature Definition boundary).
+- **Ornamental Mark** (Hero centerpiece placement) — specializes Project
+  UX's Ornamental Mark, used only at this Introduction moment (distinct
+  from the compact Ornamental Logo used in the nav bar and on
+  About/Contact); the mark's own visual design/asset is not owned here
+  (Feature Definition boundary). Its top-anchored height is tall enough
+  to visually reach the nav row above it — an intentional echo of the
+  Ornamental Logo's own nav-integrated placement elsewhere, not itself a
+  claim on the nav's own composition (owned by `section-navigation`).
 - **Scroll cue (Hero placement)** — specializes Project UX's
   Scroll/Continue Cue component for its role in this composition;
   passive affordance only (Feature Solution/Contract), carrying a short
@@ -113,9 +130,12 @@ Existing identity, from Project UX's Screens.
 
 - Composition must express within the existing visual identity — a
   plain, warm near-black/off-white base palette (no gradient on the
-  background), with the confirmed lilac-to-purple gradient applied
-  specifically to the ornamental mark (an SVG asset) as the composition's
-  emphasis element.
+  background), with the confirmed lilac-to-purple gradient — lilac
+  dominant at the mark's crown, fading to a darker, muted purple at its
+  receding tendrils (Project UX Visual Foundations) — applied
+  specifically to the Ornamental Mark (an SVG asset) as the composition's
+  emphasis element, faded enough at any overlap with the headline to
+  preserve legibility (Project UX's Mark/Logo legibility constraint).
 - Reduced-motion fallback is mandatory for this Feature's arrival
   presentation.
 - Desktop, tablet, and mobile must each receive a purpose-built

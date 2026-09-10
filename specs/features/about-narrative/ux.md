@@ -9,7 +9,10 @@ Javi" User Flow, for the composition of narrative text and two personal
 photos into one cohesive, fully static screen moment — together with a
 small, subordinate mention that the site was built through AI-assisted
 development, woven directly into the narrative text rather than presented
-as a separate element. Consistent with Feature Solution/Contract's
+as a separate element, and the Ornamental Logo's large-scale decorative
+background placement (mirroring Hero Presentation's and Direct
+Contact's own treatment of this shared asset family). Consistent with
+Feature Solution/Contract's
 boundary: excludes nav, presence links, motion timing/sequencing, and any
 skills/experience timeline (removed from this Feature's scope by this
 cycle's Refine Feature Definition/Context/Solution/Contract changes).
@@ -53,9 +56,15 @@ Existing identity, from Project UX's Screens.
   addressable structural unit, a composition choice made so the
   separately owned `motion-interaction` Feature has individual pieces to
   apply scroll-reveal/interaction treatment to later — this Feature
-  defines no motion, timing, or reveal behavior itself. Exact spatial
-  layout, sizing, and positioning are Pending, left entirely to Feature
-  UI.
+  defines no motion, timing, or reveal behavior itself. The Ornamental
+  Logo, at a large scale, renders as an extremely low-opacity, ambient
+  background texture behind the composition — purely decorative,
+  non-interactive, subordinate to the narrative and photos at all times
+  (Contract Commitment 5), with no positional relationship to any
+  specific paragraph or photo, functioning as pure ambient atmosphere
+  (same treatment as Direct Contact's own large-scale instance). Exact
+  spatial layout, sizing, and positioning are Pending, left entirely to
+  Feature UI.
 - Desktop and mobile both realize this same experience, including the
   opening line's elevated emphasis carried at its own device-appropriate
   scale rather than a generic reflow; the specific per-device-class
@@ -81,6 +90,13 @@ Existing identity, from Project UX's Screens.
   contrasting orientations (one landscape-leaning, one portrait-leaning)
   as a compositional detail worth preserving for visual variety — exact
   placement is Feature UI's discretion.
+- **Ornamental Logo (Personal Narrative background placement)** — a
+  large-scale, extremely low-opacity ambient texture instance of Project
+  UX's compact Ornamental Logo (distinct from Hero's separate Ornamental
+  Mark); its own visual design/asset is not owned here (Feature
+  Definition boundary); purely decorative, non-interactive, subordinate
+  to the narrative/photos, no positional relationship to other content
+  (Contract Commitment 5).
 
 ## Content and Assets
 
@@ -200,6 +216,10 @@ Existing identity, from Project UX's Screens.
   elevated emphasis and the photos' contrasting-orientation variety
   identified above, through their own device-appropriate treatment —
   neither is dropped on either device class.
+- The Ornamental Logo (background instance) must remain visually
+  subordinate to the narrative text and photos, carry no interactive
+  affordance, and require no positional relationship to other content
+  (Contract Commitment 5).
 
 ---
 

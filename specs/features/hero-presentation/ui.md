@@ -33,20 +33,28 @@ extensions, not traced to an existing token.
 
 ### Desktop/tablet
 
-- Ornamental mark: rendered as a background layer, behind the headline
-  and scroll cue in stacking order — large, horizontally centered,
-  anchored near the top of the viewport, its bounding area extending down
-  far enough to overlap the headline's general region; its gradient fades
-  to near-transparent well before reaching the headline's position, so
-  text legibility and contrast are never compromised by the overlap.
-  Extension grounded in the reference: its footprint spans roughly 70% of
-  the viewport's width and height, top-anchored and horizontally
-  centered.
+- Ornamental Mark and headline compose as one gesture, not two
+  independently positioned elements. Against the reference: the mark's
+  left descending tendril cluster shares close to the same horizontal
+  span as the dominant-word group ("Building"/"the web"), and its lowest
+  strands pass behind and lightly through that group's upper glyphs
+  before fading to near-transparent — genuine interleaving. The mark's
+  single long right tendril descends to nearly touch, but not cross, the
+  second secondary line's ("with a rebellious streak") top edge — a
+  lighter, proximate connection matching that line's lesser weight.
+- Ornamental mark: background layer behind headline/scroll cue in
+  stacking order; large, horizontally centered, top-anchored, footprint
+  spanning roughly 70% of viewport width/height — but its vertical
+  extent is defined in relation to where the headline groups sit (per
+  above), not as an independent value the headline is then offset from.
 - Headline and scroll cue render in the foreground layer, above the mark.
-- Headline: "Building" + "the web" stacked, left-aligned, lower-left
-  region of the viewport; "with a rebellious streak" positioned
-  separately in the lower-right region, roughly level with "the web" — an
-  asymmetric, spread arrangement, not one stacked block.
+- Headline: dominant-word group ("Building"/"the web") positioned so the
+  mark's left tendrils reach into its upper region as described above,
+  left-aligned, lower-left region of the viewport; "with a rebellious
+  streak" positioned separately so the mark's right tendril nearly
+  meets, without crossing, its top edge, in the lower-right region,
+  roughly level with "the web" — an asymmetric, spread arrangement bound
+  to the mark's own shape, not an independently centered block.
 - Scroll cue (text + arrow): bottom-right corner, clear of the headline.
 - Presence Links: bottom-left corner, mirroring the scroll cue's
   bottom-right placement — a small, quiet text row, clearly secondary to
@@ -59,19 +67,30 @@ extensions, not traced to an existing token.
 
 ### Mobile
 
-- Ornamental mark: repositioned and cropped toward the top-right, smaller,
-  partially bleeding off-screen — a distinct crop, not a scaled copy of
-  desktop; still rendered as a background layer, behind the headline.
-  Extension grounded in the reference: its height holds the same ~70% of
-  viewport height as the desktop/tablet treatment (a stable proportion
-  carried across breakpoints), while its width intentionally exceeds
-  100% of the viewport, bleeding off the right edge rather than being
-  contained as on desktop/tablet.
+- Ornamental Mark and headline compose as one gesture here too, but more
+  lightly than desktop: only the mark's trailing left-edge tendril — the
+  remaining wisp after the crop pushes most of the shape off-screen
+  right — descends far enough to nearly touch the top/end of the rotated
+  dominant-word group. The two secondary lines sit entirely clear of the
+  mark's footprint, with no tendril contact — a single-point
+  relationship, not desktop's two-point (dominant + secondary)
+  connection.
+- Ornamental mark: repositioned and cropped toward the top-right,
+  bleeding off-screen — a distinct crop, not a scaled copy of desktop;
+  still rendered as a background layer, behind the headline. Extension
+  grounded in the reference: its height holds the same ~70% of viewport
+  height as the desktop/tablet treatment (a stable proportion carried
+  across breakpoints), while its width intentionally exceeds 100% of the
+  viewport, bleeding off the right edge rather than being contained as
+  on desktop/tablet. Its remaining left-edge tendril is the only part
+  reaching toward the headline, per above.
 - Headline: "Building" rotated 90° (reads bottom-to-top), anchored to the
-  left edge, still the dominant visual element; "the web" and "with a
-  rebellious streak" both stack normally to its right, at the same
-  secondary size — collapsing desktop's left/right split into one stacked
-  pair.
+  left edge, positioned so the mark's trailing tendril nearly meets its
+  top/end, still the dominant visual element; "the web" and "with a
+  rebellious streak" both stack normally to its right, clear of the
+  mark's footprint, at the same secondary size — collapsing desktop's
+  left/right split into one stacked pair, with only the dominant group
+  carrying a mark connection here.
 - Scroll cue: bottom of the viewport, full-width oriented.
 - Presence Links: omitted — the mobile viewport doesn't have room to
   accommodate it without compromising the primary composition

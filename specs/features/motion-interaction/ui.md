@@ -18,7 +18,8 @@ Contact) without altering their static compositions. Informed by the same
 explicitly-provided Figma reference other Features cite (file
 `CCwye9dUj8Sy4f2lgy6i9f`), consulted here specifically for the accent
 gradient's actual look — a lilac-to-purple gradient, the same one
-already carried by the ornamental mark and Presence Links' tint — treated
+already carried by the Ornamental Mark, Ornamental Logo, and Presence
+Links' tint — treated
 as evidence, not persistent project knowledge. Excludes exact timing/
 easing values and animation technology (Feature Technical Design), and
 Section Navigation's own Active Screen Indicator base anatomy (Pending
@@ -71,8 +72,8 @@ Pending.
   there).
 - **CTA feedback (gradient sweep):** on hover, the CTA's existing
   display text is filled by the site's accent gradient (the same
-  lilac-to-purple gradient the ornamental mark and Presence
-  Links already carry), and the gradient's position animates across the
+  lilac-to-purple gradient the Ornamental Mark, Ornamental Logo, and
+  Presence Links already carry), and the gradient's position animates across the
   text — a moving sweep, like light passing over the letters — rather
   than a flat before/after fill swap. On touch, the same sweep plays
   momentarily on tap/press rather than persisting like a sustained
@@ -82,8 +83,8 @@ Pending.
   rather than requiring a sustained hover state.
 - **Nav link / Presence Link hover-focus feedback:** on hover or focus,
   the link's existing text fills with the site's accent gradient (the
-  same lilac-to-purple gradient the CTA sweep, ornamental mark,
-  and Presence Links' tint already carry) as a static colour fill — not
+  same lilac-to-purple gradient the CTA sweep, Ornamental Mark,
+  Ornamental Logo, and Presence Links' tint already carry) as a static colour fill — not
   an animated moving sweep like the CTA's — keeping the CTA as the one
   elevated, primary interaction moment while these secondary links stay
   in the same gradient vocabulary at a lighter treatment. Identical
@@ -136,8 +137,8 @@ Pending.
 - The ambient gradient drift, the CTA gradient sweep, and the nav
   link/Presence Link/Switcher trigger-option static gradient fill all
   reuse the existing accent gradient value already carried by the
-  ornamental mark and Presence Links (lilac-to-purple, per the
-  Figma reference) — no new colour token introduced.
+  Ornamental Mark, Ornamental Logo, and Presence Links (lilac-to-purple,
+  per the Figma reference) — no new colour token introduced.
 - Progress-bar fill: the same accent gradient, layered onto the
   divider's existing base colour — the divider's own exact base colour
   value is Pending, inherited from Section Navigation's UI Definition,

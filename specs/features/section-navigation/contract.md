@@ -178,6 +178,47 @@ placement" across both desktop bar and mobile overlay.
   - Success Condition: language override control present.
   - Failure Condition: absent.
 
+### Commitment 8 — Nav Divider Line Segmented Presence
+
+Relationship to Solution: resolves the Behaviour/Rule that the nav's
+connecting line renders as two segments flanking whichever mark occupies
+the row's center, never as one continuous line, on every screen —
+including the scroll-derived distinction on Introduction between when
+Hero's own mark is still visible at that position and when it has
+scrolled past.
+
+**Acceptance Criteria**
+
+- AC1: On every screen, the nav's connecting line is never rendered as a
+  single unbroken line across the full bar width.
+- AC2: On Personal Narrative and Connection, the line presents as two
+  segments flanking this Feature's own compact logomark icon.
+- AC3: While Introduction is active and Hero's own mark remains visible
+  at the nav row's position given the current scroll offset, the line
+  presents as two segments flanking it; once that mark has scrolled past
+  the nav's row — even while Introduction is still nominally the active
+  section — the line reverts to one continuous line, since no mark
+  occupies the gap.
+
+**Validation Scenarios**
+
+- Scenario — visitor on Personal Narrative or Connection
+  - Success Condition: the connecting line is visibly interrupted at the
+    compact logomark icon's position.
+  - Failure Condition: the line renders as one continuous line straight
+    through/over the icon.
+- Scenario — visitor on Introduction, at a scroll position where Hero's
+  mark is still visible at the nav row
+  - Success Condition: the connecting line is visibly interrupted at the
+    position Hero's own mark occupies.
+  - Failure Condition: the line renders as one continuous line straight
+    across, ignoring the mark beneath it.
+- Scenario — visitor scrolls within Introduction past where Hero's mark
+  disappears from the nav's row, without yet reaching Personal Narrative
+  - Success Condition: the line is continuous (no mark present at that
+    position).
+  - Failure Condition: the line remains segmented with an empty gap.
+
 ---
 
 *Created: 2026-09-07*

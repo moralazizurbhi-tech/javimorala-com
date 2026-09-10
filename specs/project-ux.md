@@ -6,9 +6,14 @@ Visual identity: a near-black background with soft off-white text as the
 base palette, plus vivid gradient fills — observed as a lilac-to-purple
 hue family, most visibly in the ornamental mark and card treatments —
 reserved for accent/highlight moments. Two related logomark treatments: a
-compact mark for a persistent nav bar, and a larger, more decorative mark
-used at high-impact moments (entrance, closing), rendered as an
-illegible, spiked, band-logo-style wordmark in that same gradient.
+compact Ornamental Logo, embedded directly in the persistent nav bar on
+every desktop screen — visually splitting the nav's connecting line into
+two segments flanking it — and reused as the centerpiece motif on the
+About and Contact screens, including a large, low-opacity
+background-texture repeat behind body content on About and
+Contact-mobile; and a separate, larger, more decorative Ornamental Mark,
+rendered as an illegible, spiked, band-logo-style wordmark in that same
+gradient, used only at the Introduction/entrance moment.
 
 Typography: a single rounded, geometric sans-serif family carries the
 entire page, expressed through weight and size rather than mixing
@@ -63,11 +68,18 @@ states, keyboard behavior, reduced-motion handling) is evidenced at all.
 Preserve / Evolve / Replace / Discard:
 - Persistent nav + mobile overlay menu → Preserve
 - Dark, high-contrast base palette → Preserve
-- Gradient accents for emphasis → Evolve — now decided as a
-  lilac-to-purple gradient spectrum specifically (per explicit user
-  confirmation), carried forward for the ornamental mark and emphasis
-  moments; exact stops/technical realization remain open for Technical
-  Design.
+- Gradient accents for emphasis → Evolve — a lilac-to-purple gradient
+  spectrum, matching the reference's own emphasis: lilac dominant and
+  most vivid at a mark's crown/high-impact point, fading to a darker,
+  muted purple only at receding edges/tendrils — never an evenly dark or
+  purple-dominant read; carried forward for the Ornamental Mark,
+  Ornamental Logo, and other emphasis moments; exact stops/technical
+  realization remain open for Technical Design.
+- Ghost/watermark background-texture repeat of the Ornamental Logo (About
+  body, Contact-mobile) → Evolve — the general idea of a subtle
+  background texture on some screens is kept; not committed to this
+  exact ghost-mark treatment as final — specific motif and which screens
+  carry it remain open for Feature-level UI work to revisit.
 - Typography (rounded geometric sans-serif, weight-driven hierarchy) →
   Evolve — confirmed as the general typographic character to carry
   forward, in the spirit of the reference's display face; exact typeface
@@ -155,8 +167,21 @@ rather than adopted a skills-pitch framing for the identity screen.
 
 ## UI Components
 
-- Persistent Navigation Bar (desktop) — logomark, anchor links, and the
-  language switcher; visible throughout the experience.
+- Persistent Navigation Bar (desktop) — wordmark, anchor links, and the
+  language switcher, visible throughout the experience; wherever the
+  Ornamental Mark or Ornamental Logo sits at that position — the Mark on
+  Introduction, the Logo everywhere else — the bar's connecting line
+  splits into two segments flanking it, so the mark reads as integrated
+  with the nav rather than layered separately beneath it. Mobile has no
+  equivalent line to split.
+- Ornamental Logo — a compact mark embedded in the persistent nav bar on
+  every desktop screen, and reused as the centerpiece motif on the About
+  and Contact screens; also appears as an optional, large, low-opacity
+  background-texture repeat behind body content on some screens — exact
+  placement/motif left open for Feature-level UI decisions.
+- Ornamental Mark — a larger, distinct, illegible spiked wordmark used
+  only at the Introduction/entrance moment as the dominant background
+  element behind the Hero headline; not reused elsewhere.
 - Mobile Navigation Overlay — hamburger toggle opens a full-screen
   overlay with the same links and switcher.
 - Scroll/Continue Cue — a motion-expressed invitation to keep scrolling
@@ -202,10 +227,24 @@ rather than adopted a skills-pitch framing for the identity screen.
   values are Technical Design's decision.
 - Colour system: a high-contrast, dark-leaning base (a warm near-black
   background, soft off-white foreground) with a lilac-to-purple gradient
-  reserved for emphasis and high-impact moments (the ornamental mark, key
-  accents) — a confirmed purple-family spectrum rather than an open hue
-  choice — chosen to read as a deliberate, elegant creative signature,
-  not "dark mode" as a default.
+  reserved for emphasis and high-impact moments (the Ornamental Mark,
+  Ornamental Logo, key accents, and shared gradient-fill/sweep
+  interaction treatments) — a confirmed purple-family spectrum, matching
+  the reference: lilac is the dominant, vivid tone — most visible at a
+  mark's crown/high-impact point — fading toward a darker, more muted
+  purple only at its receding edges/tendrils, never an evenly dark or
+  purple-dominant read — chosen to read as a deliberate, elegant
+  creative signature, not "dark mode" as a default. The same lilac tone,
+  used flat rather than as a gradient, is also the site's accent colour
+  for interactive/focus states, for its lighter value against the
+  near-black base.
+- Ornamental Mark / Logo legibility: wherever either mark renders as a
+  background layer behind foreground content (Introduction's headline,
+  Connection's contact content, and any background-texture use), it
+  renders beneath that content in stacking order and must fade or reduce
+  in opacity enough at any point of overlap to preserve full legibility
+  and contrast — a constraint shared across every Feature that uses
+  them, not decided independently per Feature.
 - Base element / browser-default outcomes: every interactive element
   (links, switcher, nav toggle) reads as deliberately designed, with a
   clearly visible, on-brand focus state — accessibility expressed in the

@@ -35,6 +35,13 @@ Domain Sections.
 - Render a hosting slot for the language override control within both
   the desktop bar and the mobile overlay, without owning or rendering
   the control's own behavior (Commitment 7).
+- Render the connecting line as two independent segments with a gap,
+  never one continuous line covered by a mark, wherever a mark occupies
+  the row's center: the nav's own compact logomark icon (Personal
+  Narrative/Connection, constant), or an externally observed signal
+  indicating Hero's mark remains visible at that position (Introduction
+  only, scroll-derived) — reverting to one segment-free continuous line
+  once neither condition holds (Commitment 8).
 
 **Owned Concepts**
 
@@ -43,8 +50,21 @@ Domain Sections.
   Active Screen Indicator and the compact-logomark condition derive
   from.
 - Mobile overlay open/closed state.
+- A second runtime state, distinct from "active section," tracking
+  whether a mark currently occupies the row's center: derived from the
+  existing logomark condition on Personal Narrative/Connection, and from
+  an externally observed scroll signal (see Collaborations) while on
+  Introduction.
 
 **Collaborations**
+
+- Hero Composition — this Feature observes, but does not own, a
+  scroll-position signal indicating whether Hero's own mark remains
+  visible at the nav row's position (e.g. a sentinel element at the
+  mark's own visible boundary, observed the same way Domain Section
+  boundaries already are). The exact mechanism is Hero's own Technical
+  Design's decision to expose; this Feature only consumes the resulting
+  boundary state.
 
 - Root Layout — composes this component once, outside/above the three
   Domain Sections, so it can persist and observe all three uniformly.
@@ -130,6 +150,15 @@ Domain Sections.
    Rationale: avoids duplicating active-section/link/logomark logic
    across two implementations; matches Feature UI's framing of them as
    two realizations of one Feature.
+7. The divider line is structurally two independently rendered segments
+   (each sized via Styling System breakpoint/proportion tokens), not one
+   continuous line with a mark rendered on top to visually cover it.
+   Rationale: the current implementation does the latter by coincidence
+   (the compact-logomark placeholder's height happens to cover the
+   border), which is exactly the kind of accidental-not-designed state
+   this phase exists to close — and it structurally cannot produce
+   Introduction's segmented state at all, since no element there
+   currently covers the line.
 
 **Contract Traceability**
 
@@ -146,6 +175,9 @@ Domain Sections.
   Accessible Primitives Layer.
 - Commitment 7 → hosting slot for `language-override`'s own component,
   in both nav forms.
+- Commitment 8 → the two-segment line as an Owned runtime state, driven
+  by the logomark condition (Personal Narrative/Connection) or the
+  externally observed Hero-mark-visibility signal (Introduction).
 
 ## Cross-Component Relationships
 

@@ -25,6 +25,12 @@ resolving the depth-of-identity problem identified in Feature Context.
   language or reactively re-render on a later language change.
 - Photos are presented simultaneously (not toggled, paged, or enlarged on
   interaction) if two are used.
+- The Ornamental Logo is presented in the Personal Narrative composition
+  as a purely decorative, non-interactive, low-opacity ambient
+  background texture — it carries no interactive behavior, does not
+  compete with the narrative/photos for attention, and carries no
+  completeness guarantee of its own (mirroring how `direct-contact`
+  treats its own large-scale instance of the same asset).
 
 ### Flows
 
@@ -48,6 +54,9 @@ resolving the depth-of-identity problem identified in Feature Context.
   expand) to become visible.
 - Content reflects whatever `content-localization` resolves at render
   time; this Feature does not decide language.
+- The Ornamental Logo, when shown, must remain visually subordinate to
+  the narrative text and photos and requires no positional relationship
+  to other content — pure ambient atmosphere.
 
 ### States and Transitions
 
@@ -71,11 +80,15 @@ directly and statically; no interactive substates.
   static, always-fully-visible composition.
 - The ordering rule keeping the AI note after/alongside the narrative,
   never before it.
+- Coordinating the Ornamental Logo's decorative background placement
+  alongside the narrative, photos, and AI note.
 
 #### Excluded
 
 - Any interactive/stateful behavior on photos (carousel, lightbox,
   expand, filter).
+- The Ornamental Logo's own visual design/asset (shared substrate, owned
+  by no Feature).
 - Entrance/reveal motion, timing, sequencing — owned by
   `motion-interaction`.
 - Specific visual/device treatments and exact positional layout — owned

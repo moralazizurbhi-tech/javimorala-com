@@ -92,6 +92,32 @@ interaction) if two are used."
   - Failure Condition: the interaction triggers a toggle, paging, or
     enlargement of the photo.
 
+### Commitment 5 — Ornamental Logo Decorative Presence
+
+Relationship to Solution: resolves the Behaviour/Rule establishing the
+Ornamental Logo as a purely decorative, non-interactive, ambient
+background element, subordinate to the narrative text and photos, not
+subject to Commitment 1's strict completeness guarantee.
+
+**Acceptance Criteria**
+
+- AC1: The Ornamental Logo, when presented in the Personal Narrative
+  composition, carries no interactive or focusable behavior.
+- AC2: The Logo's visual prominence is subordinate to the narrative text
+  and photos — it never competes with them for primary attention.
+- AC3: The Logo's presence or absence does not affect Commitment 1's
+  guarantee that narrative text, photo(s), and the AI note are present
+  and visible without requiring prior visitor interaction.
+
+**Validation Scenarios**
+
+- Scenario — Logo presented alongside the narrative composition
+  - Success Condition: the Logo renders as a non-interactive decorative
+    background element; the narrative/photos remain the composition's
+    primary focus.
+  - Failure Condition: the Logo exposes an interactive/focusable
+    affordance, or visually overshadows the narrative/photos.
+
 ---
 
 *Created: 2026-09-06*

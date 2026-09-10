@@ -46,22 +46,30 @@ motion/transition treatment (`motion-interaction`).
   at the far left; "about" then "contact" grouped at the far right,
   left-to-right in that order, with "contact" closest to the frame's
   right edge; a consistent gap between the two links.
-- A thin horizontal divider line runs the bar's full width beneath it,
-  separating the nav from the screen content below — present on all
-  three screens, including Introduction (confirmed: Introduction's own
-  frame has its own divider-line pair, just not grouped into a named
-  container the way About/Contact's nav row is).
-- On About and Contact, the compact logomark icon is centered
-  horizontally within this same row, vertically aligned with the
-  wordmark and links; its frame measures 117x216 — exactly as tall as
-  the entire nav row — spanning the row's full height rather than
-  sitting as a small inline icon at text baseline. On Introduction, that
-  same row contains only the wordmark and links — no centered element —
-  leaving the Hero's own large centerpiece mark (owned by
-  `hero-presentation`) as the only mark on that screen.
-- The bar's row height, divider position, and left/right link alignment
-  stay visually consistent across all three screens — only the compact
-  logomark's presence changes.
+- The horizontal divider line beneath the bar is never one continuous
+  line — it presents as two segments with a centered gap sized to
+  whichever mark occupies that position (Contract Commitment 8). On
+  About/Contact, each segment measures 700 units in the Figma reference
+  (≈40% of the 1728-unit bar width each, ≈19% gap) for the compact
+  logomark icon. On Introduction, each segment measures 418 units (≈24%
+  each, ≈52% gap) for Hero's own larger mark — present only while that
+  mark remains visible at the nav row given scroll position; once it
+  scrolls past, the segments extend into one continuous line (Commitment
+  8 AC3), even though this Feature doesn't own or render that mark, only
+  its own line's response to it.
+- On About and Contact, the compact logomark icon is centered in the
+  gap, vertically aligned with the wordmark and links; its frame
+  measures 117x216 — exactly as tall as the entire nav row — spanning
+  the row's full height rather than sitting as a small inline icon at
+  text baseline. The icon itself is a symmetric, spiked, hourglass-
+  shaped mini-mark with crown-like tendrils at both top and bottom
+  (observed in Figma "logo smallll") — not a plain geometric shape. On
+  Introduction, no icon of this Feature's own renders in the gap;
+  whatever fills it is entirely Hero's own mark, outside this Feature's
+  rendering.
+- The bar's row height, divider-segment position, and left/right link
+  alignment stay visually consistent across all three screens — only
+  which mark (if any) occupies the center gap changes.
 
 ### Mobile
 
@@ -84,8 +92,12 @@ motion/transition treatment (`motion-interaction`).
 
 - **Persistent Nav Bar (desktop):** plain text wordmark + plain text
   links, no button chrome, border, or pill shape — consistent with the
-  site's chrome-free, typography-driven aesthetic. The compact logomark
-  renders as a small standalone mark, no container.
+  site's chrome-free, typography-driven aesthetic. The connecting line
+  renders as two independent segments, not one bar-wide element sitting
+  behind a mark. The compact logomark (Ornamental Logo) is a symmetric,
+  spiked, hourglass-shaped mini-mark with crown tendrils top and bottom
+  — a small standalone mark, no container — not a plain geometric shape
+  (e.g. not a simple circle/pill).
 - **Mobile Hamburger Toggle:** two-horizontal-line glyph, no surrounding
   button surface.
 - **Mobile Close Control:** an "X" glyph in the toggle's same position
@@ -102,9 +114,20 @@ motion/transition treatment (`motion-interaction`).
 
 - Background: plain, warm near-black base (Figma: solid #221e24 on
   every screen's frame) — the same base used everywhere, no gradient.
-- Wordmark, nav links, and the compact logomark: the project's soft
-  off-white foreground (`#ebeaec`, observed directly in Figma), no
-  accent-gradient treatment.
+- Wordmark and nav links: the project's soft off-white foreground
+  (`#ebeaec`, observed directly in Figma), no accent-gradient treatment.
+- The compact logomark icon (Ornamental Logo): carries the site's
+  confirmed lilac-to-purple gradient (Project UX Visual Foundations),
+  not the plain off-white used for the wordmark/links — corrects this
+  Definition's previous grouping of the icon with the off-white
+  elements, which didn't match Figma (observed directly on the "logo
+  smallll" instance: light lilac gradient tones, not flat off-white).
+- The divider line: `#e6bdfb`, a light lilac accent tint (observed
+  directly in Figma, both segments, on every screen checked) — not a
+  neutral off-white/near-black line as previously assumed here; in the
+  same accent family as, but distinct from, the Ornamental Mark/Logo's
+  own gradient and the flat lilac accent colour Project UX assigns to
+  interactive/focus states.
 - No colour differentiation observed between "about" and "contact," or
   between any nav element and the shared near-black background.
 - Active-indicator colour: Pending, per Feature UX — no value to extend

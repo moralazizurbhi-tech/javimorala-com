@@ -14,10 +14,12 @@ Foundations now define concrete typography (a single rounded, geometric
 sans-serif family, weight-driven hierarchy) and colour (warm near-black/
 off-white base, lilac-to-purple gradient reserved for emphasis) at the
 outcome level; exact sizing ratios and positions below remain
-Feature-specific extensions. Also realizes the ornamental mark's
-decorative background placement (Feature UX), using the same shared SVG
-asset Hero uses, carrying Project UX's confirmed lilac-to-purple
-gradient. Excludes the ornamental mark's own visual design/asset, nav,
+Feature-specific extensions. Also realizes the Ornamental Logo's
+large-scale decorative background placement (Feature UX) — a distinct,
+scaled-up instance of the same compact Ornamental Logo used in the nav
+bar (not Hero's separate Ornamental Mark asset) — carrying Project UX's
+confirmed lilac-to-purple gradient. Excludes the Ornamental Logo's own
+visual design/asset, nav,
 and Presence Links' own definition (only their observed position/scale
 within this composition is noted).
 
@@ -67,19 +69,26 @@ within this composition is noted).
   visually separates the primary CTA from the secondary footer-like
   group — the concrete realization of "CTA primary, Presence Links
   secondary."
-- Ornamental mark: Figma grounding — the mark's frame measures
-  ~1205×1878, taller than the Contact viewport itself (1117), so it
-  bleeds vertically beyond the frame's visible bounds rather than being
-  fully contained, consistent with Project UX's "illegible, spiked"
-  description. Rendered as a background layer, behind all Connection
-  content (eyebrow, CTA, farewell, Presence Links) in stacking order, so
-  it never interferes with legibility.
+- Ornamental Logo (large-scale ambient instance): Figma grounding —
+  measures ~1205×1878, taller than the Contact viewport itself (1117),
+  bleeding vertically beyond the frame's visible bounds. Rendered at
+  extremely low opacity — a near-invisible ghost/watermark texture, not
+  a moderately-visible centerpiece — as pure ambient atmosphere with no
+  positional relationship to the CTA, heading, or farewell text (per
+  explicit confirmation). Rendered as a background layer, behind all
+  Connection content (eyebrow, CTA, farewell, Presence Links) in
+  stacking order, so it never interferes with legibility. Distinct from
+  the separate, small, opaque Ornamental Logo instance already in the
+  nav bar above this screen.
 
 ### Mobile
 
-- Ornamental mark: no equivalent instance identified in the "Contact -
-  mobile" Figma frame — Pending, left open for a future refinement once
-  a mobile treatment is confirmed.
+- Ornamental Logo (large-scale ambient instance): present, contrary to
+  this Definition's previous claim of no mobile equivalent — Figma
+  grounding: measures ~541×844, exactly the mobile viewport's height,
+  wider than its 390-unit width so it bleeds off both edges. Same
+  extremely low-opacity ambient treatment as desktop, no positional
+  relationship to other content.
 - Section Eyebrow Header: omitted — Figma's mobile frame has no separate
   eyebrow instance; only the CTA-adjacent Contact Heading appears.
 - Same vertical order otherwise; the CTA display text reflows from one
@@ -107,9 +116,13 @@ within this composition is noted).
 - Presence Links (composed alongside; not this Feature's own
   definition): observed as plain inline text links, horizontally
   arranged with a gap — no icons in this reference.
-- Ornamental Mark: single shared graphical asset (same SVG substrate
-  Hero uses), rendered as a background layer, non-interactive; its own
-  design is out of this Feature's scope (Feature Definition boundary).
+- Ornamental Logo (large-scale ambient instance): the same compact mark
+  family used in the nav bar and reused as About's own background
+  texture, scaled up significantly and rendered at extremely low
+  opacity as ambient background texture — not Hero's separate
+  Ornamental Mark asset; rendered as a background layer, non-interactive;
+  its own design is out of this Feature's scope (Feature Definition
+  boundary).
 
 ## Colour Application
 
@@ -128,9 +141,10 @@ within this composition is noted).
   token value is Pending, belonging to `presence-links`' own Feature UI
   (or a shared Visual Foundations token not yet named) — this Feature
   only asserts the differentiation, not the literal value.
-- Ornamental mark: carries Project UX's confirmed lilac-to-purple
-  gradient — the mark is an SVG asset; the gradient lives on it, not on
-  the page background (mirrors Hero's own Colour Application wording).
+- Ornamental Logo (large-scale ambient instance): carries Project UX's
+  confirmed lilac-to-purple gradient at extremely low opacity — the
+  asset is an SVG; the gradient lives on it, not on the page
+  background.
 
 ## Borders, Radii, Shadows, Surfaces
 

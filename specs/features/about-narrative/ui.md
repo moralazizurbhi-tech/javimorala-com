@@ -14,7 +14,11 @@ rounded, geometric sans-serif family, weight-driven hierarchy) and
 colour (warm near-black/off-white base + lilac-to-purple gradient
 reserved for emphasis) at the outcome level; exact sizing ratios and
 positions below remain Feature-specific extensions, not traced to an
-existing token.
+existing token. Also realizes the Ornamental Logo's large-scale
+decorative background placement (Feature UX) — the same asset family
+used in the nav bar and at Direct Contact's Connection screen, distinct
+from Hero's separate Ornamental Mark — carrying Project UX's confirmed
+lilac-to-purple gradient.
 
 ## Typography Application
 
@@ -45,6 +49,12 @@ existing token.
   preceding it" and its contrasting-orientation variety.
 - Generous, uncluttered spacing within and between elements, per Project
   UX's spacing-scale principle.
+- Ornamental Logo (large-scale ambient instance): Figma grounding —
+  measures ~668×1234 (node "logo smallll 2"), taller than the frame's
+  own visible content, bleeding beyond it. Rendered at extremely low
+  opacity as ambient background texture with no positional relationship
+  to any specific paragraph or photo (per Feature UX). Rendered as a
+  background layer, behind all narrative content in stacking order.
 
 ### Mobile
 
@@ -55,6 +65,10 @@ existing token.
 - The landscape photo placed further down, alongside a later paragraph
   rather than immediately paired with the portrait photo — the mobile
   realization of the same staggered, contrasting-orientation placement.
+- Ornamental Logo: same ambient treatment as desktop; exact mobile
+  scale/crop not independently confirmed in this reference — Pending,
+  left to a future refinement, consistent with sibling Features' own
+  Pending markers for device-specific mark crops.
 
 ## Component Anatomy and Variants
 
@@ -65,6 +79,11 @@ existing token.
   orientations (landscape + portrait), staggered rather than uniformly
   paired; presented simultaneously; no card/border framing — the
   discarded skills-pitch card pattern is not reintroduced here.
+- Ornamental Logo (large-scale ambient instance): the same compact mark
+  family used in the nav bar and at Direct Contact, scaled up
+  significantly and rendered at extremely low opacity as ambient
+  background texture — not Hero's separate Ornamental Mark asset; its
+  own design is out of this Feature's scope.
 
 ## Colour Application
 
@@ -75,6 +94,9 @@ existing token.
   subordinate positioning (Contract Commitment 2).
 - Photos: no colour treatment applied by this Feature; the image content
   itself, once selected, provides its own colour.
+- Ornamental Logo (large-scale ambient instance): carries Project UX's
+  confirmed lilac-to-purple gradient at extremely low opacity — the
+  asset is an SVG; the gradient lives on it, not on the page background.
 
 ## Borders, Radii, Shadows, Surfaces
 
@@ -94,6 +116,9 @@ None identified — no icons needed for this Feature's components.
   single fluid reflow — each still presents all three content pieces
   (Contract Commitment 1), each preserving the opening-line emphasis and
   photo orientation variety per Feature UX's constraint.
+- The Ornamental Logo's presence/absence carries no completeness
+  requirement of its own (Commitment 5) — only narrative text, photo(s),
+  and the AI note are covered by Commitment 1's completeness guarantee.
 
 ---
 

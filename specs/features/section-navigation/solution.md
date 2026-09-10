@@ -29,6 +29,21 @@ cue" problem.
   its compact logomark icon alongside the wordmark and links. This is a
   confirmed, observed difference in the reference design (Figma), not a
   new element introduced here.
+- The nav bar's connecting line renders as two segments with a gap at
+  the row's horizontal center whenever a mark is actually present at
+  that position — this Feature's own compact logomark icon (present
+  throughout Personal Narrative and Connection, per the Behaviour above),
+  or Hero's own large ornamental mark for as long as it remains visible
+  behind the nav's row while the visitor scrolls through Introduction —
+  reverting to one continuous line once no mark occupies that position,
+  including within Introduction itself once Hero's mark has scrolled
+  past the nav's row and before the visitor has reached Personal
+  Narrative. This is a distinct, continuously scroll-derived fact from
+  the coarser "active section" state Commitments 4/5 track — the two
+  usually coincide but are not the same thing, and this Feature's own
+  commitment is only to the correct state at any given moment, not to
+  how that state is animated or transitioned (`motion-interaction`'s
+  concern).
 - Activating any link scrolls/jumps the page to that screen's anchor.
 - The nav shows which screen is currently active at all times, updating
   as the visitor scrolls or after using a nav link — regardless of how the
@@ -61,6 +76,10 @@ cue" problem.
   navigation/reload (per Context's single-page constraint).
 - The logomark link always targets Introduction's top, regardless of
   current scroll position or active screen.
+- The nav's connecting line is never rendered as a single unbroken line
+  across the full bar width on any screen — it always presents as two
+  segments flanking whichever mark (this Feature's own icon, or Hero's
+  mark) occupies the row's center.
 - The nav (desktop bar, or mobile toggle) is present on every screen and
   device and cannot be dismissed by the visitor — only the mobile overlay
   itself opens/closes.
@@ -93,6 +112,8 @@ cue" problem.
   forms.
 - The Hero-vs-other-screens logomark-presence difference described above
   (a functional "what element is shown where" statement).
+- The divider line's segmented-vs-continuous presentation, mirroring the
+  logomark-icon's own per-screen presence.
 
 #### Excluded
 
@@ -109,6 +130,11 @@ cue" problem.
 - Detailed accessibility implementation (specific ARIA patterns, focus
   trap mechanics) — inherited as a constraint, implemented at Technical
   Design.
+- The scroll-driven transition/animation between the line's segmented
+  and continuous states, and the precise mechanism for detecting whether
+  a mark currently occupies the position — owned by `motion-interaction`
+  and Technical Design respectively; this Feature commits only to the
+  correct resulting state.
 
 ---
 

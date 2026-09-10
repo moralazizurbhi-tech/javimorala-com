@@ -62,8 +62,12 @@ Existing identity, from Project UX's Screens.
   nav, without competing with the Hero's own large centerpiece mark —
   shows wordmark + "about"/"contact" links, without the compact logomark
   icon (Contract Commitment 4; observed absence in Figma's "Home"/"Home -
-  mobile" vs. its presence in "About"/"Contact"). Participates in "Reach
-  any screen directly" and "Orient during free scroll."
+  mobile" vs. its presence in "About"/"Contact"). The connecting line
+  presents as two segments flanking Hero's own mark for as long as it
+  remains visible at the nav row given scroll position, reverting to one
+  continuous line once the mark has scrolled past — even while still on
+  Introduction (Commitment 8). Participates in "Reach any screen
+  directly" and "Orient during free scroll."
 
 ### Personal Narrative
 
@@ -71,15 +75,18 @@ Existing identity, from Project UX's Screens.
 
 - Purpose (nav portion): the same persistent nav, now including the
   compact logomark icon (Commitment 4; observed in "About"/"About -
-  mobile"). Participates in the same two flows.
+  mobile"). The connecting line presents as two segments flanking that
+  icon at all times here (Commitment 8 AC2). Participates in the same
+  two flows.
 
 ### Connection
 
 Existing identity, from Project UX's Screens.
 
 - Purpose (nav portion): the same persistent nav with the compact
-  logomark icon (observed in "Contact"/"Contact - mobile"). Participates
-  in the same two flows.
+  logomark icon (observed in "Contact"/"Contact - mobile"). The
+  connecting line presents as two segments flanking that icon at all
+  times here (Commitment 8 AC2). Participates in the same two flows.
 
 Exact spatial layout, sizing, and positioning within each screen are
 Pending, left entirely to Feature UI, consistent with sibling Features'
@@ -103,6 +110,14 @@ pattern.
   transition experienced while scrolling between screens is
   `motion-interaction`'s separate concern, layered on top of these
   discrete states.
+- **Divider Line:** `Segmented` / `Continuous` (Commitment 8) — Segmented
+  whenever a mark (this Feature's icon, or Hero's mark) occupies the
+  row's center; Continuous otherwise. On Personal Narrative/Connection
+  this is constant (always Segmented). On Introduction it's
+  scroll-derived — Segmented while Hero's mark remains at that position,
+  Continuous once it scrolls past. The scroll-driven transition itself
+  is `motion-interaction`'s concern; this state only names the two
+  resulting values.
 - No loading, empty, or error state applies — this Feature has no
   data-fetch or fallible operation; it's a static composed surface
   driven by scroll position and confirmed link targets.
@@ -112,8 +127,10 @@ pattern.
 - **Persistent Nav Bar (desktop)** — existing identity, Project UX UI
   Components. This Feature's realization: wordmark + "about"/"contact"
   links + language control, with the compact logomark icon appearing
-  only outside the Introduction screen (Commitment 4). Observed in Figma
-  "Home"/"About"/"Contact."
+  only outside the Introduction screen (Commitment 4), and the
+  connecting line rendering as two segments around whichever mark
+  occupies the center (Commitment 8), not as separate treatment from
+  the icon's own presence. Observed in Figma "Home"/"About"/"Contact."
 - **Mobile Navigation Overlay** — existing identity, Project UX UI
   Components. This Feature's realization: hamburger toggle (open) /
   close action, full-screen overlay with "about"/"contact" +
@@ -125,10 +142,11 @@ pattern.
   exposing the same links and switcher"), not from this Figma frame.
 - **Active Screen Indicator** — Feature-specific component; no distinct
   visual treatment observed in Figma (Pending, Feature UI).
-- **Logomark Home-Link** — this Feature's realization of the shared
-  ornamental-mark asset (owned project-wide, not by this Feature) as a
-  clickable link to Introduction; compact form here, distinct from the
-  Hero's large centerpiece form (Commitments 3, 4).
+- **Ornamental Logo Home-Link** (renamed from Logomark Home-Link) — this
+  Feature's realization of Project UX's compact Ornamental Logo (owned
+  project-wide, not by this Feature; distinct from Hero's separate,
+  larger Ornamental Mark) as a clickable link to Introduction
+  (Commitments 3, 4).
 
 ## Content and Assets
 
@@ -137,10 +155,16 @@ pattern.
   `content-localization`'s concern.
 - **Wordmark text ("javimorala.com")** — Confirmed, observed in Figma,
   consistent across all three screens' nav.
-- **Compact logomark asset** — Pending: the mark's visual asset is shared
-  project-wide substrate (excluded from Feature status per Feature
-  Catalog); this Feature only decides where/when it's shown, not its
-  design.
+- **Ornamental Logo asset** (renamed from Compact logomark asset) —
+  reclassified from Pending to **Reference/Design Asset**: observed
+  directly in Figma ("logo smallll" — a symmetric, spiked,
+  hourglass-shaped mini-mark, not a generic icon), source confirmed; the
+  actual project SVG asset still needs to be created from that
+  reference (currently a placeholder in code), the same pattern Hero's
+  mark went through before it got its real asset. The visual asset
+  remains shared project-wide substrate (excluded from Feature status
+  per Feature Catalog); this Feature only decides where/when it's shown,
+  not its design.
 - **Hamburger toggle / close icon glyphs** — Pending, exact iconography
   left to Feature UI (observed only as simple line-based icons in the
   early Figma exploration).

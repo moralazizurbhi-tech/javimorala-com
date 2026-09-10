@@ -30,8 +30,13 @@ element's detailed visual/interaction styling.
   final photos are decided.
 - Presenting the AI-assisted-development note as a minor, subordinate
   element alongside or after the narrative.
-- Coordinating narrative text, photo(s), and the AI note into one cohesive
-  screen moment (composition, ordering, relative prominence).
+- Presenting the Ornamental Logo in its Personal-Narrative-screen
+  decorative background placement (display/placement only), mirroring
+  Hero Presentation's and Direct Contact's equivalent treatment of the
+  same shared asset family.
+- Coordinating narrative text, photo(s), the AI note, and the Ornamental
+  Logo's background placement into one cohesive screen moment
+  (composition, ordering, relative prominence).
 
 ### Excluded
 
@@ -41,6 +46,9 @@ element's detailed visual/interaction styling.
   `direct-contact` / `presence-links`.
 - Any work/project catalog or portfolio showcase — excluded project-wide
   (Project Design's Design Constraints).
+- The Ornamental Logo's visual design/asset itself — shared substrate
+  ("Ornamental mark," per `feature-catalog.md`'s excluded-from-Feature-
+  status note), not owned by any Feature.
 - Any motion/animation/scroll-reveal behavior applied to this screen's
   elements — owned by cross-cutting `motion-interaction`.
 - Resolving/rendering text into the visitor's active language — owned by

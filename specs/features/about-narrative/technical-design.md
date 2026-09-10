@@ -46,6 +46,12 @@ photos as one coordinated, fully static composition, per device class.
   five blocks (including the AI-development line) share one uniform
   body-tier style; applied via markup/selector structure, not by
   giving the first block special functional behavior.
+- Render the Ornamental Logo's large-scale ambient instance as a
+  non-interactive background layer, behind all other narrative content
+  in stacking order, with no focusable/interactive markup (Commitment
+  5) — referencing the shared Ornamental Logo SVG asset (the same asset
+  `section-navigation` and `direct-contact` also reference), without
+  owning or duplicating its definition.
 
 **Owned Concepts**
 
@@ -58,6 +64,8 @@ photos as one coordinated, fully static composition, per device class.
 - The narrative's first-paragraph distinct styling hook, separating its
   display-tier treatment from the remaining five blocks' shared body
   tier.
+- The Ornamental Logo's large-scale non-interactive background stacking
+  treatment (shared asset referenced, not redefined).
 
 **Collaborations**
 
@@ -78,6 +86,11 @@ photos as one coordinated, fully static composition, per device class.
 - The two personal photo assets — external; final selection/production is
   out of this Feature's scope (Feature Definition boundary); placeholders
   stand in meanwhile.
+- Shared Ornamental Logo Asset (external, project-wide substrate, not
+  owned by any Feature; distinct from Hero's separate Ornamental Mark
+  asset) — this component references it at a large scale for its own
+  ambient background placement, the same asset `section-navigation` and
+  `direct-contact` also reference.
 
 **Constraints**
 
@@ -117,6 +130,10 @@ photos as one coordinated, fully static composition, per device class.
   integrated, undistinguished part of the narrative, not a bolt-on note;
   content authoring order alone guarantees it never precedes the
   narrative.
+- The Ornamental Logo's large-scale ambient instance is rendered as a
+  purely static background layer with no hydration — consistent with
+  this component's existing no-React-island design; Commitment 5
+  requires no interactivity, so no island is needed for it either.
 
 **Contract Traceability**
 
@@ -125,6 +142,9 @@ photos as one coordinated, fully static composition, per device class.
 - Commitment 2 → authored paragraph ordering (AI line last).
 - Commitment 3 → i18n/Routing Layer consumption.
 - Commitment 4 → non-interactive photo rendering.
+- Commitment 5 → non-interactive background-layer rendering of the
+  shared Ornamental Logo asset (large-scale ambient instance), with no
+  completeness dependency.
 
 ## Cross-Component Relationships
 
