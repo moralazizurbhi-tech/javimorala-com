@@ -33,8 +33,9 @@ $font-size-body: fluid.fluid-size(1rem, 1.125rem);
 // (40px) per developer review; scaled fluidly (not a flat 40px) while
 // preserving the tier's own existing min:max growth ratio, so mobile
 // scales proportionally rather than jumping straight to a desktop-only
-// value.
-$font-size-label: fluid.fluid-size(2.1667rem, 2.5rem);
+// value. Eased back down slightly (40px felt a touch large in practice)
+// per a follow-up developer review, same ratio preserved.
+$font-size-label: fluid.fluid-size(1.95rem, 2.25rem);
 // Scroll cue's own tier — previously shared $font-size-label with nav,
 // but the developer's own Figma measurement gives it a distinct value
 // (24px desktop) from nav's (40px) — no longer identical sizes.

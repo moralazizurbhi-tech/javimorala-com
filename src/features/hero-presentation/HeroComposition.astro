@@ -156,8 +156,17 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// developer direction, applied via CSS rather than editing each
 		// locale's own content string, so it holds uniformly across
 		// English/Spanish/Euskera without this Feature re-deciding
-		// per-language capitalization rules.
-		text-transform: capitalize;
+		// per-language capitalization rules. Declared on each individual
+		// span below (.hero__headline-primary/-secondary), not here: every
+		// span is `position: absolute`, so the whitespace between two
+		// out-of-flow siblings collapses away entirely, and the build's
+		// CSS minifier strips an inherited-and-redundant-looking
+		// declaration here as dead weight — except it isn't redundant,
+		// since the browser's capitalize computation then sees each
+		// span's own first letter as a continuation of the previous
+		// span's last word rather than a new word. Declaring it per-span
+		// keeps it un-minifiable-away and makes each span's own
+		// computation self-contained.
 		color: tokens.$color-base-fg;
 
 		// Mobile: dominant word anchored to the left edge, both secondary
@@ -201,6 +210,11 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		grid-area: primary;
 		font-size: tokens.$font-size-display;
 		line-height: 1;
+		// Correctly capitalized without `::first-letter` since this is the
+		// first span in the headline (no preceding sibling's text to
+		// wrongly merge with) — see .hero__headline-secondary for the
+		// cross-sibling case that does need it.
+		text-transform: capitalize;
 
 		// Mobile: "Building" rotated 90°, reading bottom-to-top (ui.md,
 		// Mobile). Desktop/tablet: upright, the dominant display line.
@@ -238,6 +252,23 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// headings.
 		font-size: calc(#{tokens.$font-size-display} / 2.6);
 		line-height: 1.1;
+		// `text-transform: capitalize`'s word-boundary detection runs over
+		// the *rendered text sequence*, not per element — confirmed via an
+		// isolated repro — so when a preceding sibling span is also
+		// `position: absolute`, the whitespace between them is used-value
+		// -collapsed away entirely, and capitalize sees no separator: the
+		// first letter of this span reads as a continuation of the
+		// previous span's last word, not a new word (declaring the
+		// property again on this element, tried first, did not fix it —
+		// the word-run computation ignores which element owns the
+		// declaration). `::first-letter` below is unambiguous instead: it
+		// targets this element's own first rendered character directly,
+		// independent of any preceding sibling's text.
+		text-transform: capitalize;
+
+		&::first-letter {
+			text-transform: uppercase;
+		}
 	}
 
 	// Shared vertical offset for both secondary lines — kept in one place
