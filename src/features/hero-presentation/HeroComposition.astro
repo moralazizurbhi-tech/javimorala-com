@@ -118,25 +118,17 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// here and left a large dead gap above the headline (visually
 		// confirmed wrong) before this was corrected.
 		//
-		// Let W = mark width, H = W×(780/1216) (its aspect-ratio). A W×H
-		// box rotated 45° about its center has bounding height
-		// (W+H)/√2, centered on the original box's own center (H/2 from
-		// `top: 0`) — so its bottom edge sits at
-		// H/2 + (W+H)/(2√2) = 0.9011×W below `top: 0`. Kept in sync with
-		// `.hero__mark`'s own `width`/rotation below by hand, since a
+		// Developer-specified directly (was a derived formula from the
+		// mark's own rotated bounding-box geometry, halved and reduced
+		// through several rounds of "still too far apart" feedback) — kept
+		// in sync with `.hero__mark`'s own `width` below by hand, since a
 		// shared Sass variable can't cross into a pseudo-element's
-		// generated box from here cleanly. Halved again per developer
-		// direction (still read as too far apart at the `- 22vw`
-		// reduction) — the full geometric value reserves flow space for
-		// the mark's entire visual footprint down to its lowest tendril
-		// tip, which is far more room than the composition actually
-		// wants between the mark's own denser upper mass and the
-		// headline.
+		// generated box from here cleanly.
 		&::before {
 			content: '';
 			display: block;
 			width: 100%;
-			height: calc((150vw * 0.9011 - 22vw) / 2);
+			height: 68vw;
 		}
 
 		@include mixins.desktop-up {
@@ -177,24 +169,20 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// `top: 0`, flush at `.hero__display`'s own top edge — which is
 		// also the spacer's (`.hero__display::before`, above) own top
 		// edge, so the mark visually fills the space the spacer reserves,
-		// with the headline starting right where the spacer (and, being
-		// sized 3rem short of the mark's real height, the mark itself)
-		// ends — giving the tendrils a small overlap into the headline's
+		// with the headline starting right where the spacer ends —
+		// giving the tendrils a deliberate overlap into the headline's
 		// own space for "genuine interleaving" (ux.md). Tried `bottom:
 		// 100%` first: that measures against `.hero__display`'s *entire*
 		// height (spacer + headline together, since both are inside the
 		// same containing block), landing the mark's bottom at the
 		// spacer's own top instead of its bottom — a full spacer-height
-		// gap above the headline (visually confirmed wrong). This
-		// `width` must stay in sync with the spacer's own hand-derived
-		// height above if either changes.
-		// Widened (115vw → 150vw) and shifted left (right: -32% → -52%) —
-		// developer direction: the mark should span almost to the left
-		// edge, not leave a visible gap there (previously its own left
-		// edge sat around 17% in from the container's left edge).
+		// gap above the headline (visually confirmed wrong).
+		// Width/right developer-specified directly, tuned by eye against
+		// their own build (was 150vw / -52%, itself already widened once
+		// from 115vw / -32% for the same "reach the left edge" reason).
 		top: 0;
-		right: -52%;
-		width: 150vw;
+		right: -30%;
+		width: 127vw;
 		aspect-ratio: 1216 / 780;
 		height: auto;
 		object-fit: contain;
@@ -253,14 +241,18 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// `min-width: 0` for internally) is defensively reset here too.
 		min-width: 0;
 		display: grid;
-		// Tightened (was $space-md) — the dominant word and the secondary
-		// lines read as too far apart at $space-md (developer visual
-		// review); the dominant word's own column is the one that moves
-		// closer, since the secondary column's own left edge is what the
-		// text below it is anchored against.
-		column-gap: tokens.$space-xs;
+		// Tightened twice (was $space-md, then $space-xs) — the dominant
+		// word and the secondary lines kept reading as too far apart
+		// (developer visual review); the dominant word's own column is
+		// the one that moves closer, since the secondary column's own
+		// left edge is what the text below it is anchored against.
+		column-gap: calc(#{tokens.$space-xs} / 2);
 		row-gap: tokens.$space-xs;
-		margin: 0;
+		// Mobile-only left offset (developer direction) — reset to 0 on
+		// desktop-up below, where the headline is independently
+		// absolutely-positioned against the mark's own geometry and
+		// doesn't need this.
+		margin: 0 0 0 1rem;
 		font-family: tokens.$font-family-heading;
 		font-weight: tokens.$font-weight-display;
 		letter-spacing: tokens.$letter-spacing-heading;
@@ -317,6 +309,7 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 			position: absolute;
 			left: 50%;
 			width: 70vw;
+			margin-left: 0;
 			transform: translateX(-50%);
 			// Anchored to the mark's own inked geometry, not its crop box's
 			// bottom edge (70vh) — the artwork's own tendrils taper off and
@@ -403,8 +396,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// next to the dominant rotated word — this divisor keeps it
 		// comfortably within that column, "filling" it with margins rather
 		// than overflowing past the viewport edge (developer visual
-		// review).
-		font-size: calc(#{tokens.$font-size-display} / 3.4);
+		// review). Eased down from /3.4 — developer direction, tuned so
+		// the mobile-end of this calc lands around 24px (at
+		// $font-size-display's own 4rem/64px mobile-end: 64/2.667≈24px).
+		font-size: calc(#{tokens.$font-size-display} / 2.667);
 		line-height: 1.1;
 		// Grid items default to `min-width: auto` (their own unwrapped
 		// max-content width), which lets long copy overflow straight past
