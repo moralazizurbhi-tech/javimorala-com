@@ -172,11 +172,13 @@ $mobile-nav-height: 3rem;
 	}
 }
 
-// Half the desktop/open-overlay wordmark size — a distinct treatment
+// Sized to match Hero's own scroll-cue tier — a distinct treatment
 // specific to the collapsed mobile bar (ui.md, Typography Application).
+// Previously half the desktop/open-overlay wordmark size, which read as
+// too small next to Hero's own mobile text (developer visual review).
 .mobileWordmark {
 	font-family: tokens.$font-family-body;
-	font-size: calc(#{tokens.$font-size-label} * 0.5);
+	font-size: tokens.$font-size-caption;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
 	text-transform: lowercase;

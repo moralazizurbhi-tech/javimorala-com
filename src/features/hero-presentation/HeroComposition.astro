@@ -24,8 +24,10 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	<span id="hero-mark-boundary" class="hero__mark-boundary" aria-hidden="true"></span>
 	<h1 class="hero__headline">
 		<span class="hero__headline-primary">{headlinePrimary}</span>
-		<span class="hero__headline-secondary hero__headline-secondary--1">{headlineSecondaryLine1}</span>
-		<span class="hero__headline-secondary hero__headline-secondary--2">{headlineSecondaryLine2}</span>
+		<span class="hero__headline-secondary-group">
+			<span class="hero__headline-secondary hero__headline-secondary--1">{headlineSecondaryLine1}</span>
+			<span class="hero__headline-secondary hero__headline-secondary--2">{headlineSecondaryLine2}</span>
+		</span>
 	</h1>
 	<p class="hero__scroll-cue">
 		<span>{scrollCue}</span>
@@ -47,7 +49,14 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	.hero {
 		position: relative;
 		isolation: isolate;
+		// `100dvh` (falls back to `100vh` on browsers that don't support
+		// it) — plain `100vh` resolves against mobile browsers' *large*
+		// viewport (address bar hidden), which is taller than what's
+		// actually visible on first paint (address bar shown), pushing the
+		// bottom `auto` grid row (scroll cue) below the real visible fold —
+		// developer visual review finding on a real device.
 		min-height: 100vh;
+		min-height: 100dvh;
 		padding: tokens.$space-lg tokens.$space-md;
 		display: grid;
 		grid-template-columns: 1fr;
@@ -81,18 +90,28 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	.hero__mark {
 		position: absolute;
 		z-index: -1;
-		top: 0;
-		right: -20%;
+		// Figma's own mobile frame ("Home - mobile") shows the mark through
+		// a square clip window (≈583×583 at the 390px mobile frame — i.e.
+		// close to 1:1 with the viewport width), bleeding off both the top
+		// and right edges — not the wide/short letterbox this previously
+		// produced (120vw × 70vh against the asset's own 1216×780 viewBox
+		// forced `cover` to zoom in ~2x horizontally, showing an
+		// unrecognizable close-up crop; developer visual review finding).
+		// `aspect-ratio: 1/1` reproduces that square window at any mobile
+		// width instead of a fixed vh height.
+		top: -8%;
+		right: -28%;
 		// Width intentionally exceeds 100vw so the shape bleeds off the
 		// right edge, per ui.md's Mobile spec ("width intentionally
 		// exceeds 100% of the viewport, bleeding off the right edge").
-		width: 120vw;
-		height: 70vh;
+		width: 150vw;
+		aspect-ratio: 1 / 1;
+		height: auto;
 		object-fit: cover;
-		// Crop from the bottom (where the artwork's own gradient already
-		// fades toward transparent) rather than the top, so the mark's
-		// sharpest, most distinctive detail near its crown is preserved.
-		object-position: top;
+		// Crop toward the crown (top-left of the source artwork), matching
+		// Figma's own mobile crop and the same crown-bias already applied
+		// to the desktop crop.
+		object-position: top left;
 		pointer-events: none;
 
 		@include mixins.desktop-up {
@@ -170,13 +189,26 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		color: tokens.$color-base-fg;
 
 		// Mobile: dominant word anchored to the left edge, both secondary
-		// lines stacked normally to its right (ui.md, Mobile).
+		// lines stacked to its right (ui.md, Mobile), grouped into one grid
+		// cell — not two separate auto rows: with a spanning sibling (the
+		// dominant word, spanning the full row height), a two-row track
+		// forced the browser to distribute the dominant word's extra
+		// height across both rows, inflating the gap between the two
+		// secondary lines well past their own natural line-height
+		// (developer visual review). One shared cell sizes to the taller
+		// of the two children (the dominant word), and the group wrapper
+		// itself (below) stacks its own two children tightly via flex —
+		// two grid items simply assigned the same grid-area overlap
+		// instead of flowing in sequence (tried first; visually confirmed
+		// wrong), which is exactly why the group needs its own wrapper
+		// element. Bottom-aligned (not centered): the second secondary
+		// line's own bottom edge lines up with the dominant word's bottom
+		// edge (developer visual review, checked against Figma's mobile
+		// frame).
 		grid-template-columns: auto 1fr;
-		grid-template-rows: auto auto;
-		grid-template-areas:
-			'primary secondary1'
-			'primary secondary2';
-		align-items: center;
+		grid-template-rows: auto;
+		grid-template-areas: 'primary secondary';
+		align-items: end;
 
 		@include mixins.desktop-up {
 			// Desktop/tablet: sized and centered to exactly match
@@ -241,17 +273,48 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		}
 	}
 
+	// Purely presentational grouping — no semantic meaning of its own —
+	// so the two secondary lines' mutual spacing (mobile) is explicit
+	// flex stacking rather than left to CSS Grid's own row-distribution
+	// behavior (see .hero__headline above).
+	.hero__headline-secondary-group {
+		grid-area: secondary;
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+
+		@include mixins.desktop-up {
+			// Un-wraps for layout purposes: the two lines go back to being
+			// independently `position: absolute` against `.hero__headline`
+			// itself (their own desktop-up rules, below), exactly as before
+			// this wrapper existed.
+			display: contents;
+		}
+	}
+
 	.hero__headline-secondary {
 		// Derived directly from the primary size (not the shared
-		// $font-size-heading token) so the two stay in a fixed ratio at
-		// every viewport width, close to Figma's own measured ratio
-		// (185:60 ≈ 3.08x) — sized up slightly from that exact ratio per
-		// developer direction ("a little bit bigger") — a Hero-local
-		// relationship, deliberately not coupled to $font-size-heading,
-		// which stays free for other Features' own future section
-		// headings.
-		font-size: calc(#{tokens.$font-size-display} / 2.6);
+		// $font-size-heading token) so the two stay in a fixed ratio,
+		// close to Figma's own measured ratio — a Hero-local relationship,
+		// deliberately not coupled to $font-size-heading, which stays free
+		// for other Features' own future section headings. Mobile's own
+		// divisor is wider than desktop-up's (below): Figma's mobile frame
+		// implies a similar ratio to desktop's, but at mobile's much
+		// narrower available column width, desktop's own ratio produced
+		// text (in every locale, not just English) wider than the space
+		// next to the dominant rotated word — this divisor keeps it
+		// comfortably within that column, "filling" it with margins rather
+		// than overflowing past the viewport edge (developer visual
+		// review).
+		font-size: calc(#{tokens.$font-size-display} / 3.4);
 		line-height: 1.1;
+		// Grid items default to `min-width: auto` (their own unwrapped
+		// max-content width), which lets long copy overflow straight past
+		// the 1fr column and off the viewport edge instead of wrapping
+		// within it — confirmed via visual review (English copy alone
+		// overflowed at the ratio above before this was added). `0`
+		// restores normal text-wrapping behavior within the column.
+		min-width: 0;
 		// `text-transform: capitalize`'s word-boundary detection runs over
 		// the *rendered text sequence*, not per element — confirmed via an
 		// isolated repro — so when a preceding sibling span is also
@@ -269,6 +332,15 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		&::first-letter {
 			text-transform: uppercase;
 		}
+
+		@include mixins.desktop-up {
+			// Desktop/tablet's own available width (a 70vw-wide headline
+			// box, not mobile's narrow column beside a vertical word) fits
+			// Figma's own measured ratio (185:60 ≈ 3.08x) comfortably —
+			// sized up slightly from that exact ratio per developer
+			// direction ("a little bit bigger").
+			font-size: calc(#{tokens.$font-size-display} / 2.6);
+		}
 	}
 
 	// Shared vertical offset for both secondary lines — kept in one place
@@ -277,7 +349,8 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	$secondary-top-offset: calc(#{tokens.$font-size-display} * 0.85);
 
 	.hero__headline-secondary--1 {
-		grid-area: secondary1;
+		// Mobile: a flex item of .hero__headline-secondary-group, first in
+		// source/flex order — no placement of its own needed here.
 
 		@include mixins.desktop-up {
 			// Same left anchor as the primary word, directly below it —
@@ -292,7 +365,8 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	}
 
 	.hero__headline-secondary--2 {
-		grid-area: secondary2;
+		// Mobile: a flex item of .hero__headline-secondary-group, second in
+		// source/flex order, directly beneath --1.
 
 		@include mixins.desktop-up {
 			// 24.7% from the right — measured the same way as the primary
