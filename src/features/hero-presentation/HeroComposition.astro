@@ -123,12 +123,28 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// through several rounds of "still too far apart" feedback) — kept
 		// in sync with `.hero__mark`'s own `width` below by hand, since a
 		// shared Sass variable can't cross into a pseudo-element's
-		// generated box from here cleanly.
+		// generated box from here cleanly. Mobile-only: on desktop-up,
+		// `display: contents` on `.hero__display` itself removes *its own*
+		// box, but does NOT suppress this pseudo-element's box — it still
+		// generates one, now promoted to participate directly in `.hero`'s
+		// own desktop grid alongside the (position: absolute, so otherwise
+		// invisible to grid sizing) mark and headline. Being the only
+		// *normal-flow* item landing in the grid's 'headline' row/column,
+		// its 68vw height forced that row to grow to fit it — pushing the
+		// whole composition around on desktop (developer visual review:
+		// "the heading moved up... the wrong placement is because of the
+		// :before"). `content: none` fully suppresses the pseudo-element
+		// there instead of merely hiding it, so it doesn't participate in
+		// layout at all.
 		&::before {
 			content: '';
 			display: block;
 			width: 100%;
 			height: 68vw;
+
+			@include mixins.desktop-up {
+				content: none;
+			}
 		}
 
 		@include mixins.desktop-up {
