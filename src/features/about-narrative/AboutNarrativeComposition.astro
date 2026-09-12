@@ -1,35 +1,117 @@
 ---
-// About Narrative Composition (T-013) — about-narrative/technical-design.md.
-// Text content only: narrative paragraphs plus the AI-assisted-development
-// note woven in as the final paragraph (Commitment 2 — the note's
-// subordinate positioning is guaranteed structurally by authored paragraph
-// order, never conditional placement logic). Photo presentation is a
-// separate task (T-014), which extends this same composition rather than
-// this component rendering photos itself.
+// About Narrative Composition (T-013 text/AI note; T-014 photos, refined
+// after developer visual review against Figma, then real photos +
+// ambient-logo repositioning) — about-narrative/technical-design.md. One
+// single-template composition (Owned Concepts: "single-template
+// completeness invariant") — narrative paragraphs, the AI-assisted-
+// development note woven in as the final paragraph (Commitment 2 —
+// subordinate positioning guaranteed structurally by authored order, never
+// conditional placement logic), both personal photos (Commitment 4 —
+// plain, non-interactive <img> elements; no carousel/toggle/enlargement
+// affordance exists to trigger), and the Ornamental Logo's large-scale
+// ambient background instance (Commitment 5 — non-interactive,
+// subordinate, no completeness dependency of its own).
 //
-// Purely static, no client-side hydration: neither Commitment 2 nor 3
-// needs runtime state. Text is passed in already resolved by the
+// Purely static, no client-side hydration: none of Commitments 1, 2, 4, 5
+// need runtime state. Text is passed in already resolved by the
 // i18n/Routing Layer for the active route's locale — this component never
 // reads the Content Layer or decides the language itself (Commitment 3).
 // Each paragraph is its own element (ux.md, Feature Components) so the
 // separately owned `motion-interaction` Feature has individual pieces to
 // target later; this component defines no motion of its own.
+//
+// Layout direction (developer visual review, post-implementation): the
+// first pass boxed the two photos into a small, isolated side column —
+// read as "pasted," not part of the content. Redesigned as a single
+// centered column (both device classes — one render path, per
+// technical-design.md's own Design Decision) with the photos rendered
+// large, gently rotated and slightly offset, folded directly into the
+// paragraph rhythm rather than parked in their own strip alongside it —
+// still plain <img> elements with no card/border framing (ui.md,
+// Component Anatomy), just position/rotation, which isn't framing.
+//
+// Real photos (developer-supplied, replacing placeholders): imported via
+// `astro:assets` rather than referenced as raw `public/` files, so Astro's
+// build-time image pipeline (sharp) resizes/compresses them instead of
+// shipping the 5MB source JPEG as-is. `--landscape`'s actual supplied
+// photo is itself portrait-oriented (746x1115) despite the class name —
+// kept for continuity with ux.md's own "the portrait photo"/"the
+// landscape photo" vocabulary (these name the two content pieces, not
+// strictly their pixel orientation); its aspect-ratio below matches the
+// real photo rather than forcing a lossy 4:3 crop. Worth flagging: ux.md's
+// Content and Assets calls for "contrasting orientations" — both supplied
+// photos are portrait, so that specific note isn't literally satisfied by
+// this asset pair; not a defect in this component, a real-content
+// observation for whoever selects final photos.
+//
+// Photo order (developer direction, post-implementation): the landscape-
+// slot photo now renders first (near the opening line) and the
+// portrait-slot photo second (near paragraph 4) — the reverse of ui.md's
+// own "the portrait photo is anchored near the opening line, the landscape
+// photo positioned lower" ordering. This is a deliberate, explicit
+// developer override of that specific ui.md line, not a reinterpretation
+// of it; ui.md itself isn't updated to match (out of this component's own
+// artifact ownership), so this comment is the record of the divergence.
+//
+// The Ornamental Logo is the same shared asset `section-navigation`
+// already references at its own compact scale (public/ornamental-logo.svg)
+// — not redefined here, only placed. Repositioned (developer direction) to
+// sit behind the three paragraphs between the two photos specifically —
+// moved from a section-wide absolute position into `.narrative__middle`'s
+// own stacking context, so it centers on that content group by structure
+// rather than a hand-tuned percentage of the whole section's height.
+//
+// sectionIntro: new copy, authored directly with the developer in
+// conversation (not previously in ux.md's Content and Assets) — a short,
+// low-key section kicker, grounded in the Figma reference's own "get to
+// know me." label (Figma node 13:2/20:13, evidence only, not previously
+// transcribed into approved content). Flagged here for the developer to
+// adjust freely; distinct from the six-paragraph Narrative Text component,
+// so it doesn't reintroduce the heading/label component ui.md's Component
+// Anatomy excludes from the narrative text itself.
+import { Image } from 'astro:assets';
+import portraitPhoto from '../../assets/about-narrative/portrait.jpg';
+import landscapePhoto from '../../assets/about-narrative/landscape.jpg';
+
 interface Props {
 	heading: string;
+	sectionIntro: string;
 	paragraphs: string[];
+	photoPortraitAlt: string;
+	photoLandscapeAlt: string;
 }
 
-const { heading, paragraphs } = Astro.props;
+const { heading, sectionIntro, paragraphs, photoPortraitAlt, photoLandscapeAlt } = Astro.props;
+const [paragraph1, paragraph2, paragraph3, paragraph4, paragraph5, paragraph6] = paragraphs;
 ---
 
 <div class="narrative">
 	<h2 class="narrative__heading">{heading}</h2>
 	<div class="narrative__text">
-		{
-			paragraphs.map((paragraph, index) => (
-				<p class:list={['narrative__paragraph', index === 0 && 'narrative__paragraph--opening']}>{paragraph}</p>
-			))
-		}
+		<p class="narrative__kicker">{sectionIntro}</p>
+		<p class="narrative__paragraph narrative__paragraph--opening">{paragraph1}</p>
+		<Image
+			class="narrative__photo narrative__photo--landscape"
+			src={landscapePhoto}
+			alt={photoLandscapeAlt}
+			width={500}
+			loading="lazy"
+		/>
+		<div class="narrative__middle">
+			<img class="narrative__ambient-logo" src="/ornamental-logo.svg" alt="" aria-hidden="true" />
+			<p class="narrative__paragraph">{paragraph2}</p>
+			<p class="narrative__paragraph">{paragraph3}</p>
+			<p class="narrative__paragraph">{paragraph4}</p>
+		</div>
+		<Image
+			class="narrative__photo narrative__photo--portrait"
+			src={portraitPhoto}
+			alt={photoPortraitAlt}
+			width={700}
+			loading="lazy"
+		/>
+		<p class="narrative__paragraph">{paragraph5}</p>
+		<p class="narrative__paragraph">{paragraph6}</p>
 	</div>
 </div>
 
@@ -38,18 +120,28 @@ const { heading, paragraphs } = Astro.props;
 	@use '../../styles/mixins' as mixins;
 
 	.narrative {
-		padding: tokens.$space-lg tokens.$space-md;
+		position: relative;
+		// Rotated photos (below) bleed slightly past their own box — contain
+		// that bleed the same way Hero contains its own mark's bleed, rather
+		// than letting it force horizontal scroll.
+		overflow: clip;
+		// Deliberately taller than the shared $space-lg other section edges
+		// use — Hero fills the full viewport height, so this section's own
+		// top padding is the *only* breathing room between them (developer
+		// visual review: felt cramped straight off Hero's bottom edge).
+		padding-top: tokens.$space-xl;
+		padding-bottom: tokens.$space-lg;
+		padding-inline: tokens.$space-md;
 	}
 
 	// Visually hidden but AT-reachable — the section's own landmark
-	// heading (accessibility Commitment 4, AC2). Feature UI's Component
-	// Anatomy deliberately excludes a visible heading/label component for
-	// the narrative text itself (the opening paragraph carries the
-	// composition's only visual emphasis); exact heading authoring is
-	// this Task's own implementation-level decision
-	// (accessibility/technical-design.md, Commitment 4 AC2/AC4), so this
-	// stays inaudible-to-sighted-visitors rather than introducing new,
-	// unapproved visible copy.
+	// heading (accessibility Commitment 4, AC2), distinct from the
+	// visible kicker below (which is decorative section-intro copy, not
+	// this landmark). Feature UI's Component Anatomy deliberately
+	// excludes a visible heading/label component for the narrative text
+	// itself; exact heading authoring is this Task's own
+	// implementation-level decision (accessibility/technical-design.md,
+	// Commitment 4 AC2/AC4), so this stays inaudible-to-sighted-visitors.
 	.narrative__heading {
 		position: absolute;
 		width: 1px;
@@ -62,15 +154,38 @@ const { heading, paragraphs } = Astro.props;
 		border: 0;
 	}
 
+	// Single centered column on both device classes — one render path
+	// (technical-design.md, Design Decisions), not a left-column/
+	// right-thumbnail split: reads as one composed, centered moment
+	// rather than a document with an illustration parked beside it
+	// (developer visual review). Photos (below) sit in this same flow,
+	// in DOM/reading order, so completeness (Commitment 1) and the
+	// portrait-near-opening / landscape-near-a-later-paragraph
+	// relationship (ui.md) both come from authored order alone, holding
+	// regardless of how far each locale's translated paragraphs reflow.
 	.narrative__text {
+		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: tokens.$space-md;
-		max-width: 40rem;
+		align-items: center;
+		gap: tokens.$space-lg;
+		max-width: 38rem;
+		margin-inline: auto;
+		text-align: center;
 
 		@include mixins.desktop-up {
-			max-width: 44rem;
+			gap: tokens.$space-xl;
 		}
+	}
+
+	.narrative__kicker {
+		margin: 0;
+		font-family: tokens.$font-family-body;
+		font-weight: tokens.$font-weight-label;
+		font-size: tokens.$font-size-caption;
+		letter-spacing: 0.08em;
+		text-transform: lowercase;
+		color: tokens.$color-accent;
 	}
 
 	.narrative__paragraph {
@@ -93,5 +208,94 @@ const { heading, paragraphs } = Astro.props;
 	.narrative__paragraph--opening {
 		font-weight: tokens.$font-weight-display;
 		font-size: calc((#{tokens.$font-size-body} + #{tokens.$font-size-heading}) / 2);
+	}
+
+	// Groups paragraphs 2-4 (the block "between the images") as the
+	// Ornamental Logo's own positioning context (below) — its own gap
+	// reproduces `.narrative__text`'s gap exactly, since wrapping these
+	// three items into one flex child would otherwise collapse the parent
+	// gap that used to sit between each of them individually.
+	.narrative__middle {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: tokens.$space-lg;
+		width: 100%;
+
+		@include mixins.desktop-up {
+			gap: tokens.$space-xl;
+		}
+	}
+
+	// Ornamental Logo — large-scale ambient background instance
+	// (Commitment 5; technical-design.md Responsibilities/Owned Concepts;
+	// ui.md Spacing and Layout — "Rendered as a background layer, behind
+	// all narrative content in stacking order"). Same shared asset
+	// `section-navigation` already references at its own compact nav
+	// scale; only placement/scale/opacity are this component's own
+	// concern. Centered on `.narrative__middle` (developer direction:
+	// behind the three paragraphs between the two photos specifically) —
+	// `position: absolute` with no explicit z-index paints behind that
+	// wrapper's own normal-flow paragraph children by default stacking
+	// order, without needing z-index on either side. aria-hidden and
+	// pointer-events:none since it carries no interactive/focusable
+	// behavior of its own (Commitment 5, AC1) and no positional
+	// relationship to any specific paragraph (ux.md) — ambient atmosphere
+	// behind a content group, not aligned to any one paragraph within it.
+	.narrative__ambient-logo {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: min(60vw, 34rem);
+		height: auto;
+		// Asset's own gradient already fades toward transparent; this
+		// opacity is the "extremely low opacity ambient texture" ui.md
+		// calls for on top of that, so it reads as atmosphere behind the
+		// text rather than a second visible mark.
+		opacity: 0.14;
+		pointer-events: none;
+	}
+
+	// Plain, non-interactive image elements — no carousel/lightbox/toggle
+	// affordance exists to change or enlarge them (Contract Commitment 4),
+	// and no card/border framing (ui.md, Component Anatomy: "no
+	// card/border framing"). Sized large and set at a gentle rotation with
+	// a small horizontal nudge — a deliberately candid, snapshot-tucked-
+	// into-the-page feel (developer direction: "experimental," "playful,"
+	// "part of the content") — rather than a neutral boxed thumbnail. Both
+	// are presented simultaneously since neither is conditionally
+	// rendered.
+	.narrative__photo {
+		display: block;
+		height: auto;
+		object-fit: cover;
+	}
+
+	.narrative__photo--portrait {
+		width: min(75vw, 20rem);
+		aspect-ratio: 3 / 4;
+		transform: rotate(-4deg) translateX(-0.5rem);
+
+		@include mixins.desktop-up {
+			width: 22rem;
+		}
+	}
+
+	// Aspect-ratio matches the real supplied photo (746x1115 ≈ 2/3), not a
+	// generic 4:3 landscape box — see file-top note on why this slot's
+	// actual photo is itself portrait-oriented. Sized narrower than
+	// `--portrait` (its own real aspect ratio is taller per unit width) so
+	// the two photos read as comparable visual weight rather than one
+	// towering over the other.
+	.narrative__photo--landscape {
+		width: min(65vw, 16rem);
+		aspect-ratio: 2 / 3;
+		transform: rotate(3deg) translateX(0.75rem);
+
+		@include mixins.desktop-up {
+			width: 18rem;
+		}
 	}
 </style>

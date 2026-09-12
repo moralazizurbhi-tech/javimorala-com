@@ -40,6 +40,7 @@ const description = introduction?.data.placeholder ?? '';
 	<Fragment slot="personal-narrative">
 		<AboutNarrativeComposition
 			heading={personalNarrative?.data.navLabel ?? ''}
+			sectionIntro={personalNarrative?.data.sectionIntro ?? ''}
 			paragraphs={[
 				personalNarrative?.data.paragraph1 ?? '',
 				personalNarrative?.data.paragraph2 ?? '',
@@ -48,6 +49,8 @@ const description = introduction?.data.placeholder ?? '';
 				personalNarrative?.data.paragraph5 ?? '',
 				personalNarrative?.data.paragraph6 ?? '',
 			]}
+			photoPortraitAlt={personalNarrative?.data.photoPortraitAlt ?? ''}
+			photoLandscapeAlt={personalNarrative?.data.photoLandscapeAlt ?? ''}
 		/>
 	</Fragment>
 </RootLayout>
