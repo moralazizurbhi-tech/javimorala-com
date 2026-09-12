@@ -1,0 +1,97 @@
+---
+// About Narrative Composition (T-013) — about-narrative/technical-design.md.
+// Text content only: narrative paragraphs plus the AI-assisted-development
+// note woven in as the final paragraph (Commitment 2 — the note's
+// subordinate positioning is guaranteed structurally by authored paragraph
+// order, never conditional placement logic). Photo presentation is a
+// separate task (T-014), which extends this same composition rather than
+// this component rendering photos itself.
+//
+// Purely static, no client-side hydration: neither Commitment 2 nor 3
+// needs runtime state. Text is passed in already resolved by the
+// i18n/Routing Layer for the active route's locale — this component never
+// reads the Content Layer or decides the language itself (Commitment 3).
+// Each paragraph is its own element (ux.md, Feature Components) so the
+// separately owned `motion-interaction` Feature has individual pieces to
+// target later; this component defines no motion of its own.
+interface Props {
+	heading: string;
+	paragraphs: string[];
+}
+
+const { heading, paragraphs } = Astro.props;
+---
+
+<div class="narrative">
+	<h2 class="narrative__heading">{heading}</h2>
+	<div class="narrative__text">
+		{
+			paragraphs.map((paragraph, index) => (
+				<p class:list={['narrative__paragraph', index === 0 && 'narrative__paragraph--opening']}>{paragraph}</p>
+			))
+		}
+	</div>
+</div>
+
+<style lang="scss">
+	@use '../../styles/tokens' as tokens;
+	@use '../../styles/mixins' as mixins;
+
+	.narrative {
+		padding: tokens.$space-lg tokens.$space-md;
+	}
+
+	// Visually hidden but AT-reachable — the section's own landmark
+	// heading (accessibility Commitment 4, AC2). Feature UI's Component
+	// Anatomy deliberately excludes a visible heading/label component for
+	// the narrative text itself (the opening paragraph carries the
+	// composition's only visual emphasis); exact heading authoring is
+	// this Task's own implementation-level decision
+	// (accessibility/technical-design.md, Commitment 4 AC2/AC4), so this
+	// stays inaudible-to-sighted-visitors rather than introducing new,
+	// unapproved visible copy.
+	.narrative__heading {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.narrative__text {
+		display: flex;
+		flex-direction: column;
+		gap: tokens.$space-md;
+		max-width: 40rem;
+
+		@include mixins.desktop-up {
+			max-width: 44rem;
+		}
+	}
+
+	.narrative__paragraph {
+		margin: 0;
+		font-family: tokens.$font-family-body;
+		font-weight: tokens.$font-weight-body;
+		font-size: tokens.$font-size-body;
+		line-height: tokens.$line-height-body;
+		color: tokens.$color-base-fg;
+	}
+
+	// Opening line's elevated emphasis (Feature UX/UI: "the composition's
+	// greeting moment") — weight/size only, no colour or family change
+	// (ui.md, Colour Application: "the opening line's emphasis comes from
+	// size/weight alone"). Sized as its own extension midway between the
+	// shared body tier and the heading tier — text-length-appropriate for
+	// a full sentence, not a literal transfer of Hero's two-word headline
+	// size (ui.md, Typography Application); exact ratio is this Task's
+	// own Implementation Detail, since Feature UI names no concrete value.
+	.narrative__paragraph--opening {
+		font-weight: tokens.$font-weight-display;
+		font-size: calc((#{tokens.$font-size-body} + #{tokens.$font-size-heading}) / 2);
+	}
+</style>

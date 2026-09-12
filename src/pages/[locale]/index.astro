@@ -6,6 +6,7 @@
 import { getEntry } from 'astro:content';
 import RootLayout from '../../layouts/RootLayout.astro';
 import HeroComposition from '../../features/hero-presentation/HeroComposition.astro';
+import AboutNarrativeComposition from '../../features/about-narrative/AboutNarrativeComposition.astro';
 import { SUPPORTED_LOCALES, type SupportedLocale } from '../../features/content-localization/localeResolution';
 
 export function getStaticPaths() {
@@ -34,6 +35,19 @@ const description = introduction?.data.placeholder ?? '';
 			headlineSecondaryLine1={introduction?.data.headlineSecondaryLine1 ?? ''}
 			headlineSecondaryLine2={introduction?.data.headlineSecondaryLine2 ?? ''}
 			scrollCue={introduction?.data.scrollCue ?? ''}
+		/>
+	</Fragment>
+	<Fragment slot="personal-narrative">
+		<AboutNarrativeComposition
+			heading={personalNarrative?.data.navLabel ?? ''}
+			paragraphs={[
+				personalNarrative?.data.paragraph1 ?? '',
+				personalNarrative?.data.paragraph2 ?? '',
+				personalNarrative?.data.paragraph3 ?? '',
+				personalNarrative?.data.paragraph4 ?? '',
+				personalNarrative?.data.paragraph5 ?? '',
+				personalNarrative?.data.paragraph6 ?? '',
+			]}
 		/>
 	</Fragment>
 </RootLayout>
