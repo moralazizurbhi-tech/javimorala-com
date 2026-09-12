@@ -3,8 +3,9 @@
 // Self-hosted @font-face declarations (T-002) — fixes a pre-existing gap
 // where the font tokens named a family whose @font-face was never
 // actually imported anywhere, silently falling back to system-ui.
-// Gothic A1: only weight 700 is ever used (heading tier, Hero's own
-// h1) — one static weight, not the whole family. Darker Grotesque:
+// Gothic A1: only weight 700 is ever used (heading/display tier — Hero's
+// h1, Direct Contact's CTA) — one static weight, not the whole family.
+// Darker Grotesque:
 // variable-font build, covering the body/label weights (400/500) from
 // one file.
 @use '@fontsource/gothic-a1/700.css' as gothic-a1-700;

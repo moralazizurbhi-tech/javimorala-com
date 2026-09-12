@@ -1,0 +1,263 @@
+---
+// Direct Contact Composition — CTA & Anti-Scraping Mechanism (T-015);
+// Supporting Content & Decorative Mark (T-016) —
+// direct-contact/technical-design.md.
+//
+// T-015's own scope was the CTA only (Commitments 1, 2, 4). T-016 extends
+// this same file with the section eyebrow, contact heading, farewell
+// lines, and the Ornamental Logo background layer (Commitments 3, 5, 6)
+// — same incremental-composition precedent as about-narrative's
+// T-013/T-014 split.
+//
+// Purely static, no client-side hydration: none of Commitments 1-6 need
+// runtime state — a single, stateless native `<a href="mailto:...">`
+// hand-off (Commitment 1), farewell lines as plain static text
+// (Commitment 5), the Ornamental Logo as a non-interactive background
+// layer (Commitment 6).
+//
+// Anti-scraping (Commitment 2): the `mailto:` href is built at build time
+// (this frontmatter runs on the server, never in the browser) as HTML
+// numeric character references, then injected as pre-formed raw HTML via
+// `<Fragment set:html>` rather than a normal Astro attribute expression —
+// Astro's normal `{href}` interpolation escapes `&`, which would corrupt
+// the character references (each `&#NN;` would arrive as literal
+// `&amp;#NN;` text, never decoded back into the real character, breaking
+// the link). `set:html` bypasses that escaping, so the literal `&#NN;`
+// sequences reach the delivered HTML unescaped, letting the browser's
+// own standard parser decode them — no script required (Technical
+// Design's Anti-Scraping Encoding Mechanism).
+//
+// All visible text (heading, CTA, farewell) is passed in already resolved
+// by the i18n/Routing Layer for the active route's locale — this
+// component never reads the Content Layer or decides the language itself
+// (Commitment 3). The CTA text is still minimally HTML-escaped before
+// being embedded in the raw string, since `set:html` renders it verbatim
+// too — defensive correctness, not because today's confirmed copy
+// actually contains special characters.
+//
+// Target address: `ux.md`'s Content and Assets confirms it as
+// "language-independent" — not locale content, so it isn't threaded
+// through the i18n/Routing Layer's per-locale JSON; hardcoded here as a
+// fixed value, the same way Hero hardcodes its own static asset paths.
+//
+// Heading (developer post-implementation correction, three rounds): the
+// original build had two "let's get in touch" instances — a divider-
+// flanked one at the very top and a plain one tight above the CTA. Round
+// 1 kept the CTA-adjacent one, deleted the top one — reversed by
+// developer correction. Round 2 kept the top, divider-flanked one instead
+// — also reversed. Final: one single heading, positioned tight above the
+// CTA (not at the top of the composition), styled with the small/
+// lowercase/letter-spaced tier the top instance used to carry, but
+// without divider rules — the eyebrow's own typography, the heading's own
+// position, no borders.
+//
+// Ornamental Mark (not the Ornamental Logo): a separate developer post-
+// implementation correction, re-verified against Figma. `ui.md` names
+// this background asset "Ornamental Logo... distinct from Hero's
+// separate Ornamental Mark asset," but the Contact frame's actual
+// background node (22:27 desktop, 22:151 mobile) is named `Metal
+// logogogog 1` — the exact same Figma node name `HeroComposition.astro`'s
+// own existing code comment already identifies as the source of
+// `ornamental-mark.svg`, not the compact `logo smallll...` family
+// (`ornamental-logo.svg`) used correctly elsewhere (nav bar, About
+// Narrative). Geometry: the Figma frame's measured bounding box
+// (1205x1878 desktop, 541x844 mobile) is a ~1.545x uniform scale-up of
+// the source SVG's own 1216x780 viewBox rotated 90° (1216x780 rotated →
+// 780x1216 bounding box; ×1.545 → 1205x1878 — an exact match). Position
+// (starting near the CTA's own vertical position, extending downward)
+// confirmed correct by direct measurement against the CTA's own
+// `getBoundingClientRect()` — the mark's own bounding-box position is
+// derived algebraically from that measurement (see below), not
+// re-guessed visually. Rotation direction corrected a second time
+// (developer direction: needs an additional 180°, i.e. `rotate(90deg)`
+// rather than `rotate(-90deg)`) while preserving that exact same
+// position — since rotating around a fixed `transform-origin` by a
+// different net angle changes which point of the box ends up where, the
+// origin was recomputed to the opposite corner (`bottom left` instead of
+// `top right`) alongside the angle flip, algebraically solved so the
+// visible bounding box's position is unchanged, only the artwork's own
+// orientation differs. `ux.md`/`ui.md` still describe this as the
+// Ornamental Logo in writing — a spec/evidence Contradiction recorded for
+// their owning workflow, not resolved by silently editing those specs
+// here.
+import { encodeCharacterReferences } from './encodeCharacterReferences';
+
+interface Props {
+	headingText: string;
+	ctaText: string;
+	farewellLine1: string;
+	farewellLine2: string;
+}
+
+const { headingText, ctaText, farewellLine1, farewellLine2 } = Astro.props;
+
+const CTA_EMAIL = 'javimorala@outlook.com';
+const mailtoHref = encodeCharacterReferences(`mailto:${CTA_EMAIL}`);
+const escapedCtaText = ctaText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const ctaAnchorHtml = `<a class="contact__cta" href="${mailtoHref}">${escapedCtaText}</a>`;
+---
+
+<div class="contact">
+	<img class="contact__ambient-mark" src="/ornamental-mark.svg" alt="" aria-hidden="true" />
+	<div class="contact__spacer" aria-hidden="true"></div>
+	<div class="contact__body">
+		<h2 class="contact__heading">{headingText}</h2>
+		<Fragment set:html={ctaAnchorHtml} />
+	</div>
+	<div class="contact__spacer" aria-hidden="true"></div>
+	<div class="contact__farewell">
+		<p class="contact__farewell-line contact__farewell-line--primary">{farewellLine1}</p>
+		<p class="contact__farewell-line">{farewellLine2}</p>
+	</div>
+</div>
+
+<style lang="scss">
+	@use '../../styles/tokens' as tokens;
+	@use '../../styles/mixins' as mixins;
+
+	// Fills exactly one viewport's height, not a taller scrolled block
+	// (Commitment 6 sibling requirement, ui.md Spacing and Layout: "the
+	// whole composition fills exactly one viewport's height... the same
+	// size as Hero's own 'Home' frame"). Re-verified directly against the
+	// actual Figma "Contact" frame export (developer correction): the
+	// heading+CTA cluster sits roughly *vertically centered*, with a
+	// generous, roughly equal gap both above it (below the nav) and below
+	// it (before the farewell block) — not pinned to the container's own
+	// top edge. Two empty `.contact__spacer` flex items (`flex: 1` each,
+	// below) absorb the remaining space equally, deriving that symmetric
+	// placement from flexbox's own distribution rather than a guessed
+	// fixed offset.
+	.contact {
+		position: relative;
+		overflow: clip;
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+		height: 100dvh;
+		padding: tokens.$space-lg tokens.$space-md;
+	}
+
+	.contact__spacer {
+		flex: 1;
+	}
+
+	// Ornamental Mark — large-scale ambient background instance
+	// (Commitment 6; technical-design.md Responsibilities/Owned Concepts).
+	// Rotated (developer direction, confirmed against Figma's own
+	// measured geometry — see file-top note) and scaled up. `top`/`right`
+	// target the rotated bounding box's own top-left corner algebraically
+	// (solved geometry, not re-derived by eye each round). `width` is the
+	// *pre-rotation* box (becomes the post-rotation visual height, since a
+	// 90° turn swaps the two) — sized in `vh` so the rotated result scales
+	// with viewport height. No z-index/isolation needed: `position:
+	// absolute` with no explicit z-index paints behind this container's
+	// own normal-flow children by default stacking order.
+	//
+	// Mobile: sized/positioned (developer direction) to span nearly the
+	// full viewport height with modest top/bottom breathing margins,
+	// horizontally centered on the viewport's own right edge so roughly
+	// half its width bleeds off-screen — solved the same algebraic way as
+	// the CTA-anchored desktop position, just against different target
+	// margins/center point (viewport edges, not the CTA).
+	//
+	// Desktop: kept anchored near the CTA (as before), nudged up by a
+	// flat ~100px (developer direction: "100px more or less upwards") via
+	// `calc()` on top of the existing percentage offset, rather than
+	// re-deriving the percentage itself — a fixed pixel nudge is what was
+	// actually asked for, not a proportionally-different position.
+	.contact__ambient-mark {
+		position: absolute;
+		top: -48.5%;
+		right: -125%;
+		width: 85vh;
+		height: auto;
+		transform: rotate(90deg);
+		transform-origin: bottom left;
+		opacity: 0.14;
+		pointer-events: none;
+
+		@include mixins.desktop-up {
+			width: 122vh;
+			top: calc(-32% - 100px);
+			right: -4%;
+		}
+	}
+
+	.contact__body {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: tokens.$space-xs;
+	}
+
+	// Tight above the CTA (ui.md: "headline-plus-label pairing") —
+	// developer post-implementation correction (see file-top note): the
+	// small/lowercase/letter-spaced tier the top-positioned instance used
+	// to carry, now applied here instead, without the divider rules. Same
+	// tier as about-narrative's own section kicker (ui.md: "exact match to
+	// About Narrative's 'get to know me.' eyebrow tier") — reuses that
+	// size/weight/letter-spacing/lowercase treatment, but off-white rather
+	// than accent-tinted (ui.md, Colour Application: "the project's soft
+	// off-white foreground, no accent gradient"). Doubles as the section's
+	// own accessible heading (accessibility Commitment 4 AC2).
+	.contact__heading {
+		margin: 0;
+		font-family: tokens.$font-family-body;
+		font-weight: tokens.$font-weight-label;
+		font-size: tokens.$font-size-caption;
+		letter-spacing: 0.08em;
+		text-transform: lowercase;
+		color: tokens.$color-base-fg;
+	}
+
+	// Realized as the oversized display-type text itself acting as the
+	// link — no button chrome, border, or pill shape (ui.md, Component
+	// Anatomy: "consistent with the site's chrome-free, typography-driven
+	// aesthetic"). Desktop measured height (185) is an exact match to
+	// Hero's own dominant headline tier, so this reuses that same token
+	// rather than a new one (ui.md, Typography Application) — the concrete
+	// realization of Commitment 4's functional precedence "through scale
+	// rather than position alone." No hardcoded line-break: Figma's
+	// observed mobile "Send Me An" / "E-Mail" split is English-specific
+	// evidence, not a per-locale-safe requirement, so this wraps naturally
+	// at the container width instead (Implementation Detail).
+	:global(.contact__cta) {
+		display: inline-block;
+		font-family: tokens.$font-family-heading;
+		font-weight: tokens.$font-weight-display;
+		font-size: tokens.$font-size-display;
+		line-height: 1;
+		letter-spacing: tokens.$letter-spacing-heading;
+		color: tokens.$color-base-fg;
+		text-transform: capitalize;
+	}
+
+	// Static, non-interactive text (Commitment 5) — no handlers, no
+	// state; nothing here to make interactive in the first place.
+	.contact__farewell {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		gap: tokens.$space-xs;
+	}
+
+	// Both lines measured at the same size (28, Hero's own compact
+	// scroll-cue/presence-links tier — ui.md: "exact match") —
+	// "bold-lead/regular-follow pairing" distinguishes them by weight
+	// alone, mapped onto this project's existing weight tokens rather
+	// than inventing a new one.
+	.contact__farewell-line {
+		margin: 0;
+		font-family: tokens.$font-family-body;
+		font-weight: tokens.$font-weight-body;
+		font-size: tokens.$font-size-caption;
+		color: tokens.$color-base-fg;
+	}
+
+	.contact__farewell-line--primary {
+		font-weight: tokens.$font-weight-display;
+	}
+</style>

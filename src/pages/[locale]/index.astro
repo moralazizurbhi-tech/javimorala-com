@@ -7,6 +7,7 @@ import { getEntry } from 'astro:content';
 import RootLayout from '../../layouts/RootLayout.astro';
 import HeroComposition from '../../features/hero-presentation/HeroComposition.astro';
 import AboutNarrativeComposition from '../../features/about-narrative/AboutNarrativeComposition.astro';
+import DirectContactComposition from '../../features/direct-contact/DirectContactComposition.astro';
 import { SUPPORTED_LOCALES, type SupportedLocale } from '../../features/content-localization/localeResolution';
 
 export function getStaticPaths() {
@@ -51,6 +52,14 @@ const description = introduction?.data.placeholder ?? '';
 			]}
 			photoPortraitAlt={personalNarrative?.data.photoPortraitAlt ?? ''}
 			photoLandscapeAlt={personalNarrative?.data.photoLandscapeAlt ?? ''}
+		/>
+	</Fragment>
+	<Fragment slot="connection">
+		<DirectContactComposition
+			headingText={connection?.data.headingText ?? ''}
+			ctaText={connection?.data.ctaText ?? ''}
+			farewellLine1={connection?.data.farewellLine1 ?? ''}
+			farewellLine2={connection?.data.farewellLine2 ?? ''}
 		/>
 	</Fragment>
 </RootLayout>

@@ -1,5 +1,23 @@
 {
-  "en": { "placeholder": "TODO", "navLabel": "contact" },
-  "es": { "placeholder": "TODO", "navLabel": "contacto" },
-  "eu": { "placeholder": "TODO", "navLabel": "harremanetan" }
+  "en": {
+    "navLabel": "contact",
+    "headingText": "let's get in touch",
+    "ctaText": "send me an e-mail",
+    "farewellLine1": "thanks for your visit!",
+    "farewellLine2": "you can follow my socials too"
+  },
+  "es": {
+    "navLabel": "contacto",
+    "headingText": "pongámonos en contacto",
+    "ctaText": "envíame un correo",
+    "farewellLine1": "¡gracias por tu visita!",
+    "farewellLine2": "también puedes seguirme en mis redes"
+  },
+  "eu": {
+    "navLabel": "harremanetan",
+    "headingText": "jar gaitezen harremanetan",
+    "ctaText": "bidali e-posta bat",
+    "farewellLine1": "eskerrik asko bisitagatik!",
+    "farewellLine2": "nire sare sozialetan ere jarrai nazakezu"
+  }
 }
