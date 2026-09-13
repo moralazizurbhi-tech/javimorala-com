@@ -2,6 +2,51 @@
 
 ## Progress Summary
 
+**Direct Contact (T-015, T-016) is complete and committed to `main`**
+(`ba9149d`) — built the CTA (mailto with HTML numeric-reference
+anti-scraping encoding), the section heading, farewell lines, and the
+Ornamental Mark background layer, plus DOM-order precedence over the
+(then-future) Presence Links slot. Went through developer-directed
+post-implementation correction: the background asset was wrong (should
+be the Ornamental Mark, not the Ornamental Logo), the heading was
+duplicated, and the CTA cluster needed vertical centering.
+
+**Presence Links (T-017, T-018) is implemented this session but not yet
+committed** — currently uncommitted changes on `main`. T-017 built the
+shared, reusable link component; T-018 composed it into both the
+Introduction (alongside Hero) and Connection (alongside Direct Contact)
+placements. This closes **hero-presentation's Commitment 5**, the last
+open item on that Feature.
+
+**Two rounds of post-implementation correction, both from the
+developer's direct review of the running result, applied this session:**
+
+1. A regression introduced and then fixed within this same session: the
+   first placement approach resized Direct Contact's own container to
+   make room for Presence Links, which corrupted the Ornamental Mark's
+   positioning (percentage values resolving against a now-different box
+   height) — observed by the developer as the mark being "cut."
+   Root-caused and fixed by reverting that container to its original,
+   untouched sizing and instead giving Direct Contact a **named slot**
+   for Presence Links (a layout reservation, not content ownership — the
+   same pattern Root Layout already uses for every Domain Section).
+2. Two content/design corrections directly from the developer: the
+   gradient text-fill on the links was illegible — replaced with plain
+   off-white text (hover/focus effects deferred to `motion-interaction`,
+   per developer note); and the placeholder Instagram/LinkedIn URLs were
+   replaced with the real ones supplied.
+
+**Known documentation drift, not resolved here**: `presence-links/ui.md`'s
+Colour Application section still describes a gradient in writing, and
+`direct-contact/ux.md`/`ui.md` still name the background asset
+"Ornamental Logo" when the actual Figma-matched asset is Hero's own
+"Ornamental Mark." Both are Feature artifacts outside the implementation
+Skills' own access — flagged for Planning to reconcile.
+
+*Everything below this point that describes Phase 0–3 and the prior
+Mark/Logo refinement session is preserved unchanged from the prior
+report for continuity; only the paragraphs above are new this round.*
+
 **Phase 3 (About Narrative, T-013–T-014) is now complete and merged into
 `main`.** T-013 (narrative text + AI-assisted-development note) and T-014
 (photo presentation) were both executed this session, then substantially
@@ -95,15 +140,39 @@ using a ≥500px proxy width for automated checks from that point on.
 | --- | --- | --- |
 | content-localization | Yes (T-006, T-007 done; T-029 real-content exercise still pending) | Provisional — unchanged; full real-content coverage still deferred to later Features' own phases |
 | language-override | Yes (T-005, T-008 done) | Realized and merged — unchanged. Still carries the pre-existing Implementation Placeholder (`"EN"`/`"ES"`/`"EU"` labels) |
-| hero-presentation | Partial — T-009, T-010 done (Commitments 1–4); Commitment 5 (Presence Links inclusion) still owned by T-018/Phase 5, not started | Provisional — unchanged. Spanish/Euskera copy remains AI-drafted, still pending native-speaker review |
+| hero-presentation | Yes — T-009, T-010, and now T-018 (Commitment 5) all done, all 5 Commitments realized | Provisional — Commitment 5's own mechanism is now Realized (Presence Links correctly included/subordinate/omittable); Feature-level status stays Provisional only because Spanish/Euskera copy remains AI-drafted, still pending native-speaker review (unchanged, pre-existing) |
 | section-navigation | Task Catalog's T-011 entry predates Commitment 8 and still lists only Commitments 1–5 | Realized — unchanged. **Known inconsistency carried forward:** the Task Catalog's own T-011 entry was written before Commitment 8 existed |
 | **about-narrative** | **Yes — T-013, T-014 done.** Contract Commitment 5 (Ornamental Logo decorative presence) is also realized in code, though it isn't listed under either task's `realizesCommitments` in the Task Catalog (see Known Issues) | **Provisional.** Real narrative text (en/es/eu) and real developer-supplied photos now render — no longer placeholders. Provisional because: (1) `ux.md` itself flags the Euskera narrative as a "lower-confidence draft" pending native-speaker review (pre-existing, not introduced this session); (2) the two supplied photos are both portrait-oriented, not literally satisfying `ux.md`'s "contrasting orientations" content note; (3) the section kicker ("get to know me.") is new copy authored directly in conversation, not yet reconciled into `ux.md`'s own Content and Assets |
-| direct-contact | Pending (no task started) | — |
-| presence-links | Pending (no task started) | — |
+| direct-contact | Yes — T-015, T-016 done (Commitments 1–6 all realized) | Realized. Known issue carried in code comments: `ux.md`/`ui.md` name the background asset "Ornamental Logo" but the actual asset used is Hero's own "Ornamental Mark" — a spec/evidence naming contradiction, not resolved here |
+| presence-links | Yes — T-017, T-018 done (Commitments 1–4 all realized) | Realized, after this session's two corrections (colour, URLs — see Progress Summary). Known issue: `ui.md`'s Colour Application text still describes a gradient, no longer matching the plain-text implementation |
 | motion-interaction | Pending (no task started) | — |
 | accessibility | Pending (no task started) | — |
 
 ## Completed Work
+
+- **T-015 — Direct Contact: CTA & Anti-Scraping Mechanism** (`ba9149d`).
+  Mailto CTA with HTML numeric character-reference encoding
+  (`encodeCharacterReferences.ts` + test), injected via `set:html` to
+  bypass Astro's own `&`-escaping; DOM-order precedence established over
+  the future Presence Links slot.
+- **T-016 — Direct Contact: Supporting Content & Decorative Mark**
+  (`ba9149d`, same commit). Section heading, farewell lines, and the
+  Ornamental Mark background layer (corrected from an initially-wrong
+  Ornamental Logo asset, against direct Figma re-verification).
+- **T-017 — Presence Link Group Component** (this session, uncommitted).
+  `PresenceLinkGroup.astro` + `presenceLinks.data.ts`: static, reusable,
+  single shared link-data definition, `target="_blank" rel="noopener
+  noreferrer"` anchors, no hydration.
+- **T-018 — Presence Links Placement & Hero Integration** (this session,
+  uncommitted). Composed into the Introduction Domain Section
+  (bottom-left overlay, desktop/tablet only, sibling of Hero) and the
+  Connection Domain Section (via a named slot inside
+  `DirectContactComposition.astro`, right after the farewell lines).
+- **Post-implementation corrections** (this session, uncommitted):
+  Ornamental Mark regression root-caused and fixed (reverted `.contact`'s
+  sizing, moved Presence Links to a slot instead of an external sibling);
+  gradient replaced with plain off-white text; placeholder URLs replaced
+  with the real ones supplied.
 
 *T-001–T-012 unchanged from the prior report's own account of that work —
 preserved below for continuity.*
@@ -218,8 +287,24 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Pending Work
 
-- T-015–T-032 (18 tasks) — unchanged, not started.
-- `hero-presentation`'s Commitment 5 — unchanged, owned by T-018/Phase 5.
+- T-019–T-032 (14 tasks) — unchanged, not started.
+- **New**: `presence-links/ui.md`'s Colour Application section needs
+  revising to match the plain-text implementation (owned by Planning, if
+  reconciliation is wanted).
+- **New**: `direct-contact/ux.md`/`ui.md`'s "Ornamental Logo" naming needs
+  reconciling against the actual "Ornamental Mark" asset used (owned by
+  Planning, if reconciliation is wanted).
+- **New**: this session's T-017/T-018 work (plus corrections) is
+  **uncommitted** on `main` — committing is a developer decision, not
+  done automatically by any Skill.
+- **New, low-severity, pre-existing (not introduced or worsened this
+  session)**: when Direct Contact is reached via the nav's "contact"
+  anchor-link, `scroll-margin-top` plus the section's exact-100vh sizing
+  means the last ~10px of whatever sits at the very bottom (now Presence
+  Links, previously the farewell line's own tail) lands just past the
+  viewport fold. Not addressed — fixing it would trade away Direct
+  Contact's explicit "exactly one viewport" sizing during normal scroll,
+  a decision outside this session's scope.
 - T-011's Active Screen Indicator visual anatomy — unchanged, still gates
   `motion-interaction`'s T-021/T-022.
 - Native-speaker review of AI-drafted Spanish/Euskera copy — unchanged
@@ -244,7 +329,29 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Generated Artifacts
 
-*(new/changed since the prior report's own snapshot, `ab18d36`)*
+*(new/changed since the prior report's own snapshot, `ba5040b`)*
+
+- **Feature module (T-015/T-016)**: `src/features/direct-contact/
+  DirectContactComposition.astro` (new at `ba9149d`; modified again this
+  session for the Presence Links slot), `encodeCharacterReferences.ts` +
+  `.test.ts` (new, `ba9149d`)
+- **Content (T-015/T-016)**: `src/content/connection.json` — real
+  CTA/heading/farewell copy, en/es/eu
+- **Feature module (T-017)**: `src/features/presence-links/
+  PresenceLinkGroup.astro`, `presenceLinks.data.ts` (new, uncommitted)
+- **Pages/Layout (T-015/T-016, T-018)**: `src/pages/[locale]/index.astro`
+  — wires `DirectContactComposition` (T-015/T-016, committed) and now
+  passes `PresenceLinkGroup` into its `presence-links` slot (T-018,
+  uncommitted); `src/layouts/RootLayout.astro` — composes Presence
+  Links' Introduction placement (uncommitted)
+- **Styles**: `src/styles/global.scss` — minor font-related adjustment
+  (`ba9149d`)
+- **Tests**: `encodeCharacterReferences.test.ts` — 3 new tests;
+  project's own `src/`-scoped suite now 44/44 (8 files), up from 41/41 in
+  the prior report
+
+*(prior sessions, unchanged, new/changed since the report before that,
+`ab18d36`)*
 
 - **Feature module**: `src/features/about-narrative/
   AboutNarrativeComposition.astro` (new)
@@ -264,7 +371,34 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Implementation Decisions
 
-*(new this session; full rationale in each commit's own message)*
+*(new this session)*
+
+- Presence Links composed via a named Astro `<slot>` inside
+  `DirectContactComposition.astro`, rather than as an external sibling at
+  the Domain-Section level — resolves the ornamental-mark regression
+  while keeping content ownership exactly where Technical Design puts it
+  (Direct Contact reserves layout position only, never decides Presence
+  Links' content).
+- Plain off-white text colour for Presence Links, overriding `ui.md`'s
+  own gradient specification, per explicit, twice-confirmed developer
+  direction — implemented in code; the spec document itself intentionally
+  left unedited (outside this Skill's access).
+- Real destination URLs applied as supplied, without alteration
+  (including the LinkedIn URL's non-ASCII character), rather than
+  silently "correcting" them.
+
+*(T-015/T-016, from `ba9149d`'s own commit message)*
+
+- Ornamental Mark asset corrected from an initially-wrong Ornamental
+  Logo reference, against direct Figma re-verification (same shared
+  asset Hero's own code comment already identifies).
+- Single heading (not a duplicated eyebrow+heading pair) positioned
+  tight above the CTA, per developer correction.
+- Heading+CTA cluster vertically centered via two equal flex spacers,
+  rather than pinned to the container's top edge.
+
+*(About Narrative session, T-013/T-014; full rationale in each commit's
+own message)*
 
 - Ornamental Logo positioned specifically behind the three paragraphs
   between the two photos (not a section-wide placement) per direct
@@ -284,7 +418,7 @@ unchanged from the prior report — preserved for continuity:**
   own code comments so the divergence from `ui.md`'s literal text is
   traceable.
 
-*(prior session, unchanged from the prior report)*
+*(Mark/Logo refinement session, unchanged from the prior report)*
 
 - Mark gradient corrected to Figma's literal lilac-dominant values,
   matching `7b324fe`'s own project-ux.md correction — no longer a
@@ -314,21 +448,40 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Known Issues
 
-- **Task Catalog inconsistency (new)**: about-narrative Commitment 5
-  (Ornamental Logo) is realized in code but not listed under T-013's or
-  T-014's `realizesCommitments`. Same pattern as the pre-existing
-  T-011/Commitment 8 issue below. Owning artifact:
-  `specs/task-catalog.md` (Planning Workflow) — not modified here.
-- **Spec/content gap (new)**: the section kicker copy and the photo-order
-  swap aren't reflected in `about-narrative/ux.md`/`ui.md`. Owning
-  artifact: those Feature UX/UI specs, if reconciliation is wanted.
-- **Content observation (new)**: both supplied real photos are
-  portrait-oriented; `ux.md`'s "contrasting orientations" note isn't
-  literally satisfied. Not a defect in the implementation — a fact about
-  the actual assets supplied.
-- **Resolved since prior report**: the "16 commits unmerged" issue is
-  closed (branch `worktree-hero-nav-mark-logo-refinement` confirmed
-  merged into `main`).
+- **New — spec/implementation mismatch**: `presence-links/ui.md`'s
+  Colour Application section still specifies a lilac-to-purple gradient
+  text-fill; the implementation now uses plain off-white text, per
+  explicit developer direction. Owning artifact: `presence-links/ui.md`
+  (Planning Workflow) — not modified here.
+- **New — spec/evidence naming contradiction** (recorded in
+  `DirectContactComposition.astro`'s own code comment at T-015/T-016,
+  surfaced here for the first time in this report): `direct-contact/
+  ux.md` and `ui.md` both name the background asset "Ornamental Logo,"
+  but the actual Figma-matched asset is Hero's own "Ornamental Mark"
+  SVG. Owning artifact: `direct-contact/ux.md`, `ui.md`.
+- **New — uncommitted work**: T-017/T-018 and this session's corrections
+  exist only as working-tree changes on `main`; not yet committed.
+- **New — pre-existing, low-severity, not worsened this session**: the
+  `scroll-margin-top`/one-viewport-height interaction described under
+  Pending Work.
+- **About Narrative session — Task Catalog inconsistency**:
+  about-narrative Commitment 5 (Ornamental Logo) is realized in code but
+  not listed under T-013's or T-014's `realizesCommitments`. Same
+  pattern as the pre-existing T-011/Commitment 8 issue below. Owning
+  artifact: `specs/task-catalog.md` (Planning Workflow) — not modified
+  here.
+- **About Narrative session — spec/content gap**: the section kicker
+  copy and the photo-order swap aren't reflected in `about-narrative/
+  ux.md`/`ui.md`. Owning artifact: those Feature UX/UI specs, if
+  reconciliation is wanted.
+- **About Narrative session — content observation**: both supplied real
+  photos are portrait-oriented; `ux.md`'s "contrasting orientations"
+  note isn't literally satisfied. Not a defect in the implementation —
+  a fact about the actual assets supplied.
+- **Resolved as of the About Narrative session**: the "16 commits
+  unmerged" issue is closed (branch
+  `worktree-hero-nav-mark-logo-refinement` confirmed merged into
+  `main`).
 - **Task Catalog inconsistency (carried forward):** T-011's
   `realizesCommitments` predates Commitment 8 and doesn't list it;
   T-009/T-010's entries don't reference the mark-visibility-sentinel
@@ -349,6 +502,27 @@ unchanged from the prior report — preserved for continuity:**
   earlier reports remain unreconciled (not re-investigated here).
 
 ## Execution Evidence
+
+- `npm run build` (astro build) — clean, both before and after this
+  session's post-implementation corrections.
+- `npx vitest run --dir src` — **44/44 passing (8 test files)**, scoped
+  correctly to `src/` (excludes stale `.claude/worktrees/*` copies,
+  which carry 20 unrelated pre-existing failures unaffected by this
+  session's work). Up from 41/41 in the prior report (+3 from
+  `encodeCharacterReferences.test.ts`, T-015).
+- Headless-Chrome verification (CDP-driven directly against a launched
+  Chrome instance, since the Claude-in-Chrome extension bridge wasn't
+  connected in this environment) at desktop (1600×900) and mobile
+  (390×844): confirmed DOM order (CTA/Hero before Presence Links),
+  Introduction placement (bottom-left, desktop-only), Connection
+  placement (inside Direct Contact's own slot, after farewell),
+  plain-text colour (`rgb(235,234,236)`, no `background-image`), and
+  the Ornamental Mark rendering as a full, undistorted shape after the
+  fix.
+- `git log` / `git show ba9149d` — confirmed T-015/T-016's commit
+  content and message.
+
+*(About Narrative session, unchanged from the prior report)*
 
 - `npx vitest run` — 41/41 passing (7 test files), current HEAD
   (`a0acd24`) — unchanged count from the prior report, confirmed still
@@ -401,4 +575,4 @@ unchanged from the prior report — preserved for continuity:**
 
 ---
 
-*Created: 2026-09-09. Refined: 2026-09-11, 2026-09-12.*
+*Created: 2026-09-09. Refined: 2026-09-11, 2026-09-12, 2026-09-13.*

@@ -1,0 +1,85 @@
+---
+// Presence Link Group Composition (T-017) — presence-links/technical-design.md.
+//
+// Purely static, no client-side hydration, no React island, no Framer
+// Motion (Technical Design, Design Decisions) — none of Commitments 1-3
+// need runtime state. Each link is a native anchor using a `target`
+// attribute for "opens in a new browsing context" (Commitment 1 AC3),
+// never a script-driven `window.open`. `rel="noopener noreferrer"`
+// accompanies `target="_blank"` as standard practice for a cross-origin
+// new-tab hand-off (prevents the opened page from reaching back via
+// `window.opener`) — not a Commitment of its own, just correct anchor
+// hygiene for the mechanism Commitment 1 AC3 already requires.
+//
+// Renders from PRESENCE_LINKS, the single shared link-data definition
+// (Commitment 2) — both future instantiations (Introduction, Connection;
+// composed in at T-018) import and render this same component/module,
+// never an independently authored per-placement list, so identical
+// set/order holds by construction rather than by convention.
+//
+// No props: link labels are confirmed language-independent (ux.md,
+// Content and Assets), so there is nothing here for the i18n/Routing
+// Layer to resolve into (Commitment 3, satisfied by construction —
+// technical-design.md's own Contract Traceability).
+//
+// Unplaced, per this task's own objective — no positioning/placement
+// styling here (no bottom-left offset, no Connection-cluster spacing);
+// each host Feature's own composition (T-018) is responsible for where
+// this group sits within its layout. Only the group's own internal
+// anatomy (horizontal, gapped, plain-text links) is this component's
+// concern.
+import { PRESENCE_LINKS } from './presenceLinks.data';
+---
+
+<ul class="presence-links">
+	{
+		PRESENCE_LINKS.map((link) => (
+			<li class="presence-links__item">
+				<a class="presence-links__link" href={link.href} target="_blank" rel="noopener noreferrer">
+					{link.label}
+				</a>
+			</li>
+		))
+	}
+</ul>
+
+<style lang="scss">
+	@use '../../styles/tokens' as tokens;
+
+	.presence-links {
+		display: flex;
+		align-items: center;
+		gap: tokens.$space-sm;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.presence-links__item {
+		margin: 0;
+	}
+
+	// Plain inline text link, no icon, no button chrome/border/pill shape
+	// (ui.md, Component Anatomy) — the compact caption tier shared with
+	// Hero's scroll cue and Direct Contact's farewell lines (ui.md,
+	// Typography Application: "a consistently measured tier across three
+	// Features, not just a qualitative match").
+	//
+	// Plain off-white text (developer post-implementation correction,
+	// overriding ui.md's own "static lilac-to-purple gradient text fill"
+	// — the darker end of that gradient read as illegible in the actual
+	// rendered result). `ui.md`'s Colour Application section still
+	// describes the gradient in writing — a known spec/implementation
+	// mismatch flagged for that artifact's own reconciliation, not
+	// resolved here. No hover/focus/active treatment here either —
+	// `motion-interaction`'s Secondary Interaction Feedback Styles (T-024)
+	// owns that.
+	.presence-links__link {
+		display: inline-block;
+		font-family: tokens.$font-family-body;
+		font-weight: tokens.$font-weight-label;
+		font-size: tokens.$font-size-caption;
+		text-decoration: none;
+		color: tokens.$color-base-fg;
+	}
+</style>

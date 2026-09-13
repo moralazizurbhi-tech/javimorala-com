@@ -109,6 +109,9 @@ const ctaAnchorHtml = `<a class="contact__cta" href="${mailtoHref}">${escapedCta
 		<p class="contact__farewell-line contact__farewell-line--primary">{farewellLine1}</p>
 		<p class="contact__farewell-line">{farewellLine2}</p>
 	</div>
+	<div class="contact__presence-links">
+		<slot name="presence-links" />
+	</div>
 </div>
 
 <style lang="scss">
@@ -259,5 +262,26 @@ const ctaAnchorHtml = `<a class="contact__cta" href="${mailtoHref}">${escapedCta
 
 	.contact__farewell-line--primary {
 		font-weight: tokens.$font-weight-display;
+	}
+
+	// Presence Links' Connection placement (T-018; developer
+	// post-implementation correction) — a named slot, not owned/rendered
+	// content: this component reserves layout position only, exactly the
+	// same non-ownership pattern Root Layout already uses for every
+	// Domain Section's own slot; the actual content (presence-links'
+	// component) is supplied by the page composing this component, never
+	// decided here (direct-contact/technical-design.md: "never owns or
+	// renders its content" — a slot doesn't know or care what fills it).
+	// A normal flex child, after the farewell block — both of `.contact`'s
+	// own `flex: 1` spacers above absorb the space this now takes,
+	// keeping `.contact` itself at its original, unchanged one-viewport
+	// height (so the Ornamental Mark's own percentage-based geometry,
+	// resolved against that same box, is unaffected — developer
+	// verification finding, reverting an earlier attempt that instead
+	// resized `.contact` itself and visibly cut the mark).
+	.contact__presence-links {
+		position: relative;
+		z-index: 1;
+		margin-top: tokens.$space-xs;
 	}
 </style>

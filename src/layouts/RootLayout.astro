@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import SectionNav from '../features/section-navigation/SectionNav';
+import PresenceLinkGroup from '../features/presence-links/PresenceLinkGroup.astro';
 import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
@@ -23,8 +24,19 @@ const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = A
 		navLabelContact={navLabelContact}
 	/>
 	<main>
-		<section id="introduction">
+		<section id="introduction" class="introduction">
 			<slot name="introduction" />
+			<!--
+				Presence Links' Introduction placement (T-018; presence-links
+				Commitment 4 AC1; hero-presentation Commitment 5) — composed here,
+				at the Introduction Domain Section level, as a sibling of Hero
+				Composition, never inside it (Hero's own Commitment 5 AC5: this
+				Feature doesn't decide Presence Links' content). Single shared
+				component (T-017), instantiated identically at both placements.
+			-->
+			<div class="introduction__presence-links">
+				<PresenceLinkGroup />
+			</div>
 		</section>
 		<section id="personal-narrative">
 			<slot name="personal-narrative" />
@@ -63,6 +75,33 @@ const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = A
 
 		@include mixins.desktop-up {
 			scroll-margin-top: 4.5rem;
+		}
+	}
+
+	// Introduction Domain Section — position: relative anchor for Presence
+	// Links' absolutely-positioned corner placement below (T-018). Hero
+	// Composition itself (this section's other child) already establishes
+	// the section's own 100vh/100dvh height; nothing here changes that.
+	.introduction {
+		position: relative;
+	}
+
+	// Bottom-left corner, mirroring Hero's own scroll cue's bottom-right
+	// placement (hero-presentation/ui.md, Spacing and Layout: "an
+	// intentional bottom-row symmetry, each equally distant from its
+	// respective corner") — same inset values as Hero's own padding
+	// (space-lg vertical, space-md horizontal), since this box coincides
+	// with Hero's own padded box. Desktop/tablet only: no mobile
+	// realization exists for this placement (hero-presentation Commitment
+	// 5 AC2; presence-links/ui.md, Mobile — Introduction placement).
+	.introduction__presence-links {
+		display: none;
+
+		@include mixins.desktop-up {
+			display: block;
+			position: absolute;
+			left: tokens.$space-md;
+			bottom: tokens.$space-lg;
 		}
 	}
 </style>
