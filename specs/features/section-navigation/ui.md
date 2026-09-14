@@ -57,13 +57,20 @@ motion/transition treatment (`motion-interaction`).
   scrolls past, the segments extend into one continuous line (Commitment
   8 AC3), even though this Feature doesn't own or render that mark, only
   its own line's response to it.
-- On About and Contact, the compact logomark icon is centered in the
-  gap, vertically aligned with the wordmark and links; its frame
-  measures 117x216 — exactly as tall as the entire nav row — spanning
-  the row's full height rather than sitting as a small inline icon at
-  text baseline. The icon itself is a symmetric, spiked, hourglass-
-  shaped mini-mark with crown-like tendrils at both top and bottom
-  (observed in Figma "logo smallll") — not a plain geometric shape. On
+- On About and Contact, the compact logomark icon is centered
+  horizontally in the gap; its frame is 158x292 (35% larger than the
+  previously-specified 117x216, uniform scaling to preserve the mark's
+  proportions — a Feature-specific extension beyond the Figma
+  reference, which only shows the original size). It no longer fits
+  exactly within the row's height — it now overflows above the row by
+  roughly 76 units, with a small top-margin clearance reserved above
+  its new top edge (comparable to the row's own existing vertical
+  padding) so it doesn't crowd the frame's top edge. Its bottom edge
+  stays anchored near the row, unchanged from before — the growth
+  extends upward, not downward. The icon itself is a symmetric, spiked,
+  hourglass-shaped mini-mark with crown-like tendrils at both top and
+  bottom (observed in Figma "logo smallll") — not a plain geometric
+  shape. On
   Introduction, no icon of this Feature's own renders in the gap;
   whatever fills it is entirely Hero's own mark, outside this Feature's
   rendering.
