@@ -10,7 +10,9 @@ interaction states") and Visual Foundations' "Shared interaction-state
 conventions," for the moments Feature Solution/Contract define: Hero's
 first-load entrance, About Narrative's progressive reveal, Section
 Navigation's identity transition, merged indicator, and divider segment
-transition, Direct Contact's CTA feedback, nav link/Presence Link/Language Switcher hover-focus
+transition, Hero's scroll-linked exit and mark transformation, About
+Narrative's photo tilt, Direct Contact's CTA feedback and discoverability
+motion, nav link/Presence Link/Language Switcher hover-focus
 feedback, the Language Switcher's dropdown open/close transition, and
 touch-equivalent feedback. Excludes each Feature's own content/structure,
 focus-state existence (owned by `accessibility`), and the concrete
@@ -47,6 +49,27 @@ no functional pass/fail condition.
   foreground content elements (headline, scroll cue). Pauses and stays
   static whenever the visitor's reduced-motion preference is active.
 
+### Hero scroll-linked exit and mark transformation
+
+Specializes Hero Presentation's "Hero arrival" flow's inverse — the
+visitor's transition away from the Hero.
+
+- Visitor scrolls down from the Hero → headline, scroll cue, and
+  Presence Links (when composed) fade out continuously with scroll
+  position (~0–35% of the Hero's height) → overlapping before that fade
+  completes (~25–70%), the mark itself begins transforming: desktop,
+  morphing continuously into the nav's compact logo position/form;
+  mobile, dissolving via a reverse trace of its own entrance stroke —
+  one continuous transition, not two coincidentally-timed events
+  (Contract Commitments 11, 12).
+- By ~70–100%, the mark has settled into its final nav-anchored form,
+  coinciding with Nav Identity Transition's post-Hero presentation.
+- Visitor scrolls back up at any point → both the fade and the
+  transformation reverse along the same relationship to scroll
+  position — fully bidirectional.
+- Tablet: unresolved — depends on Section Navigation's own
+  nav-composition decision (Context Problem 12), not decided here.
+
 ### About Narrative progressive reveal
 
 Specializes About Narrative's "Learn about Javi" flow.
@@ -59,6 +82,20 @@ Specializes About Narrative's "Learn about Javi" flow.
   visible (Contract Commitment 1).
 - Visitor arrives at Personal Narrative directly via nav → the complete
   narrative (all paragraphs, both photos) is visible immediately.
+
+### About Narrative photo tilt
+
+Specializes About Narrative's "Learn about Javi" flow with an ambient,
+exploratory elaboration — not itself required to register a discrete
+pass/fail interaction the way hover feedback does, though Contract
+Commitment 13 does define its observable bounds.
+
+- Desktop visitor moves the cursor across a revealed photo → the photo
+  tilts to follow cursor position, up to 4°, additive to whatever static
+  base rotation the photo already carries (currently undefined in About
+  Narrative's own UI) → cursor leaves → eases back to rest.
+- Mobile visitor scrolls past a revealed photo → tilt derives from
+  scroll direction/velocity, no device-permission prompt.
 
 ### Nav identity transition + indicator
 
@@ -102,9 +139,14 @@ Specializes Direct Contact's "Reach Javi" flow.
 
 - Desktop visitor hovers the CTA → the CTA responds with a distinct
   interaction feedback beyond simple color/scale change (exact visual
-  treatment Pending, Feature UI) → visitor activates it → unchanged
-  `mailto:` hand-off, per Direct Contact's own flow (Contract Commitment
-  5).
+  treatment Pending, Feature UI), also drawing an underline left-to-right
+  beneath the text as part of that feedback (Contract Commitment 15) →
+  visitor taps/clicks → the text scales down momentarily; once Direct
+  Contact's own composition adds a persistent affordance icon (Context
+  Problem 15, blocked, not decided here), this Feature's tap gesture
+  will also apply a brief flourish to it → visitor activates it →
+  unchanged `mailto:` hand-off, per Direct Contact's own flow (Contract
+  Commitment 5).
 - Touch-device visitor taps the CTA → an equivalent, necessarily
   momentary feedback registers at the moment of tap, since touch has no
   hover → unchanged `mailto:` hand-off proceeds (Contract Commitment 6).
@@ -152,11 +194,15 @@ Specializes Language Override's "Switch to a different language" flow.
   revealed without animated motion (at each scroll-reach point, or
   immediately on direct-nav arrival), nav identity/indicator update
   directly, the nav divider reaches its correct segmented or continuous
-  state directly, CTA/touch feedback still register as a discrete,
-  non-animated visual change, nav link/Presence Link/Language Switcher
-  hover/focus feedback still register without animated motion, the
-  dropdown still reaches its open/closed state directly, and the Hero's
-  ambient gradient drift pauses (Contract Commitment 11).
+  state directly, CTA/touch feedback (including the underline/tap-scale)
+  still register as a discrete, non-animated visual change, nav
+  link/Presence Link/Language Switcher hover/focus feedback still
+  register without animated motion, the dropdown still reaches its
+  open/closed state directly, and the Hero's ambient gradient drift
+  pauses (Contract Commitment 16). The Hero's scroll-linked content exit
+  and mark transformation, and About Narrative's photo tilt, are not
+  covered here — their reduced-motion meaning remains explicitly
+  Pending, not resolved in this pass.
 
 ## Screens
 
@@ -168,17 +214,19 @@ own them.
 
 - Motion purpose: stages the first-load entrance choreography, the Hero
   ambient steady-state, and the nav's Hero-context identity. Participates
-  in the Hero first-load entrance, Hero ambient steady-state, Nav
-  identity transition, Nav divider segment transition, Nav link
-  hover/focus feedback, Presence Link hover/focus feedback (Introduction
-  placement), and Language Switcher interaction feedback flows.
+  in the Hero first-load entrance, Hero scroll-linked exit and mark
+  transformation, Hero ambient steady-state, Nav identity transition, Nav
+  divider segment transition, Nav link hover/focus feedback, Presence
+  Link hover/focus feedback (Introduction placement), and Language
+  Switcher interaction feedback flows.
 
 ### Personal Narrative
 
 - Motion purpose: stages About Narrative's progressive reveal and the
   nav's post-Hero identity. Participates in the About Narrative
-  progressive reveal, Nav identity transition, Nav link hover/focus
-  feedback, and Language Switcher interaction feedback flows.
+  progressive reveal, About Narrative photo tilt, Nav identity
+  transition, Nav link hover/focus feedback, and Language Switcher
+  interaction feedback flows.
 
 ### Connection
 
@@ -217,6 +265,13 @@ own them.
   Logo on Personal Narrative/Connection) / `Continuous` (no mark
   present) — transitions observably, governed independently of the
   Active/Progress Indicator.
+- **Hero Content Exit:** `Visible ⇄ Faded`, continuous, scroll-progress-
+  driven, reversible.
+- **Hero Mark Transformation:** `Hero-form ⇄ Nav-logo-form` (desktop) or
+  `Hero-form ⇄ Dissolved` (mobile), continuous, scroll-progress-driven,
+  reversible; tablet unresolved.
+- **Photo Tilt** (per photo): continuous rotation value, desktop
+  cursor-driven / mobile scroll-driven, no discrete states.
 - **Reduced-Motion:** `Off` / `On` — On removes animated transitions
   (including the ambient drift and the dropdown's open/close transition)
   but preserves every functional end-state.
@@ -229,6 +284,11 @@ own them.
   beat — per the order above.
 - **Ambient Gradient Drift** — continuous, slow, subtle motion applied
   only to the Hero background mark.
+- **Hero Scroll-Linked Exit** — fades the Hero's headline/scroll
+  cue/Presence Links continuously with scroll.
+- **Hero Mark Transformation** — desktop: morphs the mark into the nav
+  logo; mobile: dissolves via reverse stroke-trace; tablet: unresolved
+  (Context Problem 12).
 - **About Narrative Scroll-Reveal Treatment** — applies to About
   Narrative's existing paragraph/photo units, giving the opening line its
   own distinct reveal treatment separate from the uniform paragraph/photo
@@ -238,7 +298,11 @@ own them.
 - **Merged Active/Progress Indicator** — extends Section Navigation's
   existing Active Screen Indicator with a progress dimension.
 - **CTA Interaction Feedback** — specializes Direct Contact's CTA with
-  hover/touch feedback.
+  hover/touch feedback, an underline draw-on, and a tap scale-down; an
+  icon flourish is contingent on Direct Contact's own composition
+  eventually adding the icon (Context Problem 15, blocked).
+- **Photo Tilt** — cursor-driven (desktop) or scroll-driven (mobile)
+  tilt on About Narrative's revealed photos.
 - **Nav Link Interaction Feedback** — specializes Section Navigation's
   "about"/"contact" links with hover/focus/touch feedback.
 - **Presence Link Interaction Feedback** — specializes Presence Links'
@@ -276,6 +340,9 @@ own them.
   interfere with those guarantees.
 - The ambient gradient drift must be slow and subtle enough to never
   compete with or distract from foreground content.
+- Behaviour 12's tablet treatment and Behaviour 15's icon-flourish
+  portion remain unresolved/blocked pending other Features' own
+  decisions — not invented here.
 
 ---
 

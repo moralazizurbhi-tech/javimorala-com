@@ -8,9 +8,10 @@
 
 **Purpose**
 
-Realize the Hero first-load entrance choreography and the post-entrance
-ambient gradient drift (Contract Commitment 2), layered on top of Hero
-Composition's static output without altering it.
+Realize the Hero first-load entrance choreography, the post-entrance
+ambient gradient drift, and the Hero's scroll-linked content exit and
+mark transformation (Contract Commitments 2, 11, 12), layered on top of
+Hero Composition's static output without altering it.
 
 **Responsibilities**
 
@@ -28,15 +29,33 @@ Composition's static output without altering it.
   their final settled state directly, no animation.
 - After settling (by either path), begin the ambient gradient drift on
   the background mark, unless reduced-motion is active.
+- Read Shared Scroll Progress Store's Hero-relative progress value (a
+  0→1 range mapped across the Hero's own height) and drive, directly and
+  continuously from it: the headline/scroll cue/Presence Links' opacity
+  (1→0 over the first ~35% of that range) and the mark's transformation
+  (morph, desktop/tablet-with-space, or reverse stroke-reveal, mobile,
+  overlapping from ~25%–70% of that range) — both reversible, since the
+  underlying value itself is bidirectional.
+- Apply a hysteresis margin around the transformation's completion
+  threshold to prevent visible flicker from small scroll oscillations
+  near the Hero/Introduction boundary.
+- On tablet: no committed behavior — this component cannot resolve which
+  treatment applies until Section Navigation's own nav-composition
+  decision (Context Problem 12) settles it.
 - Read the reduced-motion platform signal directly; when active, skip the
   entrance sequence to its end-state and never begin the ambient drift
-  (Commitment 11).
+  (Commitment 16). The scroll-linked exit/transformation's reduced-motion
+  behavior is explicitly Pending (Solution/Contract) — not implemented
+  here.
 
 **Owned Concepts**
 
 - The entrance sequencing/orchestration logic and its per-element
   targeting within Hero Composition's static markup.
 - The ambient-drift loop's start/stop lifecycle.
+- The scroll-progress-to-opacity and scroll-progress-to-transform-state
+  mappings for the content exit and mark transformation, and the
+  hysteresis margin's threshold logic.
 
 **Collaborations**
 
@@ -46,6 +65,8 @@ Composition's static output without altering it.
   Hero Composition's static output, not the reverse").
 - Motion Playback Store (internal to this Feature) — reads/writes the
   entrance-played flag.
+- Shared Scroll Progress Store (internal to this Feature) — reads the
+  Hero-relative scroll-progress value.
 - Motion Layer (Framer Motion, external, Project Architecture) — the
   animation mechanism.
 - Reduced-motion platform signal (external, browser) — read-only.
@@ -54,6 +75,7 @@ Composition's static output without altering it.
 
 - Hero Composition — external, read-only (static output only).
 - Motion Playback Store — internal.
+- Shared Scroll Progress Store — internal.
 - Motion Layer — external.
 
 **Constraints**
@@ -67,6 +89,10 @@ Composition's static output without altering it.
 - Must never repeat the entrance sequence once the visit-scoped flag is
   set, regardless of how many times Hero re-enters the viewport via
   scroll (Commitment 2 AC2).
+- The mark-transformation's target size/position must match whatever
+  final compact-logo dimensions Section Navigation's own UI Definition
+  specifies — this component doesn't invent that value, it consumes it
+  (Context Problem 12 dependency).
 
 **Design Decisions**
 
@@ -88,13 +114,33 @@ Composition's static output without altering it.
    component's existing "individually targeting the elements it already
    renders" responsibility naturally extends to a variable element set
    with no new detection logic required.
+4. The scroll-linked exit/transformation reads from Shared Scroll
+   Progress Store rather than attaching its own independent scroll
+   listener. Rationale: Contract Commitment 14 requires this value to
+   stay mutually consistent with Nav Progress Overlay's; a single
+   observed source guarantees that consistency architecturally rather
+   than by convention.
+5. Realized within the same island already wrapping Hero's elements,
+   rather than a second island for the scroll-linked behavior.
+   Rationale: both concerns target the identical DOM elements this
+   island already hydrates around; a second island would duplicate
+   hydration boundaries over the same markup for no architectural
+   benefit.
 
 **Contract Traceability**
 
 - Commitment 2 → entrance sequencing (including Presence Links when
   composed, AC3), once-per-visit guard via Motion Playback Store.
-- Contributes to Commitment 11 → reduced-motion handling for the entrance
-  and the ambient drift.
+- Commitment 11 → the scroll-linked content exit (desktop/mobile; tablet
+  not committed).
+- Commitment 12 → the mark transformation (desktop/mobile; tablet not
+  committed, Pending).
+- Contributes to Commitment 14 → this component's scroll-driven values
+  are read from Shared Scroll Progress Store, guaranteeing
+  synchronization with Nav Progress Overlay.
+- Contributes to Commitment 16 → reduced-motion handling for the
+  entrance and the ambient drift (the scroll-linked exit/transformation's
+  reduced-motion behavior remains Pending, not realized here).
 
 ### Motion Playback Store
 
@@ -176,13 +222,94 @@ None internal; no outward dependency on either collaborator.
   reveal).
 - Commitment 2 → the entrance-played flag (Hero's once-per-visit rule).
 
+### Shared Scroll Progress Store
+
+**Purpose**
+
+Own the single, canonical scroll-position-derived values this Feature's
+own scroll-driven components consume, guaranteeing they stay mutually
+consistent (Contract Commitment 14) without each independently
+attaching its own scroll listener.
+
+**Responsibilities**
+
+- Observe the page's scroll position once (a single listener), and
+  derive from it: (a) a Hero-relative progress value (0→1, mapped
+  across the Hero's own height, for the content exit/mark
+  transformation) and (b) an overall page-progress value (0→1, mapped
+  across the total scrollable page height, weighted by actual content
+  length — not a fixed per-section split) for the nav progress fill.
+- Expose both values for read access to Hero Entrance & Ambient Motion
+  Island and Nav Progress Overlay; no other component reads or writes
+  it.
+- Recompute both values on scroll, keeping them derived from the same
+  single observed scroll position at all times — never independently
+  re-measured per consumer.
+
+**Owned Concepts**
+
+- The scroll-position observation mechanism (a single listener/
+  observer).
+- The Hero-relative and overall page-progress derivation formulas.
+
+**Collaborations**
+
+- Hero Entrance & Ambient Motion Island — reads the Hero-relative
+  progress value.
+- Nav Progress Overlay — reads the overall page-progress value.
+
+**Dependencies**
+
+None internal; no outward dependency on either collaborator.
+
+**Constraints**
+
+- Must observe scroll position exactly once (a single source), not
+  duplicate per-consumer listeners — the reason this component exists.
+- Does not extend to Section Navigation's own active-section detection
+  or the value Nav Divider Segment Transition consumes — both remain
+  external to this store, consistent with this Feature's existing "no
+  dependency on Section Navigation's own component" pattern. Nav
+  Divider Segment Transition's consistency with the values here is
+  achieved by construction (both ultimately derive from the same
+  physical scroll position and the same Hero boundary), not by sharing
+  this store directly.
+
+**Design Decisions**
+
+1. A single shared store computing both a Hero-relative and an overall
+   page-progress value, rather than each consuming component deriving
+   its own value from raw scroll position independently. Rationale:
+   Contract Commitment 14 requires these values to stay mutually
+   consistent; observing scroll once and deriving every needed value
+   from that single observation guarantees consistency
+   architecturally, avoiding the redundant-listener risk Context
+   Problem 14 identified.
+2. Scoped to this Feature's own components only (Hero Entrance & Ambient
+   Motion Island, Nav Progress Overlay) — does not attempt to
+   coordinate Section Navigation's own active-section detection or the
+   value Nav Divider Segment Transition consumes (which traces back to
+   Hero's separately-exposed sentinel, not this store). Rationale:
+   extending this store's authority over another Feature's internal
+   detection mechanism, or over a value this Feature already consumes
+   externally by design (Nav Divider Segment Transition's own Design
+   Decision), would introduce coupling this Feature doesn't need and
+   doesn't have authority to impose.
+
+**Contract Traceability**
+
+- Commitment 14 → the shared, single-observed source guaranteeing Hero
+  Entrance & Ambient Motion Island's and Nav Progress Overlay's values
+  stay mutually consistent.
+
 ### About Narrative Reveal Island
 
 **Purpose**
 
-Realize About Narrative's progressive scroll-triggered reveal and its
-direct-navigation-arrival immediate-reveal behavior (Contract Commitment
-1), layered on top of About Narrative Composition's static output.
+Realize About Narrative's progressive scroll-triggered reveal, its
+direct-navigation-arrival immediate-reveal behavior, and its revealed
+photos' cursor/scroll-driven tilt (Contract Commitments 1, 13), layered
+on top of About Narrative Composition's static output.
 
 **Responsibilities**
 
@@ -201,15 +328,25 @@ direct-navigation-arrival immediate-reveal behavior (Contract Commitment
   anchor. When that signal fires, reveal every not-yet-revealed piece in
   the section immediately, write all their IDs to Motion Playback Store,
   and do not apply per-piece scroll-triggered animation for that arrival.
+- For each photo already in its `Revealed` state: on desktop, track
+  cursor position relative to the photo while hovered and apply a
+  proportional rotation up to 4°, additive to the photo's existing
+  static transform if any; on cursor-leave, ease back to rest. On
+  mobile, derive a continuous tilt value from scroll direction/velocity
+  — no device orientation/motion permission requested. A `Hidden` photo
+  (not yet scrolled to) doesn't tilt.
 - Read the reduced-motion platform signal directly; when active, every
   piece reaches its revealed state directly, without the scroll-triggered
-  or direct-arrival animation (Commitment 11).
+  or direct-arrival animation (Commitment 16). Photo tilt's
+  reduced-motion behavior is explicitly Pending — not implemented here.
 
 **Owned Concepts**
 
 - The viewport-intersection-driven per-piece reveal logic.
 - The direct-navigation-arrival detection and its all-at-once reveal
   behavior.
+- The cursor-relative (desktop) and scroll-derived (mobile) tilt
+  computation, applied per revealed photo.
 
 **Collaborations**
 
@@ -241,6 +378,13 @@ direct-navigation-arrival immediate-reveal behavior (Contract Commitment
   and reveal state are runtime concerns unresolvable at build time.
 - Must never re-hide a piece once revealed within the same tab session
   (Feature Solution's one-way rule).
+- Tilt is additive to whatever static base rotation About Narrative's
+  own UI Definition eventually establishes for the photo (currently
+  undefined there, Context Problem 13) — this component doesn't invent
+  or require that base value; it applies correctly whether the base is
+  0° or something else.
+- Mobile's tilt must not request or depend on the device's
+  orientation/motion sensor permission.
 
 **Design Decisions**
 
@@ -257,13 +401,22 @@ direct-navigation-arrival immediate-reveal behavior (Contract Commitment
    same static-children-in-island pattern as the Hero component.
    Rationale: consistency with the established pattern; preserves About
    Narrative's own static-first design.
+3. Tilt is realized within the same island already wrapping About
+   Narrative's photos, rather than a separate component. Rationale:
+   both concerns (reveal state, tilt) target the identical DOM elements
+   this island already hydrates around; a second island would duplicate
+   hydration boundaries over the same markup for no architectural
+   benefit.
 
 **Contract Traceability**
 
 - Commitment 1 → viewport-intersection reveal, direct-arrival immediate
   reveal, Motion Playback Store's revealed-piece set.
-- Contributes to Commitment 11 → reduced-motion handling for both reveal
-  paths.
+- Commitment 13 → the desktop cursor-tilt and mobile scroll-tilt
+  behaviors.
+- Contributes to Commitment 16 → reduced-motion handling for both reveal
+  paths (photo tilt's reduced-motion behavior remains Pending, not
+  realized here).
 
 ### Nav Transition Styles
 
@@ -314,7 +467,7 @@ without any code dependency on Section Navigation's own component.
 - Must not require Section Navigation's own component code to import,
   reference, or otherwise become aware of this stylesheet.
 - Must resolve to no transition (an instant value) under
-  `prefers-reduced-motion: reduce`, satisfying Commitment 11 for this
+  `prefers-reduced-motion: reduce`, satisfying Commitment 16 for this
   specific transition without any JavaScript.
 - Cannot itself define the indicator's base visual anatomy — that
   remains Pending, owned by Section Navigation's own UI Definition; this
@@ -338,7 +491,7 @@ without any code dependency on Section Navigation's own component.
 - Commitment 3 → the logomark-icon presence transition.
 - Contributes to Commitment 4 → transitions whatever indicator-value
   change Section Navigation's own anatomy exposes.
-- Contributes to Commitment 11 → reduced-motion handling via native media
+- Contributes to Commitment 16 → reduced-motion handling via native media
   query.
 
 ### Nav Progress Overlay
@@ -360,25 +513,30 @@ own component.
   per-screen-context layout positions, already defined by Section
   Navigation's own UI Definition), rather than one continuous divider
   location.
-- Compute the visitor's overall scroll position as a single graduated
-  progress value and map it sequentially across both segments — the
-  first half of that value fills the left segment left-to-right, the
-  second half fills the right segment left-to-right — updating as scroll
-  position changes, independent of the divider's current segmented/
-  continuous visual state (Nav Divider Segment Transition's concern).
+- Read Shared Scroll Progress Store's overall page-progress value —
+  computed there as actual scrolled distance over total scrollable page
+  height, weighted by real content length, not a fixed per-section
+  split — and map it sequentially across both segments — the first half
+  of that value fills the left segment left-to-right, the second half
+  fills the right segment left-to-right — updating as the value changes,
+  independent of the divider's current segmented/continuous visual state
+  (Nav Divider Segment Transition's concern).
 - Read the reduced-motion platform signal directly; when active, both
   segment fills still reflect accurate progress at all times, without a
-  smoothing/animated interpolation between values (Commitment 11).
+  smoothing/animated interpolation between values (Commitment 16).
 
 **Owned Concepts**
 
-- The scroll-to-progress-value computation and its sequential mapping
-  across two independently-positioned segment fills.
+- The sequential mapping of Shared Scroll Progress Store's page-progress
+  value across two independently-positioned segment fills (the value's
+  own computation is owned by that store, not here).
 - The fills' independent rendering and positioning, aligned to each
   segment individually.
 
 **Collaborations**
 
+- Shared Scroll Progress Store (internal to this Feature) — reads the
+  overall page-progress value.
 - Styling System (external, Project Architecture) — supplies the layout
   tokens this component uses to align itself with each of the nav bar's
   two existing divider segments, without reading Section Navigation's
@@ -388,6 +546,7 @@ own component.
 
 **Dependencies**
 
+- Shared Scroll Progress Store — internal.
 - Styling System — external.
 - Motion Layer — external.
 
@@ -429,12 +588,20 @@ own component.
    exposed state attribute; coupling the two motion-interaction
    components together for a purely visual coincidence would add
    architecture neither actually needs functionally.
+3. Reads its progress value from Shared Scroll Progress Store rather
+   than computing it independently. Rationale: Contract Commitment 14
+   requires this value to stay mutually consistent with Hero Entrance &
+   Ambient Motion Island's scroll-linked values; a single observed
+   source guarantees that consistency architecturally.
 
 **Contract Traceability**
 
 - Commitment 4 → the progress component of the merged indicator, now
   realized as two segment fills.
-- Contributes to Commitment 11 → reduced-motion handling (accurate
+- Commitment 14 → reads its progress value from Shared Scroll Progress
+  Store, guaranteeing synchronization with the Hero mark's
+  transformation.
+- Contributes to Commitment 16 → reduced-motion handling (accurate
   value, no animated smoothing).
 
 ### Nav Divider Segment Transition
@@ -513,16 +680,17 @@ Hero Presentation's own components.
 **Contract Traceability**
 
 - Commitment 10 → the segmented/continuous extend/retract transition.
-- Contributes to Commitment 11 → reduced-motion handling via native
+- Contributes to Commitment 16 → reduced-motion handling via native
   media query.
 
 ### CTA Interaction Motion
 
 **Purpose**
 
-Realize Direct Contact's CTA gradient-sweep feedback and its
-touch-equivalent (Contract Commitments 5, 6), layered on top of Direct
-Contact Composition's static CTA anchor without altering it.
+Realize Direct Contact's CTA gradient-sweep feedback, its
+touch-equivalent, and its underline draw-on and tap-scale discoverability
+motion (Contract Commitments 5, 6, 15), layered on top of Direct Contact
+Composition's static CTA anchor without altering it.
 
 **Responsibilities**
 
@@ -535,19 +703,34 @@ Contact Composition's static CTA anchor without altering it.
 - On hover (pointer-capable input), apply the gradient-sweep animation
   for the duration of the hover. On tap (touch-only input), apply the
   same sweep momentarily around the moment of the tap.
+- On hover/focus, in addition to the gradient sweep, draw an underline
+  beneath the CTA's text (`scaleX` 0→1 from a `transform-origin: left`),
+  reversing on hover/focus-out.
+- On tap/click (any input), apply a momentary scale-down (~0.97, ~100ms)
+  to the CTA's text, independent of the hover-sweep/underline treatment.
+- When Direct Contact's own composition eventually adds a persistent
+  affordance icon (Context Problem 15, blocked — not yet true), apply a
+  brief flourish to that icon at the same tap moment — this
+  responsibility has no effect today, since the element it targets does
+  not yet exist; it activates automatically once Direct Contact's own UI
+  Definition and markup add it, requiring no further change to this
+  component.
 - Pass the anchor's existing `href` and text content through completely
   unmodified — this component adds a presentation-layer visual effect
   only, never touching Direct Contact's anti-scraping character-reference
   encoding or the anchor's accessible name.
 - Read the reduced-motion platform signal directly; when active, register
   interaction with a discrete, non-animated visual change instead of the
-  sweep (Commitment 11).
+  sweep, underline draw-on, or tap-scale (Commitment 16).
 
 **Owned Concepts**
 
 - The gradient-sweep animation and its hover/tap trigger logic.
 - The input-capability detection used to choose between sustained-hover
   and momentary-tap behavior.
+- The underline draw-on's `scaleX` transition and the tap scale-down's
+  trigger logic.
+- The icon-flourish trigger, dormant until the icon exists.
 
 **Collaborations**
 
@@ -575,6 +758,9 @@ Contact Composition's static CTA anchor without altering it.
   sweep animation are runtime concerns.
 - The touch-equivalent feedback must never leave the CTA without any
   feedback at all on a touch-only device (Commitment 6 AC2).
+- The icon flourish must not error or behave unexpectedly if the icon
+  element doesn't exist in the DOM — this component targets it
+  defensively (e.g. a no-op if absent), not assuming its presence.
 
 **Design Decisions**
 
@@ -589,13 +775,22 @@ Contact Composition's static CTA anchor without altering it.
    Contact's own static-first, zero-script-required design for its core
    contractual behavior (Commitment 1's stateless hand-off still works
    with no JS, since this component only adds an optional visual layer).
+3. The icon flourish's targeting is written defensively against the
+   icon's absence, rather than this component waiting for Direct
+   Contact's own composition to change before shipping any of
+   Commitment 15. Rationale: the underline and tap-scale are fully
+   committable today (Contract Commitment 15's resolved ACs); gating the
+   whole component on the icon's future existence would needlessly
+   delay shipping the parts that don't depend on it.
 
 **Contract Traceability**
 
 - Commitment 5 → the hover gradient-sweep.
 - Commitment 6 → the touch-equivalent momentary sweep, input-capability
   detection.
-- Contributes to Commitment 11 → reduced-motion handling.
+- Commitment 15 → the underline draw-on, tap scale-down, and (dormant,
+  contingent) icon flourish.
+- Contributes to Commitment 16 → reduced-motion handling.
 
 ### Secondary Interaction Feedback Styles
 
@@ -682,7 +877,7 @@ of those Features' own components.
 - Contributes to Commitment 9 → the switcher trigger's and each option's
   hover/focus/touch feedback (the dropdown's open/close transition itself
   is Switcher Dropdown Transition's concern, below).
-- Contributes to Commitment 11 → reduced-motion handling via native media
+- Contributes to Commitment 16 → reduced-motion handling via native media
   query.
 
 ### Switcher Dropdown Transition
@@ -748,7 +943,7 @@ outside, with zero code dependency on Language Override's own component.
 **Contract Traceability**
 
 - Commitment 9 → the dropdown's open and close transitions.
-- Contributes to Commitment 11 → reduced-motion handling via native media
+- Contributes to Commitment 16 → reduced-motion handling via native media
   query.
 
 ## Cross-Component Relationships
@@ -757,6 +952,8 @@ outside, with zero code dependency on Language Override's own component.
   depends outward, wraps its static output, never the reverse.
 - Hero Entrance & Ambient Motion Island → Motion Playback Store
   (internal): reads/writes the entrance-played flag.
+- Hero Entrance & Ambient Motion Island → Shared Scroll Progress Store
+  (internal): reads the Hero-relative scroll-progress value.
 - About Narrative Reveal Island → About Narrative Composition (external):
   depends outward, wraps its static output, never the reverse.
 - About Narrative Reveal Island → Motion Playback Store (internal):
@@ -768,6 +965,8 @@ outside, with zero code dependency on Language Override's own component.
   contract (external): targets it from outside; Section Navigation's own
   component has no dependency back, consistent with its own Technical
   Design.
+- Nav Progress Overlay → Shared Scroll Progress Store (internal): reads
+  the overall page-progress value.
 - Nav Progress Overlay → Styling System (external): aligns itself with
   each of Section Navigation's two divider segments via shared tokens
   only; no dependency on Section Navigation's component.
@@ -783,6 +982,11 @@ outside, with zero code dependency on Language Override's own component.
   Navigation's public surface independently.
 - CTA Interaction Motion → Direct Contact Composition (external): depends
   outward, wraps its CTA anchor's static output, never the reverse.
+- CTA Interaction Motion → Direct Contact Composition's future
+  discoverability icon (external, DOM query, defensive, not yet
+  existing): targets it if/when present for the tap flourish; no
+  dependency on its existence, and Direct Contact's own component has no
+  awareness of this targeting.
 - Secondary Interaction Feedback Styles → Section Navigation Composition,
   Presence Link Group Composition, Language Switcher Component (all
   external): targets each one's existing DOM from outside; none of those
@@ -809,8 +1013,12 @@ or reference anything from this Feature either, consistent with the same
 pattern. Section Navigation's own dependency on Hero Presentation's
 exposed mark-visibility sentinel (driving its divider's segmented/
 continuous state) is a relationship between those two Features'
-Technical Designs, established independently of this Feature; Nav
-Divider Segment Transition consumes only Section Navigation's resulting
+Technical Designs, established independently of this Feature. Shared
+Scroll Progress Store is internal-only, with no outward dependency on
+any collaborator — it exists purely to give Hero Entrance & Ambient
+Motion Island and Nav Progress Overlay one consistent scroll source, not
+to coordinate with anything external. Nav Divider Segment Transition
+consumes only Section Navigation's resulting
 public state, introducing no new edge into that relationship.
 
 ---

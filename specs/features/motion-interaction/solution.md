@@ -31,7 +31,11 @@ serves an articulable purpose rather than decoration.
    complete state directly, with no replay.
 3. **Nav Identity Transition** — the nav transitions between its
    Hero-context and post-Hero presentation as scroll crosses that
-   boundary, in both directions.
+   boundary, in both directions. Realized via the Hero mark's own
+   scroll-linked transformation (Behaviour 12) becoming the nav's
+   compact logo — a single continuously-transforming element, not two
+   separate assets crossfading — with hysteresis (distinct show/hide
+   thresholds) to prevent flicker near the boundary.
 4. **Merged Active/Progress Indicator** — one indicator communicates both
    which screen is active and overall scroll progress (not two separate
    elements); it transitions between states rather than swapping
@@ -56,9 +60,55 @@ serves an articulable purpose rather than decoration.
     its segmented state (split around a centered mark) and continuous
     state as the corresponding mark-presence fact changes, in a defined,
     observable way rather than snapping instantly.
-11. **Reduced-Motion Equivalence** — every behavior above still reaches
+11. **Hero Scroll-Linked Content Exit** — as the visitor scrolls past the
+    Hero, its headline, scroll cue, and Presence Links (when composed)
+    fade out along the same scroll-progress value that drives the
+    mark's transformation (Behaviour 12), not an independently-timed
+    exit. Reversible 1:1 with scroll position — scrolling back restores
+    the elements along the same curve, not a one-way dismissal
+    (distinct from About Narrative's one-way reveal, Behaviour 1).
+12. **Hero Mark Transformation** — as the visitor scrolls past the Hero
+    boundary, the Hero's own mark continuously transforms into the
+    nav's compact logo identity — a single element, not a second asset
+    crossfading in. Desktop: a continuous scroll-linked morph. Mobile:
+    no logomark destination exists there; the mark instead dissolves
+    via a reverse stroke-trace of its own entrance gesture. Tablet:
+    unresolved — which treatment applies depends on Section
+    Navigation's own nav-composition decision for that breakpoint
+    (Context Problem 12), not decided here.
+13. **About Narrative Photo Tilt** — once revealed (Behaviour 1), each
+    photo tilts in response to cursor position (desktop, max 4°) or
+    scroll direction/velocity (mobile), easing back to rest when the
+    input cue stops. Layers additively onto whatever static base
+    rotation About Narrative's own composition establishes (currently
+    undefined there, Context Problem 13) — this motion functions
+    correctly regardless, starting from that base or from level if none
+    exists.
+14. **Shared Scroll-Progress Source** — this Feature's own scroll-driven
+    behaviours (Hero's content exit and mark transformation, the nav
+    progress fill, the nav divider segmentation) derive from one
+    shared, singly-observed scroll-progress value, not independent
+    per-component listeners. Scoped to this Feature's own components
+    only — does not extend to Section Navigation's own active-section
+    detection, which remains its own concern; this Feature continues
+    only reading the resulting exposed state.
+15. **Direct Contact CTA Discoverability Motion** — extends Behaviour 5
+    with an underline that draws left-to-right on hover (the same
+    stroke/trace language as Behaviour 12) and a momentary scale-down
+    on tap. When Direct Contact's own composition eventually adds a
+    persistent affordance icon (Context Problem 15, blocked, not
+    decided here), this Feature's tap gesture also applies a brief
+    flourish to it. This treatment mitigates but does not fully resolve
+    Problem 15 — full resolution is blocked until that icon exists.
+16. **Reduced-Motion Equivalence** — every behavior above still reaches
     its full end-state without animated motion when the visitor's
-    reduced-motion preference is active.
+    reduced-motion preference is active. Reduced-motion's precise
+    meaning for the scroll-linked content exit and mark transformation
+    (Behaviours 11, 12), the photo tilt (Behaviour 13), and the ambient
+    gradient drift and hover sweeps, remains explicitly Pending —
+    carried forward, not resolved in this pass. Behaviour 15's underline/tap-scale do get normal
+    coverage: resolve to final state without the draw-on/scale
+    animation, consistent with the existing hover-feedback pattern.
 
 ### Flows
 
@@ -84,8 +134,21 @@ serves an articulable purpose rather than decoration.
   Language Override's own flow continues unchanged.
 - Mark presence/centering at the nav divider's position changes → divider
   transitions between segmented and continuous state.
+- Visitor scrolls past the Hero → headline/scroll cue/Presence Links fade
+  out and the mark transforms into the nav logo, along the same shared
+  scroll-progress value; visitor scrolls back → both reverse along the
+  same curve.
+- Visitor hovers/moves cursor over a revealed About Narrative photo
+  (desktop) → the photo tilts, following the cursor; cursor leaves → the
+  photo eases back to rest. Visitor scrolls on mobile → the photo tilts
+  per scroll direction/velocity.
+- Visitor hovers the Direct Contact CTA → the underline draws left-to-
+  right alongside existing feedback; visitor taps/clicks → the text
+  scales down momentarily (and, once Direct Contact's own icon exists,
+  it flourishes too) → unchanged `mailto:` hand-off.
 - Reduced-motion active → every flow above still completes fully, without
-  relying on animation.
+  relying on animation, except where explicitly noted Pending
+  (Behaviour 16).
 
 ### Rules
 
@@ -124,6 +187,17 @@ serves an articulable purpose rather than decoration.
   Active/Progress Indicator and the Nav Divider Segment Transition; how
   their combined presentation is realized on one shared element is
   Feature UX/UI's concern, not decided here.
+- Behaviours 11 and 12 derive from one shared scroll-progress value over
+  the Hero's height, with intentionally overlapping ranges — the mark's
+  transformation begins before the content's fade-out completes — so
+  the two read as one continuous transition.
+- Behaviour 13's tilt derives from cursor position (desktop) or scroll
+  motion (mobile), never a device gyroscope — no system permission
+  required.
+- Behaviour 15's tap gesture ships in two independently-committable
+  parts: the text scale-down (available now) and the icon flourish
+  (blocked until the icon exists) — the whole Behaviour isn't blocked,
+  only that portion.
 
 ### States and Transitions
 
@@ -152,6 +226,16 @@ serves an articulable purpose rather than decoration.
 - **Nav Divider Segmentation:** `Segmented ⇄ Continuous`. Segmented while
   a mark occupies the divider's center position; Continuous otherwise;
   transitions are observable, never instant.
+- **Hero Content Exit:** continuous opacity value 1⇄0, scroll-progress-
+  driven, reversible.
+- **Hero Mark Transformation:** continuous Hero-form ⇄ nav-logo-form
+  (desktop/tablet-morph) or Hero-form ⇄ dissolved (mobile-stroke-
+  reverse), scroll-progress-driven, reversible; hysteresis applied near
+  the boundary to prevent flicker.
+- **Photo Tilt** (desktop, per photo): rest ⇄ tilted, continuously
+  following cursor while hovered, ease-out on cursor-leave. (mobile):
+  continuously derived from scroll motion, no discrete rest/active
+  split.
 - **Reduced-Motion Mode:** `Off ⇄ On`, derived from the visitor's system/
   browser preference; when On, every state above still reaches its
   end-state without relying on animated motion.
@@ -180,17 +264,25 @@ serves an articulable purpose rather than decoration.
 - The divider's segmented/continuous transition requires the solution to
   consume a mark-presence signal exposed by Section Navigation and Hero,
   not derive this fact independently.
+- Behaviour 12's device-conditional treatment requires the solution to
+  functionally distinguish device/viewport class, similar to Behaviour
+  6's existing input-capability branching.
+- Behaviour 14's shared source is internal to this Feature's own
+  components only — no authority claimed over Section Navigation's own
+  detection mechanism.
 
 ### Boundaries
 
 #### Included
 
-- The 11 behaviours above (About Narrative reveal, Hero entrance, Nav
+- The 16 behaviours above (About Narrative reveal, Hero entrance, Nav
   identity transition, merged Active/Progress Indicator, Direct Contact
   CTA feedback, touch-equivalent feedback, nav link hover/focus feedback,
   Presence Link hover/focus feedback, Language Switcher interaction
-  feedback, Nav Divider Segment Transition, and reduced-motion
-  equivalence applying to all of them).
+  feedback, Nav Divider Segment Transition, Hero scroll-linked content
+  exit, Hero mark transformation, About Narrative photo tilt, shared
+  scroll-progress source, Direct Contact CTA discoverability motion, and
+  reduced-motion equivalence applying to all of them).
 
 #### Excluded
 
@@ -216,6 +308,15 @@ serves an articulable purpose rather than decoration.
 - Ambient motion for the Ornamental Logo ghost-texture instances on About
   Narrative/Direct Contact — confirmed to stay static, matching those
   Features' own Technical Design; not in scope.
+- About Narrative parallax (text and photos) — considered and excluded,
+  to avoid visual fatigue in the section with the most running text.
+- The underline→envelope-icon morph on the CTA — excluded; too much
+  production effort for the short perception window before `mailto:`
+  fires.
+- About Narrative's photo scale-in reveal — excluded outright; replaced
+  by a blur/desaturation+tint-to-sharp/colour treatment (Behaviour 1).
+- A device-gyroscope-based tilt on mobile — noted as a possible future
+  v2 enhancement, not this scope.
 
 ---
 

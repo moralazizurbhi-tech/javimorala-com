@@ -4,10 +4,11 @@
 
 ## UI Scope
 
-Realizes Feature UX's motion moments — Hero first-load entrance and
-ambient drift, About Narrative's progressive reveal, Section Navigation's
-identity transition, merged indicator, and divider segment transition,
-Direct Contact's CTA feedback,
+Realizes Feature UX's motion moments — Hero first-load entrance, ambient
+drift, scroll-linked exit, and mark transformation, About Narrative's
+progressive reveal and photo tilt, Section Navigation's identity
+transition, merged indicator, and divider segment transition,
+Direct Contact's CTA feedback and discoverability motion,
 nav link/Presence Link/Language Switcher hover-focus feedback, the
 Language Switcher's dropdown open/close transition, and touch-equivalent
 — using Project UX's Visual Foundations — now confirmed as a single
@@ -46,25 +47,59 @@ segment fills as scroll continues past the midpoint (50%→100% maps to
 segment 2's fill) — a segmented/stepped progress-bar pattern, not
 continuous fill across the gap itself. On mobile, where Section
 Navigation's own UI Definition observes no equivalent divider, this stays
-Pending — unchanged.
+Pending — unchanged. The underlying progress value itself is computed as
+actual scrolled distance over total scrollable page height — weighted by
+each section's real content length, not a fixed 1/3-per-section split —
+consistent with the existing Contract rule that the indicator always
+reflects actual scroll position.
 
 ## Component Anatomy and Variants
 
-- **Hero background mark entrance:** fades in (transparent → full
-  opacity) as the ambient backdrop establishes — existing anatomy from
-  Hero's UI Definition, no new element.
+- **Hero background mark entrance:** the mark's outline draws on via a
+  stroke reveal (SVG `stroke-dashoffset` 100%→0%), as if being traced —
+  not a plain opacity fade — establishing the ambient backdrop with the
+  same "drawn" character this Feature's stroke-based treatments now
+  share (see Hero Mark Transformation below). Existing anatomy from
+  Hero's UI Definition, no new element, but a new entrance mechanic.
 - **Ambient gradient drift:** the mark's existing accent gradient
   subtly shifts its focal point/hue continuously once settled — a motion
   property applied to an existing value, not a new colour.
-- **Headline entrance:** the three existing text lines enter with a
-  slight upward translation + fade, staggered per line as a quick,
-  rapid cascade — not a uniform block fade — realizing Feature UX's
-  "distinct per-element character."
+- **Headline entrance:** the headline's text is staggered by semantic
+  group (phrase/clause) rather than by raw line position, so the
+  cascade stays coherent under the project's fluid responsive scaling
+  regardless of how a given viewport width wraps the text — each group
+  enters with a slight upward translation + fade, as a quick, rapid
+  cascade — not a uniform block fade — realizing Feature UX's "distinct
+  per-element character."
 - **Scroll cue entrance:** the existing text+arrow unit fades/translates
   in last, after the headline cascade completes.
 - **Presence Links entrance:** fades/translates in alongside the scroll
   cue, in the same beat — not a separate, sequential step — existing
   anatomy from Presence Links' own UI Definition, no new element.
+- **Hero scroll-linked content exit:** as the visitor scrolls past the
+  Hero, the headline, scroll cue, and Presence Links fade continuously
+  (opacity 1→0), scrubbed directly against scroll position over the
+  Hero's height — not a discrete triggered animation. Reversible in
+  both directions.
+- **Hero mark transformation:** desktop/tablet-with-logomark-space — the
+  Hero mark continuously morphs (SVG shape interpolation) from its
+  Hero-scale form into the nav's compact logo form and position, tracked
+  against the same shared scroll-progress value as the content exit
+  above, overlapping it (starting before the content fade completes).
+  The morphing element's container uses `overflow: visible` (it visually
+  extends beyond the nav bar bounds at its larger nav-logo size) with
+  `pointer-events: none` on the overflowing portion — sized to match
+  whatever final logo dimensions Section Navigation's own UI Definition
+  specifies (Context Problem 12 dependency; anticipated around 30-35%
+  overflow of the nav bar, pending confirmation there). Mobile: the mark
+  dissolves via the same stroke-reveal mechanic as its entrance, played
+  in reverse (`stroke-dashoffset` 0%→100%), tracked against the same
+  scroll-progress value — no morph, since no logomark destination exists
+  in that layout. Both directions apply a hysteresis margin (a small
+  scroll-distance buffer before the transformation state flips) to
+  prevent visible flicker from minor scroll oscillations near the
+  boundary. Tablet: unresolved — Pending Section Navigation's own
+  nav-composition decision (Context Problem 12).
 - **About Narrative paragraph reveal:** each of the six existing blocks
   translates up slightly + fades in as revealed.
 - **About Narrative opening-line reveal:** translates up + fades in like
@@ -72,10 +107,23 @@ Pending — unchanged.
   slightly slower pacing — a heavier, more deliberate arrival
   distinguishing it as the greeting moment, paralleling how Hero's
   headline reads as the dominant beat versus the scroll cue's quiet one.
-- **About Narrative photo reveal:** a distinct treatment from
-  paragraphs — a subtle scale-in (reduced → full size) alongside fade,
-  distinguishing photos without a mask/wipe mechanism (excluded per
-  Feature Solution).
+- **About Narrative photo reveal** (replaces the previous scale-in
+  treatment entirely — discarded, read as a "PowerPoint effect"): the
+  photo sits at its final position/size from the first frame, with no
+  scale or translation movement. Instead, it resolves from blurred +
+  desaturated-with-a-purple-tint-overlay (a colour blend, not a
+  black-and-white desaturation) to sharp + full colour. The blur and
+  the tint-overlay resolve with a slight offset between them — the blur
+  clears a touch before the overlay fully clears — rather than
+  perfectly synchronized.
+- **Photo tilt:** desktop — each revealed photo tilts to follow cursor
+  position while hovered, up to 4° of rotation, additive to whatever
+  static base rotation the photo already carries (About Narrative's
+  own, currently undefined there) — not replacing it. Eases back to
+  rest (ease-out) when the cursor leaves. Mobile — tilt derives
+  continuously from scroll direction/velocity rather than cursor
+  position, and does not use the device gyroscope/orientation sensor
+  (no permission prompt).
 - **Nav identity transition:** the existing compact logomark icon
   fades/scales in when transitioning to the post-Hero presentation,
   reversing symmetrically on scroll-back — a transition on an existing
@@ -83,9 +131,14 @@ Pending — unchanged.
 - **Merged indicator (progress):** realized as the segmented
   divider-fill described under Spacing and Layout; each segment fills
   independently per its own half of overall scroll progress.
-- **Merged indicator (active-screen):** the active-screen transition
-  applies smoothly to whatever base anatomy Section Navigation's own UI
-  Definition eventually assigns (currently Pending there) — unchanged.
+- **Merged indicator (active-screen):** the active-screen transition is
+  realized as a layout animation — the indicator element itself
+  slides/resizes toward the active link's position — rather than a
+  cross-fade between states, wherever Section Navigation's own
+  eventually-assigned anatomy supports a positionable/sizable element;
+  applies to whatever base anatomy Section Navigation's own UI
+  Definition eventually assigns (currently Pending there) — unchanged in
+  its contingency, refined in its transition character.
 - **Nav divider segment transition:** the gap between the two segments
   closes by both segments extending toward the center (continuous
   state), or opens by both segments retracting back to their segmented
@@ -94,9 +147,12 @@ Pending — unchanged.
   Each segment's progress fill (above) continues to reflect its own
   filled proportion independent of the current segmentation state; when
   merged into one continuous line, the combined line shows the same
-  progress reading computed across its full merged length. Not
-  applicable on mobile — no divider element exists there, consistent
-  with Section Navigation's own UI Definition.
+  progress reading computed across its full merged length. The gap's
+  width scales proportionally with whatever final logo size Section
+  Navigation's own UI Definition assigns (see Hero Mark Transformation
+  above) — not a fixed value independent of it. Not applicable on
+  mobile — no divider element exists there, consistent with Section
+  Navigation's own UI Definition.
 - **CTA feedback (gradient sweep):** on hover, the CTA's existing
   display text is filled by the site's accent gradient (the same
   lilac-to-purple gradient the Ornamental Mark, Ornamental Logo, and
@@ -105,6 +161,18 @@ Pending — unchanged.
   than a flat before/after fill swap. On touch, the same sweep plays
   momentarily on tap/press rather than persisting like a sustained
   hover.
+- **CTA underline draw-on:** in addition to the gradient sweep above, a
+  thin underline beneath the CTA's text draws left-to-right on
+  hover/focus (`scaleX` 0→1, `transform-origin: left`) — the same
+  stroke/trace language as the mark's entrance and transformation, for
+  system coherence.
+- **CTA tap gesture:** on tap/click, the CTA's text scales down
+  momentarily (~0.97, ~100ms) as an activation cue, distinct from and
+  in addition to the hover sweep/underline. When Direct Contact's own
+  composition eventually adds a persistent affordance icon (Context
+  Problem 15, blocked, not decided here), this same tap moment will
+  also apply a brief flight/tilt flourish to it — not decided/specified
+  further here, contingent on that element existing.
 - **Touch-feedback pattern (general):** wherever hover feedback exists,
   touch triggers the same visual treatment momentarily on tap/press
   rather than requiring a sustained hover state.
@@ -165,6 +233,24 @@ Pending — unchanged.
   distinguishing beat, not a repeated pattern.
 - The nav divider's segmented/continuous transition is quick and
   responsive, matching the nav identity/indicator transitions' pacing.
+- The Hero mark's draw-on entrance and the About Narrative opening
+  line's reveal share the same easing-curve family — differing only in
+  duration/delay, not character — keeping both anchored to this
+  Feature's system-wide "drawn"/deliberate curve vocabulary rather than
+  floating as isolated one-offs.
+- The Hero's scroll-linked content exit and mark transformation are
+  scrubbed directly against scroll position, not autoplaying on a fixed
+  duration — their "pacing" is the visitor's own scroll speed; the
+  range over which each occurs (roughly the first third of the Hero's
+  height for content, the middle for the mark) is what's tuned, not a
+  duration value.
+- The CTA's underline draws at a pace matching the gradient sweep's
+  leisurely character, not the nav's quick pacing — reinforcing that
+  this is a discrete hover moment. The tap scale-down is near-instant
+  (~100ms), a snappy activation cue rather than a lingering one.
+- Photo tilt tracks the cursor/scroll input directly and continuously —
+  no independent entrance pacing of its own, except the ease-out back
+  to rest on cursor-leave (desktop), which is quick and responsive.
 
 ## Colour Application
 
@@ -176,15 +262,25 @@ Pending — unchanged.
 - Progress-bar fill: the same accent gradient, layered onto the
   divider's existing base colour — `#e6bdfb`, per Section Navigation's
   UI Definition.
+- About Narrative's photo tint overlay and the CTA's underline draw-on
+  both reuse the same lilac-to-purple accent already carried by the
+  Ornamental Mark/Logo/Presence Links/CTA sweep — no new colour token.
 
 ## Borders, Radii, Shadows, Surfaces
 
-None — consistent with the site's chrome-free style; motion introduces
-no borders or surfaces.
+None persistent — consistent with the site's chrome-free style. One
+transition-only exception: About Narrative's photo reveal applies a
+temporary blur filter and colour-blend overlay during its transition,
+resolving away once revealed — not a persistent border/surface.
 
 ## Iconography
 
-None new.
+None new for this Feature's own scope. A candidate SVG for Direct
+Contact's own future discoverability icon was provided as reference
+during this round but is not recorded here — it belongs to Direct
+Contact's own UI Definition, not this Feature's, when that phase runs;
+only the icon's own motion (the tap flourish above) is this Feature's
+concern.
 
 ## Visual States and Responsive Layout
 
@@ -206,8 +302,20 @@ None new.
 - **Nav Divider Segmentation** `Segmented` / `Continuous`: two-segment-
   with-gap state → merged single-line state, via the extend/retract
   transition described above. Not applicable on mobile.
-- **CTA Feedback:** gradient sweep, sustained while hovering / momentary
-  on tap.
+- **Hero Content Exit:** continuous opacity 1→0 mapped directly to
+  scroll position (~0-35% of Hero height); reversible. Reduced-motion
+  meaning: Pending (not resolved in this pass).
+- **Hero Mark Transformation:** desktop/tablet-with-space: continuous
+  morph mapped to scroll position (~25-70% of Hero height, overlapping
+  the content exit); mobile: continuous reverse stroke-reveal on the
+  same mapping; tablet: unresolved. Hysteresis buffer prevents flicker
+  near the boundary. Reduced-motion meaning: Pending.
+- **Photo Tilt:** continuous rotation value following cursor (desktop,
+  ±4°) or scroll motion (mobile); ease-out to rest on cursor-leave
+  (desktop). Reduced-motion meaning: Pending.
+- **CTA Feedback:** gradient sweep + underline draw-on, sustained while
+  hovering / momentary on tap; tap also triggers the text scale-down
+  (and, once it exists, the icon flourish).
 - **Nav Link / Presence Link Feedback:** rest state (existing colour) →
   gradient-fill state, sustained while hovering/focused / momentary on
   tap. Identical across "about," "contact," and both Presence Link
@@ -221,10 +329,18 @@ None new.
   directly, with no transition; ambient drift forced to `Static`; the
   dropdown's open/close renders as an instant state change rather than a
   fade+translate; the divider's segmented/continuous transition renders
-  its final state directly, with no extend/retract animation.
+  its final state directly, with no extend/retract animation; the CTA's
+  underline/tap-scale resolve to their final state without the
+  draw-on/scale animation, consistent with the existing hover-feedback
+  pattern. The Hero content exit, mark transformation, and photo tilt's
+  reduced-motion end-state remain explicitly Pending, not decided in
+  this pass.
 - Desktop vs. mobile: motion applies atop each realized Feature's own
-  existing per-device layout; no new per-device split beyond the
-  progress-bar's mobile Pending status noted above.
+  existing per-device layout; new per-device splits this round: the
+  Hero mark's morph (desktop/tablet-with-space) vs. reverse stroke-
+  reveal (mobile), and photo tilt's cursor-driven (desktop) vs.
+  scroll-driven (mobile) behavior — beyond the progress-bar's mobile
+  Pending status noted above.
 
 ---
 

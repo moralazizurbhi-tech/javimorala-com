@@ -322,9 +322,166 @@ mark-presence fact Section Navigation and Hero expose.
   - Failure Condition: divider renders continuous despite the logo's
     presence.
 
-### Commitment 11 — Reduced-Motion Functional Equivalence
+### Commitment 11 — Hero Scroll-Linked Content Exit
 
-Relationship to Solution: resolves Behaviour 11 (Reduced-Motion
+Relationship to Solution: resolves Behaviour 11 (Hero Scroll-Linked
+Content Exit), the Rule that Behaviours 11/12 share one scroll-progress
+value, and the Hero Content Exit state.
+
+**Acceptance Criteria**
+
+- AC1: As the visitor scrolls past the Hero, the headline, scroll cue,
+  and Presence Links (when composed) progressively fade toward
+  transparent, tracking scroll position continuously rather than
+  jumping at a single threshold.
+- AC2: Scrolling back up before or after the fade completes restores
+  these elements along the same curve — the exit is reversible, not a
+  one-way dismissal.
+
+**Validation Scenarios**
+
+- Scenario — visitor scrolls down from the top of the Hero
+  - Success Condition: headline/scroll cue/Presence Links opacity
+    decreases continuously with scroll position.
+  - Failure Condition: opacity jumps instantly at a single point, or
+    doesn't change with scroll.
+- Scenario — visitor scrolls back up partway through the fade
+  - Success Condition: the elements' opacity increases back along the
+    same relationship to scroll position.
+  - Failure Condition: the elements stay faded/hidden despite scrolling
+    back, or reappear at a different point than they faded.
+
+### Commitment 12 — Hero Mark Transformation (Desktop/Mobile)
+
+Relationship to Solution: resolves Behaviour 12's desktop and mobile
+treatments. Behaviour 12's tablet resolution remains Pending, blocked
+by Section Navigation's own nav-composition decision (Context Problem
+12) — not committed here.
+
+**Acceptance Criteria**
+
+- AC1: Wherever a logomark destination exists (desktop), as the visitor
+  scrolls past the Hero boundary, the Hero's own mark continuously
+  transforms — not crossfades with a second element — toward the nav's
+  compact logo position and form, tracking scroll position
+  continuously.
+- AC2: On mobile, where no logomark destination exists, as the visitor
+  scrolls past the Hero boundary, the Hero's own mark dissolves via a
+  reverse trace of its own entrance stroke, tracking scroll position
+  continuously.
+- AC3: Both transformations are reversible 1:1 with scroll position,
+  matching Commitment 11.
+- AC4: A hysteresis margin prevents the transformation from visibly
+  flickering near the boundary on small scroll oscillations.
+
+**Validation Scenarios**
+
+- Scenario — desktop visitor scrolls past the Hero boundary
+  - Success Condition: the mark visibly morphs into the nav logo's
+    position/form as scroll continues.
+  - Failure Condition: a second, separate logo element crossfades in
+    instead of the same element transforming.
+- Scenario — mobile visitor scrolls past the Hero boundary
+  - Success Condition: the mark dissolves via the reverse stroke-trace.
+  - Failure Condition: the mark attempts a morph with no valid
+    destination, or simply disappears with no defined treatment.
+- Scenario — visitor scrolls in small oscillations right at the
+  boundary
+  - Success Condition: the transformation state doesn't visibly flicker
+    back and forth.
+  - Failure Condition: rapid, visible flicker between states.
+
+### Commitment 13 — About Narrative Photo Tilt
+
+Relationship to Solution: resolves Behaviour 13 (About Narrative Photo
+Tilt), the Rule that tilt derives from cursor/scroll not a gyroscope,
+and the Photo Tilt state.
+
+**Acceptance Criteria**
+
+- AC1 (Desktop): a revealed photo's tilt follows the cursor's position
+  while hovered, up to a maximum of 4° of rotation, additive to the
+  photo's existing base rotation if any.
+- AC2 (Desktop): when the cursor leaves the photo, the tilt eases back
+  to its rest rotation rather than snapping instantly.
+- AC3 (Mobile): a revealed photo's tilt derives from the visitor's
+  scroll direction/velocity, without requesting or requiring any device
+  motion/orientation permission.
+
+**Validation Scenarios**
+
+- Scenario — desktop visitor moves the cursor across a revealed photo
+  - Success Condition: the photo's tilt continuously follows cursor
+    position, within ±4°.
+  - Failure Condition: no tilt occurs, or exceeds 4°, or tilt is a
+    fixed value.
+- Scenario — desktop visitor moves the cursor off the photo
+  - Success Condition: tilt eases back to rest over a brief transition.
+  - Failure Condition: tilt snaps back instantly, or persists after the
+    cursor leaves.
+- Scenario — mobile visitor scrolls past a revealed photo
+  - Success Condition: tilt visibly responds to scroll
+    direction/velocity, no permission prompt appears.
+  - Failure Condition: no tilt occurs, or a permission prompt is
+    requested.
+
+### Commitment 14 — Scroll-Driven Component Synchronization
+
+Relationship to Solution: resolves Behaviour 14's observable
+consequence — its internal mechanism (a shared source, not independent
+listeners) is Technical Design's concern, not this Commitment's.
+
+**Acceptance Criteria**
+
+- AC1: At any given scroll position, the Hero mark's transformation
+  progress, the nav progress fill, and the nav divider's segmentation
+  state are always mutually consistent with the same underlying scroll
+  position — none visibly lags or leads the others by a perceptible
+  margin.
+
+**Validation Scenarios**
+
+- Scenario — visitor scrolls continuously past the Hero boundary and
+  further down the page
+  - Success Condition: the mark's transformation, the progress fill,
+    and the divider's segmentation all update in step with each other
+    and with actual scroll position.
+  - Failure Condition: any of these visibly disagrees with the others
+    about current scroll position.
+
+### Commitment 15 — Direct Contact CTA Discoverability Motion (Underline and Tap)
+
+Relationship to Solution: resolves Behaviour 15's underline and
+text-scale-down portions. Its icon-flourish portion remains Pending,
+blocked by Direct Contact's own composition not yet containing the icon
+(Context Problem 15) — not committed here.
+
+**Acceptance Criteria**
+
+- AC1: Hovering the Direct Contact CTA (desktop/pointer input) produces
+  an underline that draws left-to-right beneath the CTA's text, in
+  addition to Commitment 5's existing feedback.
+- AC2: Tapping/clicking the CTA produces a momentary scale-down of the
+  text.
+- AC3: Neither treatment alters the CTA's destination or function — it
+  still resolves via the same external channel per Direct Contact's own
+  contract (same boundary as Commitment 5).
+
+**Validation Scenarios**
+
+- Scenario — desktop visitor hovers the CTA
+  - Success Condition: an underline visibly draws left-to-right beneath
+    the text.
+  - Failure Condition: no underline appears, or it appears instantly
+    rather than drawing.
+- Scenario — visitor taps/clicks the CTA
+  - Success Condition: the text visibly scales down momentarily around
+    the moment of activation.
+  - Failure Condition: no scale change occurs.
+
+### Commitment 16 — Reduced-Motion Functional Equivalence
+
+Relationship to Solution: resolves Behaviour 16 (Reduced-Motion
 Equivalence), the Rule that reduced motion never blocks reaching a
 functional end-state, and the inherited firm invariant that a
 reduced-motion fallback is mandatory.
@@ -354,13 +511,21 @@ reduced-motion fallback is mandatory.
 - AC7: When active, the divider still reaches the correct segmented or
   continuous state for the current mark-presence fact (Commitment 10's
   end-states), without relying on an animated transition.
+- AC8: When active, the CTA's underline/tap-scale feedback (Commitment
+  15) still registers via the existing discrete non-animated change
+  (AC5), without relying on the draw-on/scale motion.
+
+Note (not an AC): reduced-motion's meaning for Commitments 11, 12, and
+13 remains Pending, carried forward from Solution — not committed here.
 
 **Validation Scenarios**
 
 - Scenario — visitor with reduced-motion preference active loads the site
-  and navigates through it as in Commitments 1–10's scenarios
-  - Success Condition: every end-state in Commitments 1–10 is still
-    reached.
+  and navigates through it as in Commitments 1–10, 14, and 15's
+  scenarios
+  - Success Condition: every end-state in Commitments 1–10, 14, and 15
+    is still reached (Commitments 11, 12, and 13 are excluded — their
+    reduced-motion end-state is Pending, not yet defined).
   - Failure Condition: any end-state requires animated motion to be
     reached, or is unreachable without it.
 

@@ -40,6 +40,48 @@ defined motion or interaction behavior at all:
     around a centered mark) and its continuous state — already flagged as
     deferred to this Feature in Section Navigation's own approved
     Solution/Technical Design (Commitment 8).
+11. Hero's headline, scroll cue, and Presence Links have no defined
+    scroll-driven exit behavior as the visitor scrolls past the Hero.
+    Whether this transition is reversible on scroll-up is unresolved by
+    default; treated here as bidirectional, reversible 1:1 with
+    scroll-progress (consistent with the mark's own transformation,
+    Problem 12) — not a one-way "reveal once" state like About
+    Narrative's paragraphs (Problem 1).
+12. The Hero's ornamental mark has no defined mechanism for becoming the
+    nav's compact logo identity as the visitor scrolls past the Hero
+    boundary, as a single continuously-transforming element —
+    superseding the crossfade-based approach Problem 3 originally
+    assumed. Desktop: a continuous morph into the nav logo position.
+    Mobile: already defined as a non-morph treatment — no logomark
+    destination exists there, so the mark dissolves via a reverse
+    stroke-trace (its entrance gesture, played backward). Tablet:
+    genuinely unresolved and blocking — whether tablet's nav composition
+    has room for a central logomark or collapses to mobile's hamburger
+    composition is Section Navigation's own composition decision; this
+    Problem cannot be fully resolved for tablet until that's settled
+    there.
+13. About Narrative's photos have no defined tilt/depth interaction
+    responding to cursor position (desktop) or scroll motion (mobile).
+    Depends on a static base "polaroid" rotation applied to the photos
+    at rest — this does not currently exist in About Narrative's own
+    approved UI Definition (which explicitly specifies no framing/
+    rotation), so this Problem has a real, unresolved prerequisite
+    there, distinct from this Feature's own additive tilt motion.
+14. This Feature's own scroll-driven components (the Hero mark's
+    transformation, the nav progress fill, the nav divider's
+    segmentation, Section Navigation's active-section detection) each
+    independently track scroll position, with no defined shared
+    coordination.
+15. Direct Contact's CTA has no defined motion treatment for a
+    persistent, always-visible discoverability affordance (distinct
+    from Problem 5's hover-only feedback) — blocked by Direct Contact's
+    own composition, which does not yet contain such an element. Not
+    cosmetic: user testing found visitors don't perceive the CTA text as
+    clickable at all, and Problem 5's hover-only feedback can't solve
+    that (it only registers after a visitor already attempts to
+    interact). This Feature's own artifacts cannot fully resolve the
+    underlying discoverability problem until Direct Contact's own phases
+    add the element this Problem's motion depends on.
 
 Left unresolved, the site's individually strong Features would read as
 functionally complete but experientially inert, undermining the modern,
@@ -82,6 +124,16 @@ assumed."
 - The problem of Section Navigation's divider line having no defined
   transition between its segmented state (a mark occupying the center)
   and continuous state (Problem 10).
+- The problem of Hero's headline, scroll cue, and Presence Links having
+  no defined scroll-driven exit behavior (Problem 11).
+- The problem of the Hero's mark having no defined mechanism for
+  becoming the nav's compact logo identity on scroll (Problem 12).
+- The problem of About Narrative's photos having no defined tilt/depth
+  interaction (Problem 13).
+- The problem of this Feature's own scroll-driven components having no
+  shared coordination (Problem 14).
+- The problem of Direct Contact's CTA having no defined motion treatment
+  for a persistent discoverability affordance (Problem 15).
 - The general problem of motion needing to read as one coherent system
   (a single curve/timing character) rather than isolated per-element
   treatments.
@@ -112,6 +164,17 @@ existence guarantee).
 - The ambient Ornamental Logo ghost-texture instances on About Narrative
   and Direct Contact — confirmed to stay static, matching those
   Features' own Technical Design; no motion-interaction treatment.
+- About Narrative parallax (text and photos) — considered and excluded,
+  to avoid visual fatigue in the section with the most running text.
+- The underline→envelope-icon morph on the CTA — excluded; too much
+  production effort for a perception window that short before `mailto:`
+  fires.
+- About Narrative's photo scale-in reveal — excluded outright; replaced
+  by a blur/desaturation+tint-to-sharp/colour treatment (Problem 1).
+- The envelope icon's existence as a UI element — Direct Contact's own
+  scope, not this Feature's (Problem 15).
+- The nav logo's exact rest-state size value — Section Navigation's own
+  UI Definition's scope, not this Feature's (Problem 12).
 
 ## Constraints
 
@@ -151,18 +214,30 @@ existence guarantee).
   this Feature's existing Problem 4 treatment needs to be revisited
   against this structure, and Commitment 8's segmented/continuous
   transition itself is this Feature's problem to resolve (Problem 10).
+  Also blocks Problem 12's tablet resolution — whether tablet retains a
+  central-logomark-capable nav composition or collapses to mobile's
+  hamburger composition is undecided anywhere in the catalog yet.
 - **`hero-presentation`** — now composes Presence Links as a 4th
   first-load element (desktop/tablet only), subordinate to mark/headline/
   scroll cue — within Problem 2's existing entrance-choreography scope,
   not a new problem. Also exposes a mark-visibility sentinel that Problem
-  10's transition will need to consume.
+  10's transition will need to consume. The mark asset this Feature
+  transforms into the nav position on scroll (Problem 12) is the same
+  element Hero Composition renders, not a second element crossfading
+  with it — a stronger continuity than Problem 3's original crossfade
+  assumption.
 - **`about-narrative`** — its opening line now carries distinct
   typographic emphasis as the composition's "greeting moment,"
   distinguishable from the other five body-tier blocks — a structural
-  fact within Problem 1's existing reveal scope.
+  fact within Problem 1's existing reveal scope. Problem 13's tilt
+  motion also has an unresolved prerequisite on About Narrative's own UI
+  Definition adding a static base rotation — currently absent there.
 - **`direct-contact`** — its CTA is the specific element needing
   elaborated interaction treatment; this Feature depends on its existing
-  markup/function without altering it.
+  markup/function without altering it. Its CTA's persistent
+  discoverability affordance is blocked by its own content/structure not
+  yet existing, not merely contingent on it — this Feature cannot close
+  Problem 15 until Direct Contact adds it.
 - **`presence-links`** — its own approved UX Specification already
   defers all motion/hover treatment to this Feature ("No motion, timing,
   or reveal behavior is defined here — owned by `motion-interaction`");
