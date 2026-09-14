@@ -110,7 +110,12 @@ within this composition is noted).
 - Contact CTA/Mechanism: realized as the oversized display-type text
   itself acting as the link — no button chrome, border, or pill shape;
   consistent with the site's chrome-free, typography-driven aesthetic
-  (mirrors About Narrative's "no bordered/surfaced elements").
+  (mirrors About Narrative's "no bordered/surfaced elements"). Accompanied
+  by a persistent affordance icon (Contract Commitment 7) — a
+  peaked-envelope outline (stroke-based, no fill, mitered corners),
+  positioned after the CTA text with a small gap, sized to the CTA text's
+  x-height (proportionally large given the CTA's own oversized display
+  scale, not a small inline glyph).
 - Farewell Line: two-line text stack (bold lead + regular follow), no
   icon.
 - Presence Links (composed alongside; not this Feature's own
@@ -133,6 +138,10 @@ within this composition is noted).
   lines: the project's soft off-white foreground, no accent gradient —
   the CTA needs no colour-based emphasis since scale alone establishes
   its primacy.
+- CTA affordance icon: the same off-white foreground as the CTA's resting
+  text, not the accent gradient — a neutral, persistent affordance rather
+  than an interactive-feedback signal, keeping the gradient vocabulary
+  reserved for `motion-interaction`'s hover/feedback treatment.
 - Presence Links text (Observed, not this Feature's own token to
   define): a distinct, lavender/accent-tinted colour — visibly different
   from the plain off-white used everywhere else in this composition.
@@ -154,8 +163,10 @@ the site's chrome-free style.
 
 ## Iconography
 
-None observed in this reference — Presence Links appear as plain text
-labels, not icons, here.
+One: the CTA's affordance icon (Component Anatomy above) — a peaked-
+envelope outline, hand-drawn/angular style matching the Ornamental
+Mark/Logo's own visual language, not a library icon. Presence Links
+otherwise appear as plain text labels, not icons, here.
 
 ## Visual States and Responsive Layout
 

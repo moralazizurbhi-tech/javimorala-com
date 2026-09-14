@@ -25,12 +25,13 @@ Design).
 Specializes Project UX's "Reach Javi" flow.
 
 - Visitor reaches the Connection screen (via scroll or
-  `section-navigation`'s "contact" link) → the heading, CTA link,
-  Presence Links, and farewell lines are all visible immediately, with no
-  interaction required to reveal any part (Contract Commitment 1) →
-  visitor either activates the CTA ("send me an e-mail" → `mailto:`
-  hand-off to Javi's email client) or follows a presence link
-  (`presence-links`' own flow) or takes no action → end of the
+  `section-navigation`'s "contact" link) → the heading, CTA link (with
+  its affordance icon, visible immediately alongside it — Contract
+  Commitment 7), Presence Links, and farewell lines are all visible
+  immediately, with no interaction required to reveal any part (Contract
+  Commitment 1) → visitor either activates the CTA ("send me an e-mail"
+  → `mailto:` hand-off to Javi's email client) or follows a presence
+  link (`presence-links`' own flow) or takes no action → end of the
   single-page experience.
 
 ## Screens
@@ -97,7 +98,8 @@ Existing identity, from Project UX's Screens.
   Components. This Feature's specific realization: a `mailto:` link
   labeled "send me an e-mail" (Contract Commitment 1), its target address
   protected against scraping (Contract Commitment 2) — obfuscation
-  technique itself Pending, Technical Design.
+  technique itself Pending, Technical Design. Accompanied by a persistent
+  affordance icon, visible from first render (Contract Commitment 7).
 - **Farewell Line** — two short closing text lines presented statically,
   positioned after/alongside the CTA and Presence Links.
 - **Ornamental Logo (Connection background placement)** (renamed from
@@ -133,6 +135,10 @@ Existing identity, from Project UX's Screens.
   mis redes"
 - **Farewell line 2 (Euskera)** — Confirmed (lower-confidence draft; same
   native-review flag): "nire sare sozialetan ere jarrai nazakezu"
+- **CTA affordance icon** — Reference/Design Asset: an SVG provided
+  directly by the user in this session (a peaked-envelope outline,
+  hand-drawn/angular style matching the Ornamental Mark/Logo's own
+  visual language, stroke-based with mitered corners, no fill).
 
 ## UX Constraints
 

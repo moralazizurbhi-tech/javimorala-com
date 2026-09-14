@@ -155,6 +155,34 @@ completeness guarantee.
   - Failure Condition: the mark exposes an interactive/focusable
     affordance, or visually overshadows the CTA.
 
+### Commitment 7 — CTA Discoverability Affordance
+
+Relationship to Solution: resolves the CTA Discoverability Affordance
+Behaviour and the Rule that the icon must be visible in the CTA's
+resting state, not hover-gated.
+
+**Acceptance Criteria**
+
+- AC1: The affordance icon is visible immediately upon the Connection
+  screen rendering, without requiring hover, focus, or any prior
+  interaction.
+- AC2: The icon does not alter the CTA's destination, function, or
+  accessible name — Commitment 1's hand-off guarantee is unaffected by
+  its presence.
+
+**Validation Scenarios**
+
+- Scenario — Standard render, no interaction
+  - Success Condition: the affordance icon is visible alongside the CTA
+    text immediately.
+  - Failure Condition: the icon is absent, or only appears after
+    hover/focus/interaction.
+- Scenario — CTA activation with the icon present
+  - Success Condition: the `mailto:` hand-off still occurs exactly as
+    Commitment 1 requires.
+  - Failure Condition: the icon's presence interferes with activation or
+    the accessible name.
+
 ---
 
 *Created: 2026-09-07*

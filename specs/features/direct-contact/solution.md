@@ -33,6 +33,9 @@ path to real contact" problem.
   behavior and does not compete with the CTA for primary attention. Its
   presence carries no completeness guarantee of its own, mirroring how
   Presence Links is already treated here.
+- **CTA Discoverability Affordance** — the CTA is accompanied by a
+  persistent, always-visible icon (not conditionally revealed on hover),
+  signaling it's interactive from first render.
 
 ### Flows
 
@@ -57,6 +60,9 @@ path to real contact" problem.
   of its own.
 - The ornamental mark, when shown, must remain visually subordinate to
   the CTA — never competing with it for primary attention.
+- The affordance icon must be visible in the CTA's resting state — not
+  conditionally revealed only on hover/focus, which would fail to solve
+  the discoverability problem before first interaction.
 
 ### States and Transitions
 
@@ -85,6 +91,8 @@ loading/confirmation/success state.
 - Coordinating the ornamental mark's decorative background placement
   alongside the CTA, Presence Links, and farewell line, as a purely
   decorative, non-interactive element.
+- The CTA's persistent discoverability affordance (an icon, always
+  visible, not hover-gated).
 
 #### Excluded
 

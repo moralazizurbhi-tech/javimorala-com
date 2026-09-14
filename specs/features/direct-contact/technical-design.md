@@ -52,6 +52,14 @@ the CTA's target address protected from static-source scraping.
   data collection (Commitment 1).
 - Render the farewell lines as static, non-interactive text (Commitment
   5) — no handlers, no state.
+- Render the CTA's affordance icon as static, inline SVG markup within
+  the CTA anchor, positioned after the text — visible unconditionally at
+  build time, no hydration or client-side logic required (Commitment 7).
+  Exposes a stable class hook on the icon element for `motion-
+  interaction`'s own component to target externally for its tap
+  flourish, the same "public DOM surface" pattern used elsewhere across
+  the project — this component neither imports nor is aware of that
+  external targeting.
 
 **Owned Concepts**
 
@@ -63,6 +71,8 @@ the CTA's target address protected from static-source scraping.
 - The Ornamental Logo's large-scale non-interactive background stacking
   treatment
   (shared asset referenced, not redefined).
+- The affordance icon's static markup and its stable, publicly-targetable
+  class hook.
 
 **Collaborations**
 
@@ -165,6 +175,8 @@ the CTA's target address protected from static-source scraping.
 - Commitment 6 → non-interactive background-layer rendering of the
   shared Ornamental Logo asset (large-scale ambient instance), with no
   completeness dependency.
+- Commitment 7 → the affordance icon's static, unconditionally-visible
+  markup.
 
 ## Cross-Component Relationships
 

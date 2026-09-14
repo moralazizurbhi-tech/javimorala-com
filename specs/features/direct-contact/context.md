@@ -10,6 +10,13 @@ way to actually reach out. Without a clear, primary path to real contact,
 engagement dead-ends at admiration rather than connection — undermining
 the point of presenting an authentic identity in the first place.
 
+A visitor may also not recognize the CTA's plain-text presentation as an
+interactive, clickable control before any interaction occurs — user
+testing observed visitors failing to perceive it as a button. Distinct
+from motion-interaction's own hover-feedback treatment (its Commitment
+5), which only registers after a visitor already attempts to interact —
+this problem is about discoverability before that point.
+
 ## Motivation
 
 Directly serves Project Context's Vision by giving genuine visitor
@@ -30,6 +37,9 @@ Feature must resolve entirely through an external channel.
   (the farewell line).
 - Coordinating that CTA with Presence Links (secondary) into one cohesive
   Connection-screen problem, per the Definition's composition ownership.
+- The problem of the CTA lacking a persistent, always-visible affordance
+  signaling it's interactive, distinct from motion-interaction's
+  hover-feedback treatment.
 
 ### Excluded
 
@@ -69,7 +79,9 @@ Feature must resolve entirely through an external channel.
 - **`content-localization`** — CTA copy and farewell-line text depend on
   this Feature being resolved in the right language.
 - **`motion-interaction`** — governs any reveal/motion applied to this
-  Feature's elements.
+  Feature's elements; also governs the motion applied to this Feature's
+  new affordance icon once it exists here (contingent — that Feature's
+  own artifacts already reference this dependency).
 - **`accessibility`** — cross-cutting; applies to the CTA and
   farewell-line elements.
 
