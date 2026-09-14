@@ -92,10 +92,10 @@ Hero Composition's static output without altering it.
 - Must never repeat the entrance sequence once the visit-scoped flag is
   set, regardless of how many times Hero re-enters the viewport via
   scroll (Commitment 2 AC2).
-- The mark-transformation's target size/position must match whatever
-  final compact-logo dimensions Section Navigation's own UI Definition
-  specifies — this component doesn't invent that value, it consumes it
-  (Context Problem 12 dependency).
+- The mark-transformation's target size/position must match the
+  compact-logo dimensions Section Navigation's own UI Definition
+  specifies (158x292) — this component consumes that value, not owns
+  it (Context Problem 12 dependency, now resolved for desktop/mobile).
 
 **Design Decisions**
 
@@ -715,13 +715,11 @@ Composition's static CTA anchor without altering it.
   reversing on hover/focus-out.
 - On tap/click (any input), apply a momentary scale-down (~0.97, ~100ms)
   to the CTA's text, independent of the hover-sweep/underline treatment.
-- When Direct Contact's own composition eventually adds a persistent
-  affordance icon (Context Problem 15, blocked — not yet true), apply a
-  brief flourish to that icon at the same tap moment — this
-  responsibility has no effect today, since the element it targets does
-  not yet exist; it activates automatically once Direct Contact's own UI
-  Definition and markup add it, requiring no further change to this
-  component.
+- Apply a brief flourish to Direct Contact's affordance icon (now
+  present in its own composition, Context Problem 15 resolved) at the
+  same tap moment as the text scale-down, targeting the icon's stable
+  class hook (Direct Contact's own Technical Design exposes it) rather
+  than importing or coupling to Direct Contact's component code.
 - Pass the anchor's existing `href` and text content through completely
   unmodified — this component adds a presentation-layer visual effect
   only, never touching Direct Contact's anti-scraping character-reference
@@ -737,7 +735,8 @@ Composition's static CTA anchor without altering it.
   and momentary-tap behavior.
 - The underline draw-on's `scaleX` transition and the tap scale-down's
   trigger logic.
-- The icon-flourish trigger, dormant until the icon exists.
+- The icon-flourish trigger and its targeting of Direct Contact's
+  exposed class hook.
 
 **Collaborations**
 
@@ -765,9 +764,10 @@ Composition's static CTA anchor without altering it.
   sweep animation are runtime concerns.
 - The touch-equivalent feedback must never leave the CTA without any
   feedback at all on a touch-only device (Commitment 6 AC2).
-- The icon flourish must not error or behave unexpectedly if the icon
-  element doesn't exist in the DOM — this component targets it
-  defensively (e.g. a no-op if absent), not assuming its presence.
+- The icon flourish targets Direct Contact's exposed class hook, not its
+  component code — no import or code dependency in either direction,
+  consistent with the "target public DOM from outside" pattern used
+  throughout this design.
 
 **Design Decisions**
 
@@ -782,21 +782,20 @@ Composition's static CTA anchor without altering it.
    Contact's own static-first, zero-script-required design for its core
    contractual behavior (Commitment 1's stateless hand-off still works
    with no JS, since this component only adds an optional visual layer).
-3. The icon flourish's targeting is written defensively against the
-   icon's absence, rather than this component waiting for Direct
-   Contact's own composition to change before shipping any of
-   Commitment 15. Rationale: the underline and tap-scale are fully
-   committable today (Contract Commitment 15's resolved ACs); gating the
-   whole component on the icon's future existence would needlessly
-   delay shipping the parts that don't depend on it.
+3. The icon flourish targets Direct Contact's icon via its exposed class
+   hook rather than any code-level reference. Rationale: identical
+   reasoning to Nav Transition Styles and the other "target public DOM
+   from outside" components in this design — zero coupling in either
+   direction, consistent with Direct Contact's own Technical Design
+   exposing the hook specifically for this purpose.
 
 **Contract Traceability**
 
 - Commitment 5 → the hover gradient-sweep.
 - Commitment 6 → the touch-equivalent momentary sweep, input-capability
   detection.
-- Commitment 15 → the underline draw-on, tap scale-down, and (dormant,
-  contingent) icon flourish.
+- Commitment 15 → the underline draw-on, tap scale-down, and icon
+  flourish.
 - Contributes to Commitment 16 → reduced-motion handling.
 
 ### Secondary Interaction Feedback Styles
@@ -989,11 +988,11 @@ outside, with zero code dependency on Language Override's own component.
   Navigation's public surface independently.
 - CTA Interaction Motion → Direct Contact Composition (external): depends
   outward, wraps its CTA anchor's static output, never the reverse.
-- CTA Interaction Motion → Direct Contact Composition's future
-  discoverability icon (external, DOM query, defensive, not yet
-  existing): targets it if/when present for the tap flourish; no
-  dependency on its existence, and Direct Contact's own component has no
-  awareness of this targeting.
+- CTA Interaction Motion → Direct Contact Composition's discoverability
+  icon (external, exposed class hook): targets it for the tap flourish;
+  Direct Contact's own component neither imports nor is aware of this
+  targeting, consistent with the "no dependency back" pattern used
+  throughout this design.
 - Secondary Interaction Feedback Styles → Section Navigation Composition,
   Presence Link Group Composition, Language Switcher Component (all
   external): targets each one's existing DOM from outside; none of those

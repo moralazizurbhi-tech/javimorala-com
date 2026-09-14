@@ -141,12 +141,10 @@ Specializes Direct Contact's "Reach Javi" flow.
   interaction feedback beyond simple color/scale change (exact visual
   treatment Pending, Feature UI), also drawing an underline left-to-right
   beneath the text as part of that feedback (Contract Commitment 15) →
-  visitor taps/clicks → the text scales down momentarily; once Direct
-  Contact's own composition adds a persistent affordance icon (Context
-  Problem 15, blocked, not decided here), this Feature's tap gesture
-  will also apply a brief flourish to it → visitor activates it →
-  unchanged `mailto:` hand-off, per Direct Contact's own flow (Contract
-  Commitment 5).
+  visitor taps/clicks → the text scales down momentarily and Direct
+  Contact's own persistent affordance icon flourishes at the same
+  moment → visitor activates it → unchanged `mailto:` hand-off, per
+  Direct Contact's own flow (Contract Commitment 5).
 - Touch-device visitor taps the CTA → an equivalent, necessarily
   momentary feedback registers at the moment of tap, since touch has no
   hover → unchanged `mailto:` hand-off proceeds (Contract Commitment 6).
@@ -300,9 +298,8 @@ own them.
 - **Merged Active/Progress Indicator** — extends Section Navigation's
   existing Active Screen Indicator with a progress dimension.
 - **CTA Interaction Feedback** — specializes Direct Contact's CTA with
-  hover/touch feedback, an underline draw-on, and a tap scale-down; an
-  icon flourish is contingent on Direct Contact's own composition
-  eventually adding the icon (Context Problem 15, blocked).
+  hover/touch feedback, an underline draw-on, a tap scale-down, and a
+  tap flourish on Direct Contact's own affordance icon.
 - **Photo Tilt** — cursor-driven (desktop) or scroll-driven (mobile)
   tilt on About Narrative's revealed photos.
 - **Nav Link Interaction Feedback** — specializes Section Navigation's
@@ -342,9 +339,10 @@ own them.
   interfere with those guarantees.
 - The ambient gradient drift must be slow and subtle enough to never
   compete with or distract from foreground content.
-- Behaviour 12's tablet treatment and Behaviour 15's icon-flourish
-  portion remain unresolved/blocked pending other Features' own
-  decisions — not invented here.
+- Behaviour 12's tablet treatment remains unresolved/blocked pending
+  Section Navigation's own decision — not invented here. Behaviour 15's
+  icon-flourish is now resolved, since Direct Contact's own composition
+  contains the affordance icon.
 
 ---
 

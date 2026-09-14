@@ -74,14 +74,12 @@ defined motion or interaction behavior at all:
     coordination.
 15. Direct Contact's CTA has no defined motion treatment for a
     persistent, always-visible discoverability affordance (distinct
-    from Problem 5's hover-only feedback) — blocked by Direct Contact's
-    own composition, which does not yet contain such an element. Not
-    cosmetic: user testing found visitors don't perceive the CTA text as
-    clickable at all, and Problem 5's hover-only feedback can't solve
-    that (it only registers after a visitor already attempts to
-    interact). This Feature's own artifacts cannot fully resolve the
-    underlying discoverability problem until Direct Contact's own phases
-    add the element this Problem's motion depends on.
+    from Problem 5's hover-only feedback). Not cosmetic: user testing
+    found visitors don't perceive the CTA text as clickable at all, and
+    Problem 5's hover-only feedback can't solve that (it only registers
+    after a visitor already attempts to interact). Direct Contact's own
+    composition now contains the affordance element (its own Contract
+    Commitment 7) — this Problem is resolved as of this pass.
 
 Left unresolved, the site's individually strong Features would read as
 functionally complete but experientially inert, undermining the modern,
@@ -234,10 +232,11 @@ existence guarantee).
   Definition adding a static base rotation — currently absent there.
 - **`direct-contact`** — its CTA is the specific element needing
   elaborated interaction treatment; this Feature depends on its existing
-  markup/function without altering it. Its CTA's persistent
-  discoverability affordance is blocked by its own content/structure not
-  yet existing, not merely contingent on it — this Feature cannot close
-  Problem 15 until Direct Contact adds it.
+  markup/function without altering it. Its CTA now composes a persistent
+  discoverability-affordance icon (its own Contract Commitment 7) — this
+  Feature depends on that element's existing markup without altering it,
+  same as any other element it layers motion onto (Problem 15, now
+  resolved).
 - **`presence-links`** — its own approved UX Specification already
   defers all motion/hover treatment to this Feature ("No motion, timing,
   or reveal behavior is defined here — owned by `motion-interaction`");

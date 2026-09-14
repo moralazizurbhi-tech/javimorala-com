@@ -95,11 +95,10 @@ serves an articulable purpose rather than decoration.
 15. **Direct Contact CTA Discoverability Motion** — extends Behaviour 5
     with an underline that draws left-to-right on hover (the same
     stroke/trace language as Behaviour 12) and a momentary scale-down
-    on tap. When Direct Contact's own composition eventually adds a
-    persistent affordance icon (Context Problem 15, blocked, not
-    decided here), this Feature's tap gesture also applies a brief
-    flourish to it. This treatment mitigates but does not fully resolve
-    Problem 15 — full resolution is blocked until that icon exists.
+    on tap. Direct Contact's own composition now composes a persistent
+    affordance icon (its own Contract Commitment 7); this Feature's tap
+    gesture applies a brief flourish to it. This treatment, together
+    with Direct Contact's own icon, resolves Problem 15.
 16. **Reduced-Motion Equivalence** — every behavior above still reaches
     its full end-state without animated motion when the visitor's
     reduced-motion preference is active. The ambient gradient drift and
@@ -202,10 +201,10 @@ serves an articulable purpose rather than decoration.
 - Behaviour 13's tilt derives from cursor position (desktop) or scroll
   motion (mobile), never a device gyroscope — no system permission
   required.
-- Behaviour 15's tap gesture ships in two independently-committable
-  parts: the text scale-down (available now) and the icon flourish
-  (blocked until the icon exists) — the whole Behaviour isn't blocked,
-  only that portion.
+- Behaviour 15's tap gesture applies to both the text scale-down and the
+  icon flourish, now that Direct Contact's own icon exists — previously
+  the icon portion was blocked and the two shipped independently; both
+  are now fully committed together.
 
 ### States and Transitions
 

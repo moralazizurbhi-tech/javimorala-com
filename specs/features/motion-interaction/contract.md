@@ -449,12 +449,12 @@ listeners) is Technical Design's concern, not this Commitment's.
   - Failure Condition: any of these visibly disagrees with the others
     about current scroll position.
 
-### Commitment 15 — Direct Contact CTA Discoverability Motion (Underline and Tap)
+### Commitment 15 — Direct Contact CTA Discoverability Motion
 
-Relationship to Solution: resolves Behaviour 15's underline and
-text-scale-down portions. Its icon-flourish portion remains Pending,
-blocked by Direct Contact's own composition not yet containing the icon
-(Context Problem 15) — not committed here.
+Relationship to Solution: resolves Behaviour 15 in full — the underline,
+text-scale-down, and icon-flourish portions. Direct Contact's own
+composition now contains the affordance icon (its own Contract
+Commitment 7), so this Commitment is no longer partial.
 
 **Acceptance Criteria**
 
@@ -466,6 +466,11 @@ blocked by Direct Contact's own composition not yet containing the icon
 - AC3: Neither treatment alters the CTA's destination or function — it
   still resolves via the same external channel per Direct Contact's own
   contract (same boundary as Commitment 5).
+- AC4: Tapping/clicking the CTA also applies a brief flourish to Direct
+  Contact's affordance icon, at the same moment as the text's
+  scale-down.
+- AC5: The icon flourish does not alter the icon's presence, the CTA's
+  destination, or its accessible name.
 
 **Validation Scenarios**
 
@@ -476,8 +481,10 @@ blocked by Direct Contact's own composition not yet containing the icon
     rather than drawing.
 - Scenario — visitor taps/clicks the CTA
   - Success Condition: the text visibly scales down momentarily around
-    the moment of activation.
-  - Failure Condition: no scale change occurs.
+    the moment of activation, and the affordance icon visibly flourishes
+    at the same moment.
+  - Failure Condition: no scale change occurs, or the icon doesn't
+    flourish, or its presence/accessible name changes.
 
 ### Commitment 16 — Reduced-Motion Functional Equivalence
 
@@ -511,9 +518,9 @@ reduced-motion fallback is mandatory.
 - AC7: When active, the divider still reaches the correct segmented or
   continuous state for the current mark-presence fact (Commitment 10's
   end-states), without relying on an animated transition.
-- AC8: When active, the CTA's underline/tap-scale feedback (Commitment
-  15) still registers via the existing discrete non-animated change
-  (AC5), without relying on the draw-on/scale motion.
+- AC8: When active, the CTA's underline/tap-scale/icon-flourish feedback
+  (Commitment 15) still registers via the existing discrete non-animated
+  change (AC5), without relying on the draw-on/scale/flourish motion.
 - AC9: When active, the Hero's scroll-linked content exit and mark
   transformation (Commitments 11, 12) continue functioning exactly as
   specified — driven directly by the visitor's own scroll position, not

@@ -89,12 +89,14 @@ reflects actual scroll position.
   The morphing element's container uses `overflow: visible` (it visually
   extends beyond the nav bar bounds at its larger nav-logo size) with
   `pointer-events: none` on the overflowing portion — sized to match
-  whatever final logo dimensions Section Navigation's own UI Definition
-  specifies (Context Problem 12 dependency; anticipated around 30-35%
-  overflow of the nav bar, pending confirmation there). Mobile: the mark
-  dissolves via the same stroke-reveal mechanic as its entrance, played
-  in reverse (`stroke-dashoffset` 0%→100%), tracked against the same
-  scroll-progress value — no morph, since no logomark destination exists
+  the final logo dimensions Section Navigation's own UI Definition
+  confirms: 158x292, 35% larger than its original 117x216, overflowing
+  the nav row's height by roughly 76 units above the row with a small
+  top-margin clearance (Context Problem 12 dependency, now resolved).
+  Mobile: the mark dissolves via the same stroke-reveal mechanic as its
+  entrance, played in reverse (`stroke-dashoffset` 0%→100%), tracked
+  against the same scroll-progress value — no morph, since no logomark
+  destination exists
   in that layout. Both directions apply a hysteresis margin (a small
   scroll-distance buffer before the transformation state flips) to
   prevent visible flicker from minor scroll oscillations near the
@@ -168,11 +170,12 @@ reflects actual scroll position.
   system coherence.
 - **CTA tap gesture:** on tap/click, the CTA's text scales down
   momentarily (~0.97, ~100ms) as an activation cue, distinct from and
-  in addition to the hover sweep/underline. When Direct Contact's own
-  composition eventually adds a persistent affordance icon (Context
-  Problem 15, blocked, not decided here), this same tap moment will
-  also apply a brief flight/tilt flourish to it — not decided/specified
-  further here, contingent on that element existing.
+  in addition to the hover sweep/underline. At the same moment, Direct
+  Contact's affordance icon (the envelope outline) takes a brief
+  "flight" — a slight upward translation combined with a small rotation,
+  as if taking off, settling back immediately after — a quick, snappy
+  gesture matching the text scale-down's brisk pacing, not a lingering
+  one.
 - **Touch-feedback pattern (general):** wherever hover feedback exists,
   touch triggers the same visual treatment momentarily on tap/press
   rather than requiring a sustained hover state.
@@ -275,12 +278,10 @@ resolving away once revealed — not a persistent border/surface.
 
 ## Iconography
 
-None new for this Feature's own scope. A candidate SVG for Direct
-Contact's own future discoverability icon was provided as reference
-during this round but is not recorded here — it belongs to Direct
-Contact's own UI Definition, not this Feature's, when that phase runs;
-only the icon's own motion (the tap flourish above) is this Feature's
-concern.
+None new for this Feature's own scope. Direct Contact's affordance icon
+(the envelope outline) is now recorded in Direct Contact's own UI
+Definition, not this Feature's — only the icon's own motion (the tap
+flourish above) is this Feature's concern.
 
 ## Visual States and Responsive Layout
 
