@@ -16,18 +16,21 @@ Composition's static output without altering it.
 
 - Hydrate as a thin client-side island composed around Hero Composition's
   static markup (the framework's static-children-in-island composition
-  pattern), individually targeting the three existing elements
-  (background mark, headline, scroll cue) it already renders.
+  pattern), individually targeting the elements it already renders —
+  background mark, headline, scroll cue, and, when Hero Composition's
+  markup includes it (desktop/tablet only, per Hero's own conditional),
+  Presence Links.
 - On mount, read Motion Playback Store's Hero-entrance-played flag. If not
-  played: sequence the three elements' appearance per Feature UI's order
-  (mark bloom → headline cascade, overlapping → scroll cue after a pause)
-  and pacing, then write the flag as played. If already played: render
-  all three in their final settled state directly, no animation.
+  played: sequence the elements' appearance per Feature UI's order and
+  pacing (mark bloom → headline cascade, overlapping → scroll cue and
+  Presence Links together after a pause, when Presence Links is present),
+  then write the flag as played. If already played: render all of them in
+  their final settled state directly, no animation.
 - After settling (by either path), begin the ambient gradient drift on
   the background mark, unless reduced-motion is active.
 - Read the reduced-motion platform signal directly; when active, skip the
   entrance sequence to its end-state and never begin the ambient drift
-  (Commitment 10).
+  (Commitment 11).
 
 **Owned Concepts**
 
@@ -77,12 +80,20 @@ Composition's static output without altering it.
    component, not from a shared owned store. Rationale: it is read-only
    external state, not app-owned data; no shared component is needed for
    every consumer to read the same platform signal independently.
+3. Presence Links' participation in the sequence is determined by its
+   mere presence/absence in Hero Composition's rendered static markup,
+   not by this component independently detecting viewport/device type.
+   Rationale: Hero Composition's own conditional (desktop/tablet only)
+   already determines whether the element exists in the DOM at all; this
+   component's existing "individually targeting the elements it already
+   renders" responsibility naturally extends to a variable element set
+   with no new detection logic required.
 
 **Contract Traceability**
 
-- Commitment 2 → entrance sequencing, once-per-visit guard via Motion
-  Playback Store.
-- Contributes to Commitment 10 → reduced-motion handling for the entrance
+- Commitment 2 → entrance sequencing (including Presence Links when
+  composed, AC3), once-per-visit guard via Motion Playback Store.
+- Contributes to Commitment 11 → reduced-motion handling for the entrance
   and the ambient drift.
 
 ### Motion Playback Store
@@ -192,7 +203,7 @@ direct-navigation-arrival immediate-reveal behavior (Contract Commitment
   and do not apply per-piece scroll-triggered animation for that arrival.
 - Read the reduced-motion platform signal directly; when active, every
   piece reaches its revealed state directly, without the scroll-triggered
-  or direct-arrival animation (Commitment 10).
+  or direct-arrival animation (Commitment 11).
 
 **Owned Concepts**
 
@@ -251,7 +262,7 @@ direct-navigation-arrival immediate-reveal behavior (Contract Commitment
 
 - Commitment 1 → viewport-intersection reveal, direct-arrival immediate
   reveal, Motion Playback Store's revealed-piece set.
-- Contributes to Commitment 10 → reduced-motion handling for both reveal
+- Contributes to Commitment 11 → reduced-motion handling for both reveal
   paths.
 
 ### Nav Transition Styles
@@ -303,7 +314,7 @@ without any code dependency on Section Navigation's own component.
 - Must not require Section Navigation's own component code to import,
   reference, or otherwise become aware of this stylesheet.
 - Must resolve to no transition (an instant value) under
-  `prefers-reduced-motion: reduce`, satisfying Commitment 10 for this
+  `prefers-reduced-motion: reduce`, satisfying Commitment 11 for this
   specific transition without any JavaScript.
 - Cannot itself define the indicator's base visual anatomy — that
   remains Pending, owned by Section Navigation's own UI Definition; this
@@ -327,7 +338,7 @@ without any code dependency on Section Navigation's own component.
 - Commitment 3 → the logomark-icon presence transition.
 - Contributes to Commitment 4 → transitions whatever indicator-value
   change Section Navigation's own anatomy exposes.
-- Contributes to Commitment 10 → reduced-motion handling via native media
+- Contributes to Commitment 11 → reduced-motion handling via native media
   query.
 
 ### Nav Progress Overlay
@@ -335,32 +346,43 @@ without any code dependency on Section Navigation's own component.
 **Purpose**
 
 Realize the merged indicator's progress component (Contract Commitment
-4) — a concept Section Navigation does not itself compute — as an
-independently-rendered visual, with zero dependency on Section
-Navigation's own component.
+4) — a concept Section Navigation does not itself compute — as two
+independently-positioned segment fills aligned to Section Navigation's
+existing divider segments, with zero dependency on Section Navigation's
+own component.
 
 **Responsibilities**
 
 - Hydrate as its own, separately-rendered client-side island — not
   composed inside Section Navigation's component tree — positioned via
-  the Styling System's shared layout tokens/breakpoints to visually align
-  with the nav bar's existing divider location.
-- Compute the visitor's scroll position as a graduated progress value and
-  render a fill reflecting it, updating as scroll position changes.
-- Read the reduced-motion platform signal directly; when active, the fill
-  still reflects accurate progress at all times, without a smoothing/
-  animated interpolation between values (Commitment 10).
+  the Styling System's shared layout tokens to align with each of
+  Section Navigation's two existing divider segments individually (their
+  per-screen-context layout positions, already defined by Section
+  Navigation's own UI Definition), rather than one continuous divider
+  location.
+- Compute the visitor's overall scroll position as a single graduated
+  progress value and map it sequentially across both segments — the
+  first half of that value fills the left segment left-to-right, the
+  second half fills the right segment left-to-right — updating as scroll
+  position changes, independent of the divider's current segmented/
+  continuous visual state (Nav Divider Segment Transition's concern).
+- Read the reduced-motion platform signal directly; when active, both
+  segment fills still reflect accurate progress at all times, without a
+  smoothing/animated interpolation between values (Commitment 11).
 
 **Owned Concepts**
 
-- The scroll-to-progress-value computation.
-- The fill's independent rendering and positioning.
+- The scroll-to-progress-value computation and its sequential mapping
+  across two independently-positioned segment fills.
+- The fills' independent rendering and positioning, aligned to each
+  segment individually.
 
 **Collaborations**
 
 - Styling System (external, Project Architecture) — supplies the layout
-  tokens this component uses to align itself with the nav bar's divider
-  location, without reading Section Navigation's component internals.
+  tokens this component uses to align itself with each of the nav bar's
+  two existing divider segments, without reading Section Navigation's
+  component internals.
 - Motion Layer (external).
 - Reduced-motion platform signal (external).
 
@@ -377,8 +399,15 @@ Navigation's own component.
   for cross-component visual coherence.
 - Must hydrate as a client-side island — scroll position is a runtime-
   only concern.
-- Must remain visually subordinate to and aligned with the nav bar across
-  both desktop and the (Pending, per Feature UI) mobile treatment.
+- Must remain visually subordinate to and aligned with each of the nav
+  bar's two divider segments across both desktop and the (Pending, per
+  Feature UI) mobile treatment.
+- Must render correctly regardless of the divider's current segmented/
+  continuous visual state — this component owns only the progress fill,
+  not the segment gap's open/closed transition (Nav Divider Segment
+  Transition's concern); the two must visually cohere on the same
+  underlying divider element without either depending on the other's
+  code.
 
 **Design Decisions**
 
@@ -392,12 +421,100 @@ Navigation's own component.
    shared Styling System tokens is the same mechanism every Feature
    already relies on for coherence, so no new architectural pattern is
    introduced.
+2. This component and Nav Divider Segment Transition both target the
+   same underlying divider element but do not depend on each other.
+   Rationale: each owns a distinct concept (progress-fill amount vs. the
+   segmented/continuous gap state) and each independently targets
+   Section Navigation's public surface via Styling System tokens or its
+   exposed state attribute; coupling the two motion-interaction
+   components together for a purely visual coincidence would add
+   architecture neither actually needs functionally.
 
 **Contract Traceability**
 
-- Commitment 4 → the progress component of the merged indicator.
-- Contributes to Commitment 10 → reduced-motion handling (accurate value,
-  no animated smoothing).
+- Commitment 4 → the progress component of the merged indicator, now
+  realized as two segment fills.
+- Contributes to Commitment 11 → reduced-motion handling (accurate
+  value, no animated smoothing).
+
+### Nav Divider Segment Transition
+
+**Purpose**
+
+Realize the divider's segmented/continuous state transition (Contract
+Commitment 10), targeting Section Navigation's own exposed segmentation
+state from outside, with zero code dependency on Section Navigation's or
+Hero Presentation's own components.
+
+**Responsibilities**
+
+- Provide an SCSS stylesheet partial that targets whatever class/
+  attribute Section Navigation's own component exposes on its divider
+  segments to reflect the current segmented/continuous state — a state
+  Section Navigation's own component computes internally, already
+  consuming Hero Presentation's exposed mark-visibility sentinel per
+  Hero's own Technical Design, a relationship this Feature has no part
+  in and does not duplicate.
+- Apply a smooth transition — both segments extending toward or
+  retracting from the center — whenever that exposed class/attribute
+  changes, rather than an instant snap.
+- Disable/shorten this transition under the browser's
+  `prefers-reduced-motion` media query, natively, without any JavaScript
+  detection.
+
+**Owned Concepts**
+
+- The segment extend/retract transition's timing/property declarations
+  (exact values Implementation-level, per Feature UI's qualitative
+  pacing guidance).
+
+**Collaborations**
+
+- Section Navigation Composition (external, `section-navigation`) — this
+  stylesheet targets its existing, already-exposed segmented/continuous
+  class/attribute state; Section Navigation's own component neither
+  imports nor is aware of this stylesheet, the same pattern Nav
+  Transition Styles establishes for Section Navigation.
+- Styling System (external, Project Architecture).
+
+**Dependencies**
+
+- Section Navigation Composition's exposed segmentation-state class/
+  attribute — external, read-only.
+- Styling System — external.
+
+**Constraints**
+
+- Must not require Section Navigation's own component code to import,
+  reference, or otherwise become aware of this stylesheet.
+- Must resolve to an instant state change (no extend/retract animation)
+  under `prefers-reduced-motion: reduce`.
+- Must not itself compute or determine which mark occupies the divider's
+  center — that computation and its resulting exposed state belong
+  entirely to Section Navigation's own Technical Design (which itself
+  consumes Hero's exposed sentinel); this component only transitions the
+  visual consequence of a state change it does not produce.
+
+**Design Decisions**
+
+1. Realized as an SCSS/CSS-only mechanism targeting Section Navigation's
+   own exposed segmentation state, rather than this Feature
+   independently computing mark-presence itself from Hero's sentinel.
+   Rationale: Hero's own Technical Design already establishes that
+   Section Navigation Composition observes Hero's exposed mark-
+   visibility sentinel to drive its own divider segmented/continuous DOM
+   state; duplicating that computation here would introduce a second,
+   potentially inconsistent consumer of Hero's sentinel and a dependency
+   this Feature does not need. Consuming Section Navigation's own
+   already-resolved, already-public state exposure — the same "target
+   public DOM from outside" pattern used throughout this design —
+   achieves the transition with zero new coupling.
+
+**Contract Traceability**
+
+- Commitment 10 → the segmented/continuous extend/retract transition.
+- Contributes to Commitment 11 → reduced-motion handling via native
+  media query.
 
 ### CTA Interaction Motion
 
@@ -424,7 +541,7 @@ Contact Composition's static CTA anchor without altering it.
   encoding or the anchor's accessible name.
 - Read the reduced-motion platform signal directly; when active, register
   interaction with a discrete, non-animated visual change instead of the
-  sweep (Commitment 10).
+  sweep (Commitment 11).
 
 **Owned Concepts**
 
@@ -478,7 +595,7 @@ Contact Composition's static CTA anchor without altering it.
 - Commitment 5 → the hover gradient-sweep.
 - Commitment 6 → the touch-equivalent momentary sweep, input-capability
   detection.
-- Contributes to Commitment 10 → reduced-motion handling.
+- Contributes to Commitment 11 → reduced-motion handling.
 
 ### Secondary Interaction Feedback Styles
 
@@ -565,7 +682,7 @@ of those Features' own components.
 - Contributes to Commitment 9 → the switcher trigger's and each option's
   hover/focus/touch feedback (the dropdown's open/close transition itself
   is Switcher Dropdown Transition's concern, below).
-- Contributes to Commitment 10 → reduced-motion handling via native media
+- Contributes to Commitment 11 → reduced-motion handling via native media
   query.
 
 ### Switcher Dropdown Transition
@@ -631,7 +748,7 @@ outside, with zero code dependency on Language Override's own component.
 **Contract Traceability**
 
 - Commitment 9 → the dropdown's open and close transitions.
-- Contributes to Commitment 10 → reduced-motion handling via native media
+- Contributes to Commitment 11 → reduced-motion handling via native media
   query.
 
 ## Cross-Component Relationships
@@ -651,8 +768,19 @@ outside, with zero code dependency on Language Override's own component.
   contract (external): targets it from outside; Section Navigation's own
   component has no dependency back, consistent with its own Technical
   Design.
-- Nav Progress Overlay → Styling System (external): aligns itself via
-  shared tokens only; no dependency on Section Navigation's component.
+- Nav Progress Overlay → Styling System (external): aligns itself with
+  each of Section Navigation's two divider segments via shared tokens
+  only; no dependency on Section Navigation's component.
+- Nav Divider Segment Transition → Section Navigation Composition's
+  exposed segmentation-state class/attribute (external): targets it from
+  outside; Section Navigation's own component has no dependency back,
+  consistent with its own Technical Design (which itself depends outward
+  on Hero's exposed sentinel — a relationship this Feature has no part
+  in and does not duplicate).
+- Nav Progress Overlay and Nav Divider Segment Transition share the same
+  visual target (Section Navigation's divider) but have no dependency on
+  each other — each owns a distinct concept and targets Section
+  Navigation's public surface independently.
 - CTA Interaction Motion → Direct Contact Composition (external): depends
   outward, wraps its CTA anchor's static output, never the reverse.
 - Secondary Interaction Feedback Styles → Section Navigation Composition,
@@ -664,10 +792,11 @@ outside, with zero code dependency on Language Override's own component.
   outside; Language Override's own component has no dependency back.
 - All motion-bearing components → Motion Layer (Framer Motion, external,
   Project Architecture): the shared animation mechanism.
-- All motion-bearing components (except Nav Transition Styles, Secondary
-  Interaction Feedback Styles, and Switcher Dropdown Transition, which
-  use native CSS media queries) → the reduced-motion platform signal
-  (external): read directly, independently, by each component.
+- All motion-bearing components (except Nav Transition Styles, Nav
+  Divider Segment Transition, Secondary Interaction Feedback Styles, and
+  Switcher Dropdown Transition, which use native CSS media queries) →
+  the reduced-motion platform signal (external): read directly,
+  independently, by each component.
 
 No circular dependencies: every component here depends outward on the
 Feature it layers motion onto, on the Styling System, or on the Motion
@@ -677,7 +806,12 @@ preserved by construction; Language Override's own Technical Design
 declares no such commitment (it never previously addressed
 `motion-interaction`), but no component here requires its code to import
 or reference anything from this Feature either, consistent with the same
-pattern.
+pattern. Section Navigation's own dependency on Hero Presentation's
+exposed mark-visibility sentinel (driving its divider's segmented/
+continuous state) is a relationship between those two Features'
+Technical Designs, established independently of this Feature; Nav
+Divider Segment Transition consumes only Section Navigation's resulting
+public state, introducing no new edge into that relationship.
 
 ---
 

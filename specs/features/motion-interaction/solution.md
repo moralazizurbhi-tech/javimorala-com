@@ -20,11 +20,15 @@ serves an articulable purpose rather than decoration.
    photos) become visible progressively during scroll; once visible, a
    piece stays visible for the rest of the visit. Photos get a distinct
    entrance treatment as part of this reveal (not a mask/wipe "discover"
-   mechanism). Direct-navigation arrival at the section shows all content
-   immediately.
+   mechanism). The opening line, given its distinct typographic emphasis
+   as the composition's "greeting moment," gets its own distinct reveal
+   treatment, separate from both the uniform paragraph treatment and the
+   photo treatment. Direct-navigation arrival at the section shows all
+   content immediately.
 2. **Hero First-Load Entrance** — on true first load in a visit, the
-   Hero's elements enter in a defined sequence; later in-session returns
-   via nav show the complete state directly, with no replay.
+   Hero's elements — including Presence Links when Hero composes it —
+   enter in a defined sequence; later in-session returns via nav show the
+   complete state directly, with no replay.
 3. **Nav Identity Transition** — the nav transitions between its
    Hero-context and post-Hero presentation as scroll crosses that
    boundary, in both directions.
@@ -48,7 +52,11 @@ serves an articulable purpose rather than decoration.
    and the dropdown's open/close is a discrete, observable transition
    rather than an instant show/hide — without altering Language
    Override's own selection, persistence, or no-op behavior.
-10. **Reduced-Motion Equivalence** — every behavior above still reaches
+10. **Nav Divider Segment Transition** — the divider transitions between
+    its segmented state (split around a centered mark) and continuous
+    state as the corresponding mark-presence fact changes, in a defined,
+    observable way rather than snapping instantly.
+11. **Reduced-Motion Equivalence** — every behavior above still reaches
     its full end-state without animated motion when the visitor's
     reduced-motion preference is active.
 
@@ -74,6 +82,8 @@ serves an articulable purpose rather than decoration.
   dropdown opens with a discrete transition → option hover/focus →
   feedback → selection → dropdown closes with a discrete transition →
   Language Override's own flow continues unchanged.
+- Mark presence/centering at the nav divider's position changes → divider
+  transitions between segmented and continuous state.
 - Reduced-motion active → every flow above still completes fully, without
   relying on animation.
 
@@ -99,6 +109,21 @@ serves an articulable purpose rather than decoration.
 - Every included behavior must serve an articulable purpose — a behavior
   without one is out of scope for this solution, regardless of technical
   feasibility.
+- Presence Links, when part of Hero's composition, enters as part of the
+  same sequence as the Hero's other elements, together with the scroll
+  cue as the sequence's final step — not as an independently-timed
+  addition.
+- The divider's segmented/continuous transition derives from the same
+  mark-presence fact Section Navigation and Hero expose, not a
+  separately invented heuristic.
+- This transition is functionally distinct from the Merged
+  Active/Progress Indicator's active-screen component — the two usually
+  coincide but are governed independently, consistent with Section
+  Navigation's own distinction.
+- The divider serves as the physical carrier for both the Merged
+  Active/Progress Indicator and the Nav Divider Segment Transition; how
+  their combined presentation is realized on one shared element is
+  Feature UX/UI's concern, not decided here.
 
 ### States and Transitions
 
@@ -124,6 +149,9 @@ serves an articulable purpose rather than decoration.
 - **Switcher Dropdown:** `Closed ⇄ Open`, extending Language Override's
   existing state with a discrete, observable transition in each
   direction rather than an instant change.
+- **Nav Divider Segmentation:** `Segmented ⇄ Continuous`. Segmented while
+  a mark occupies the divider's center position; Continuous otherwise;
+  transitions are observable, never instant.
 - **Reduced-Motion Mode:** `Off ⇄ On`, derived from the visitor's system/
   browser preference; when On, every state above still reaches its
   end-state without relying on animated motion.
@@ -149,16 +177,20 @@ serves an articulable purpose rather than decoration.
 - Every included behavior must have an articulable purpose; a behavior
   lacking one is out of scope for this solution regardless of technical
   feasibility.
+- The divider's segmented/continuous transition requires the solution to
+  consume a mark-presence signal exposed by Section Navigation and Hero,
+  not derive this fact independently.
 
 ### Boundaries
 
 #### Included
 
-- The 10 behaviours above (About Narrative reveal, Hero entrance, Nav
+- The 11 behaviours above (About Narrative reveal, Hero entrance, Nav
   identity transition, merged Active/Progress Indicator, Direct Contact
   CTA feedback, touch-equivalent feedback, nav link hover/focus feedback,
   Presence Link hover/focus feedback, Language Switcher interaction
-  feedback, and reduced-motion equivalence applying to all of them).
+  feedback, Nav Divider Segment Transition, and reduced-motion
+  equivalence applying to all of them).
 
 #### Excluded
 
@@ -181,6 +213,9 @@ serves an articulable purpose rather than decoration.
 - Content/structure of what's animated, and focus-state existence/
   compliance — unchanged from Feature Definition's boundary, owned
   elsewhere.
+- Ambient motion for the Ornamental Logo ghost-texture instances on About
+  Narrative/Direct Contact — confirmed to stay static, matching those
+  Features' own Technical Design; not in scope.
 
 ---
 

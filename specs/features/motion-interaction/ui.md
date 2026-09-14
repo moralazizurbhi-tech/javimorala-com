@@ -6,7 +6,8 @@
 
 Realizes Feature UX's motion moments — Hero first-load entrance and
 ambient drift, About Narrative's progressive reveal, Section Navigation's
-identity transition and merged indicator, Direct Contact's CTA feedback,
+identity transition, merged indicator, and divider segment transition,
+Direct Contact's CTA feedback,
 nav link/Presence Link/Language Switcher hover-focus feedback, the
 Language Switcher's dropdown open/close transition, and touch-equivalent
 — using Project UX's Visual Foundations — now confirmed as a single
@@ -34,12 +35,18 @@ no size, weight, or tier changes.
 ## Spacing and Layout
 
 No new spacing or positioning for existing elements. One reuse: the
-merged indicator's progress component is realized as Section Navigation's
-existing thin horizontal divider line (already running beneath the
-desktop nav bar) filling proportionally left-to-right with scroll
-position — no new UI real estate added. On mobile, where Section
+merged indicator's progress component is realized against Section
+Navigation's existing divider line — now structurally two independently
+rendered segments around whichever mark occupies the center (per Section
+Navigation's own UI Definition, Commitment 8), not one continuous line.
+Progress fills sequentially across both segments as one continuous
+scroll-progress value: the left segment fills first (0%→50% of overall
+scroll maps to segment 1's own fill, left-to-right), then the right
+segment fills as scroll continues past the midpoint (50%→100% maps to
+segment 2's fill) — a segmented/stepped progress-bar pattern, not
+continuous fill across the gap itself. On mobile, where Section
 Navigation's own UI Definition observes no equivalent divider, this stays
-Pending.
+Pending — unchanged.
 
 ## Component Anatomy and Variants
 
@@ -55,8 +62,16 @@ Pending.
   "distinct per-element character."
 - **Scroll cue entrance:** the existing text+arrow unit fades/translates
   in last, after the headline cascade completes.
+- **Presence Links entrance:** fades/translates in alongside the scroll
+  cue, in the same beat — not a separate, sequential step — existing
+  anatomy from Presence Links' own UI Definition, no new element.
 - **About Narrative paragraph reveal:** each of the six existing blocks
   translates up slightly + fades in as revealed.
+- **About Narrative opening-line reveal:** translates up + fades in like
+  the other paragraphs, but with a more pronounced travel distance and
+  slightly slower pacing — a heavier, more deliberate arrival
+  distinguishing it as the greeting moment, paralleling how Hero's
+  headline reads as the dominant beat versus the scroll cue's quiet one.
 - **About Narrative photo reveal:** a distinct treatment from
   paragraphs — a subtle scale-in (reduced → full size) alongside fade,
   distinguishing photos without a mask/wipe mechanism (excluded per
@@ -65,11 +80,23 @@ Pending.
   fades/scales in when transitioning to the post-Hero presentation,
   reversing symmetrically on scroll-back — a transition on an existing
   conditional element, no new component.
-- **Merged indicator:** the progress component is realized via the
-  divider-fill described under Spacing and Layout; the active-screen
-  transition applies smoothly to whatever base anatomy Section
-  Navigation's own UI Definition eventually assigns (currently Pending
-  there).
+- **Merged indicator (progress):** realized as the segmented
+  divider-fill described under Spacing and Layout; each segment fills
+  independently per its own half of overall scroll progress.
+- **Merged indicator (active-screen):** the active-screen transition
+  applies smoothly to whatever base anatomy Section Navigation's own UI
+  Definition eventually assigns (currently Pending there) — unchanged.
+- **Nav divider segment transition:** the gap between the two segments
+  closes by both segments extending toward the center (continuous
+  state), or opens by both segments retracting back to their segmented
+  positions (segmented state) — a symmetric, reversible transition,
+  mirroring the existing Nav Identity Transition's fade/scale pattern.
+  Each segment's progress fill (above) continues to reflect its own
+  filled proportion independent of the current segmentation state; when
+  merged into one continuous line, the combined line shows the same
+  progress reading computed across its full merged length. Not
+  applicable on mobile — no divider element exists there, consistent
+  with Section Navigation's own UI Definition.
 - **CTA feedback (gradient sweep):** on hover, the CTA's existing
   display text is filled by the site's accent gradient (the same
   lilac-to-purple gradient the Ornamental Mark, Ornamental Logo, and
@@ -131,6 +158,13 @@ Pending.
   feedback is a near-instant colour change, not a sweep — the fastest of
   this Feature's hover treatments, since these are secondary, frequently
   re-triggered elements rather than the one elevated CTA moment.
+- Presence Links enters in the same beat as the scroll cue — not a
+  separate, sequential step.
+- The About Narrative opening line's arrival is slightly slower/heavier
+  than the other paragraphs' brisk, repeating reveal — a one-time
+  distinguishing beat, not a repeated pattern.
+- The nav divider's segmented/continuous transition is quick and
+  responsive, matching the nav identity/indicator transitions' pacing.
 
 ## Colour Application
 
@@ -140,9 +174,8 @@ Pending.
   Ornamental Mark, Ornamental Logo, and Presence Links (lilac-to-purple,
   per the Figma reference) — no new colour token introduced.
 - Progress-bar fill: the same accent gradient, layered onto the
-  divider's existing base colour — the divider's own exact base colour
-  value is Pending, inherited from Section Navigation's UI Definition,
-  which did not specify it.
+  divider's existing base colour — `#e6bdfb`, per Section Navigation's
+  UI Definition.
 
 ## Borders, Radii, Shadows, Surfaces
 
@@ -165,9 +198,14 @@ None new.
   state.
 - **Nav Identity** `Hero-context` / `Post-Hero`: icon absent → icon
   present, via the fade/scale transition described above.
-- **Indicator:** progress = divider-fill width; active-screen anatomy
-  Pending (Section Navigation's own artifact) — this Feature's
-  transition applies to whatever anatomy is eventually assigned there.
+- **Indicator:** progress = segmented divider-fill (each segment
+  independently reflecting its half of overall progress, per Spacing and
+  Layout); active-screen anatomy Pending (Section Navigation's own
+  artifact) — this Feature's transition applies to whatever anatomy is
+  eventually assigned there.
+- **Nav Divider Segmentation** `Segmented` / `Continuous`: two-segment-
+  with-gap state → merged single-line state, via the extend/retract
+  transition described above. Not applicable on mobile.
 - **CTA Feedback:** gradient sweep, sustained while hovering / momentary
   on tap.
 - **Nav Link / Presence Link Feedback:** rest state (existing colour) →
@@ -182,7 +220,8 @@ None new.
 - **Reduced-Motion** `On`: every state above renders its final value
   directly, with no transition; ambient drift forced to `Static`; the
   dropdown's open/close renders as an instant state change rather than a
-  fade+translate.
+  fade+translate; the divider's segmented/continuous transition renders
+  its final state directly, with no extend/retract animation.
 - Desktop vs. mobile: motion applies atop each realized Feature's own
   existing per-device layout; no new per-device split beyond the
   progress-bar's mobile Pending status noted above.

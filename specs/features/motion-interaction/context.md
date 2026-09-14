@@ -35,6 +35,11 @@ defined motion or interaction behavior at all:
    list — has no defined motion or interaction feedback at all — already
    flagged Pending, deferred to this Feature, in Language Override's own
    UX Specification.
+10. Section Navigation's divider line has no defined transition between
+    its segmented state (split into two independently rendered segments
+    around a centered mark) and its continuous state — already flagged as
+    deferred to this Feature in Section Navigation's own approved
+    Solution/Technical Design (Commitment 8).
 
 Left unresolved, the site's individually strong Features would read as
 functionally complete but experientially inert, undermining the modern,
@@ -74,6 +79,9 @@ assumed."
 - The problem of the Language Switcher having no defined
   interaction/motion treatment for its trigger, dropdown open/close, and
   option list (Problem 9).
+- The problem of Section Navigation's divider line having no defined
+  transition between its segmented state (a mark occupying the center)
+  and continuous state (Problem 10).
 - The general problem of motion needing to read as one coherent system
   (a single curve/timing character) rather than isolated per-element
   treatments.
@@ -101,6 +109,9 @@ existence guarantee).
   respectively.
 - Content Localization's language-switch visual effect — not raised in
   this conversation; not included in this Context's scope.
+- The ambient Ornamental Logo ghost-texture instances on About Narrative
+  and Direct Contact — confirmed to stay static, matching those
+  Features' own Technical Design; no motion-interaction treatment.
 
 ## Constraints
 
@@ -131,7 +142,24 @@ existence guarantee).
   Indicator's motion, the mobile overlay's open/close transition, and its
   nav link hover/focus feedback (Problem 7) to this Feature; confirmed
   here as this Feature's problem to resolve, not new scope invented
-  unilaterally.
+  unilaterally. Its divider line — the element this Feature's Active
+  Screen Indicator motion treatment (Problem 4) is applied to — is now
+  structurally two independently rendered segments around whichever
+  Ornamental Mark/Logo occupies the center, with a scroll-derived
+  variable gap on the Introduction screen specifically, not a single
+  continuous line (per its own approved Technical Design, Commitment 8);
+  this Feature's existing Problem 4 treatment needs to be revisited
+  against this structure, and Commitment 8's segmented/continuous
+  transition itself is this Feature's problem to resolve (Problem 10).
+- **`hero-presentation`** — now composes Presence Links as a 4th
+  first-load element (desktop/tablet only), subordinate to mark/headline/
+  scroll cue — within Problem 2's existing entrance-choreography scope,
+  not a new problem. Also exposes a mark-visibility sentinel that Problem
+  10's transition will need to consume.
+- **`about-narrative`** — its opening line now carries distinct
+  typographic emphasis as the composition's "greeting moment,"
+  distinguishable from the other five body-tier blocks — a structural
+  fact within Problem 1's existing reveal scope.
 - **`direct-contact`** — its CTA is the specific element needing
   elaborated interaction treatment; this Feature depends on its existing
   markup/function without altering it.

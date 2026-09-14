@@ -9,8 +9,8 @@ motion... scroll-triggered reveals, animated transitions, responsive
 interaction states") and Visual Foundations' "Shared interaction-state
 conventions," for the moments Feature Solution/Contract define: Hero's
 first-load entrance, About Narrative's progressive reveal, Section
-Navigation's identity transition and merged indicator, Direct Contact's
-CTA feedback, nav link/Presence Link/Language Switcher hover-focus
+Navigation's identity transition, merged indicator, and divider segment
+transition, Direct Contact's CTA feedback, nav link/Presence Link/Language Switcher hover-focus
 feedback, the Language Switcher's dropdown open/close transition, and
 touch-equivalent feedback. Excludes each Feature's own content/structure,
 focus-state existence (owned by `accessibility`), and the concrete
@@ -27,9 +27,11 @@ Specializes Hero Presentation's "Hero arrival" flow.
   composition arrives into — then the headline appears on top of it as
   the primary, dominant content beat, then the scroll cue appears last as
   the quiet closing beat, timed as the sequence's natural conclusion —
-  each element with its own distinct entrance character, not a uniform
-  synchronized fade → composition reaches its complete state (Contract
-  Commitment 2).
+  joined simultaneously by Presence Links when Hero composes it
+  (desktop/tablet), entering together with the scroll cue as the
+  sequence's final beat — each element with its own distinct entrance
+  character, not a uniform synchronized fade → composition reaches its
+  complete state (Contract Commitment 2).
 - Later in the same visit, returning to Hero via nav/logomark shows this
   complete state directly — no replay of the sequence.
 
@@ -49,10 +51,12 @@ no functional pass/fail condition.
 
 Specializes About Narrative's "Learn about Javi" flow.
 
-- Visitor scrolls into Personal Narrative → each paragraph and each photo
-  (About Narrative's existing separately-addressable structural units)
-  becomes visible as the visitor's scroll reaches it, in reading order,
-  and stays visible (Contract Commitment 1).
+- Visitor scrolls into Personal Narrative → the opening line reveals with
+  its own distinct treatment, distinguishing it as the composition's
+  greeting moment, then each remaining paragraph and each photo (About
+  Narrative's existing separately-addressable structural units) becomes
+  visible as the visitor's scroll reaches it, in reading order, and stays
+  visible (Contract Commitment 1).
 - Visitor arrives at Personal Narrative directly via nav → the complete
   narrative (all paragraphs, both photos) is visible immediately.
 
@@ -73,6 +77,24 @@ any screen directly" flows.
 - Visitor activates a nav link → the indicator transitions to the target
   screen; if the jump crosses the Hero boundary, the nav identity
   transition also occurs.
+
+### Nav divider segment transition
+
+Specializes Section Navigation's nav-bar composition (Contract
+Commitment 10).
+
+- Visitor on Introduction scrolls until Hero's mark no longer occupies
+  the divider's center (per Hero's exposed mark-visibility sentinel) →
+  the divider transitions from its segmented state to its continuous
+  state, as a visible, discrete transition — not an instant snap.
+- Visitor scrolls back so the mark re-occupies the center → the reverse
+  transition occurs.
+- On Personal Narrative/Connection, where the compact Ornamental Logo
+  occupies the divider's center throughout, the divider stays in its
+  segmented state.
+- Independent of the Nav Identity transition and the Active/Progress
+  Indicator above — the three may visually coincide near the same scroll
+  position on Introduction but are governed separately.
 
 ### Direct Contact CTA + touch-equivalent feedback
 
@@ -125,14 +147,16 @@ Specializes Language Override's "Switch to a different language" flow.
 
 - Visitor with reduced-motion preference active experiences every flow
   above, but each transition/reveal resolves directly to its end-state
-  without intermediate animated motion — Hero shows complete on load,
-  About Narrative content is revealed without animated motion (at each
-  scroll-reach point, or immediately on direct-nav arrival), nav identity/
-  indicator update directly, CTA/touch feedback still register as a
-  discrete, non-animated visual change, nav link/Presence Link/Language
-  Switcher hover/focus feedback still register without animated motion,
-  the dropdown still reaches its open/closed state directly, and the
-  Hero's ambient gradient drift pauses (Contract Commitment 10).
+  without intermediate animated motion — Hero shows complete on load
+  (including Presence Links, when composed), About Narrative content is
+  revealed without animated motion (at each scroll-reach point, or
+  immediately on direct-nav arrival), nav identity/indicator update
+  directly, the nav divider reaches its correct segmented or continuous
+  state directly, CTA/touch feedback still register as a discrete,
+  non-animated visual change, nav link/Presence Link/Language Switcher
+  hover/focus feedback still register without animated motion, the
+  dropdown still reaches its open/closed state directly, and the Hero's
+  ambient gradient drift pauses (Contract Commitment 11).
 
 ## Screens
 
@@ -145,9 +169,9 @@ own them.
 - Motion purpose: stages the first-load entrance choreography, the Hero
   ambient steady-state, and the nav's Hero-context identity. Participates
   in the Hero first-load entrance, Hero ambient steady-state, Nav
-  identity transition, Nav link hover/focus feedback, Presence Link
-  hover/focus feedback (Introduction placement), and Language Switcher
-  interaction feedback flows.
+  identity transition, Nav divider segment transition, Nav link
+  hover/focus feedback, Presence Link hover/focus feedback (Introduction
+  placement), and Language Switcher interaction feedback flows.
 
 ### Personal Narrative
 
@@ -188,6 +212,11 @@ own them.
 - **Switcher Dropdown:** elaborates Language Override's existing
   `Closed`/`Open` state with an observable, discrete open/close
   transition (rather than an instant show/hide).
+- **Nav Divider Segmentation:** `Segmented` (a mark occupies the
+  divider's center — Hero's mark on Introduction, the compact Ornamental
+  Logo on Personal Narrative/Connection) / `Continuous` (no mark
+  present) — transitions observably, governed independently of the
+  Active/Progress Indicator.
 - **Reduced-Motion:** `Off` / `On` — On removes animated transitions
   (including the ambient drift and the dropdown's open/close transition)
   but preserves every functional end-state.
@@ -195,11 +224,15 @@ own them.
 ## Feature Components
 
 - **Hero Entrance Choreographer** — sequences Hero's existing elements
-  (background mark, headline, scroll cue) per the order above.
+  (background mark, headline, scroll cue) and, when composed, Presence
+  Links — entering together with the scroll cue as the sequence's final
+  beat — per the order above.
 - **Ambient Gradient Drift** — continuous, slow, subtle motion applied
   only to the Hero background mark.
 - **About Narrative Scroll-Reveal Treatment** — applies to About
-  Narrative's existing paragraph/photo units.
+  Narrative's existing paragraph/photo units, giving the opening line its
+  own distinct reveal treatment separate from the uniform paragraph/photo
+  treatments.
 - **Nav Identity Transition** — specializes Section Navigation's nav bar/
   overlay for the Hero-context/post-Hero shift.
 - **Merged Active/Progress Indicator** — extends Section Navigation's
@@ -216,6 +249,9 @@ own them.
   the dropdown's open/close transition.
 - **Touch-Feedback Pattern** — general pattern applied wherever hover
   feedback exists.
+- **Nav Divider Segment Transition** — specializes Section Navigation's
+  divider line with a segmented/continuous transition driven by the
+  mark-presence fact Section Navigation and Hero expose.
 
 ## Content and Assets
 

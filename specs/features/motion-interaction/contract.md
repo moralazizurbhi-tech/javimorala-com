@@ -19,6 +19,9 @@ Rule, and the Content Piece Reveal state (`Hidden ⇄ Revealed`).
 - AC3: If the visitor arrives at the About Narrative section via direct
   navigation rather than progressive scroll, all content pieces in the
   section are visible immediately upon arrival.
+- AC4: The opening line's reveal treatment is observably distinct from
+  the treatment applied to the other paragraph blocks and from the photo
+  treatment.
 
 **Validation Scenarios**
 
@@ -37,6 +40,11 @@ Rule, and the Content Piece Reveal state (`Hidden ⇄ Revealed`).
   - Success Condition: all content pieces are visible immediately.
   - Failure Condition: any piece remains hidden, waiting for in-section
     scroll.
+- Scenario — visitor scrolls to the opening line
+  - Success Condition: its reveal is observably distinct from the other
+    blocks' reveal treatment.
+  - Failure Condition: it reveals identically to the uniform paragraph
+    treatment.
 
 ### Commitment 2 — Hero First-Load Entrance, Once Per Visit
 
@@ -51,6 +59,9 @@ Played`), and the Rule that the sequence plays at most once per visit.
 - AC2: Any subsequent arrival at the Hero via in-page navigation within
   the same visit shows the Hero's complete state directly, without
   repeating the entrance sequence.
+- AC3: When Hero composes Presence Links (desktop/tablet), it enters as
+  part of the same first-load sequence, appearing together with the
+  scroll cue as the sequence's final step, not independently timed.
 
 **Validation Scenarios**
 
@@ -64,6 +75,12 @@ Played`), and the Rule that the sequence plays at most once per visit.
   - Success Condition: Hero's complete state shown immediately, no
     sequence replay.
   - Failure Condition: the entrance sequence replays.
+- Scenario — visitor loads the site for the first time this visit, on a
+  viewport where Hero composes Presence Links
+  - Success Condition: Presence Links appears together with the scroll
+    cue at the sequence's end.
+  - Failure Condition: Presence Links appears independently of the
+    scroll cue's timing, or before the mark/headline resolve.
 
 ### Commitment 3 — Nav Identity Transition on Scroll
 
@@ -268,9 +285,46 @@ altering its selection, persistence, or no-op behavior.
   - Failure Condition: the dropdown disappears instantly, or selection
     behavior changes.
 
-### Commitment 10 — Reduced-Motion Functional Equivalence
+### Commitment 10 — Nav Divider Segment Transition
 
-Relationship to Solution: resolves Behaviour 10 (Reduced-Motion
+Relationship to Solution: resolves Behaviour 10 (Nav Divider Segment
+Transition), the Nav Divider Segmentation state (`Segmented ⇄
+Continuous`), and the Rule that this transition derives from the same
+mark-presence fact Section Navigation and Hero expose.
+
+**Acceptance Criteria**
+
+- AC1: While a mark (Ornamental Mark or Logo) occupies the divider's
+  center position, the divider is rendered in its segmented state.
+- AC2: When no mark occupies that position, the divider is rendered in
+  its continuous state.
+- AC3: The transition between segmented and continuous states is an
+  observable, discrete transition, not an instantaneous snap.
+- AC4: This transition is independent of the Merged Active/Progress
+  Indicator's active-screen transition (Commitment 4) — the two may
+  coincide on Introduction but are not the same state.
+
+**Validation Scenarios**
+
+- Scenario — visitor on Introduction scrolls until Hero's mark no longer
+  occupies the divider's center
+  - Success Condition: divider transitions from segmented to continuous
+    state, observably.
+  - Failure Condition: divider snaps instantly, or never transitions.
+- Scenario — visitor scrolls back up to Introduction, mark re-occupies
+  center
+  - Success Condition: divider transitions back to segmented state.
+  - Failure Condition: divider remains continuous, or snaps instantly.
+- Scenario — visitor on About/Contact where the compact logo occupies
+  the divider's center
+  - Success Condition: divider is in its segmented state consistently
+    while the logo is present.
+  - Failure Condition: divider renders continuous despite the logo's
+    presence.
+
+### Commitment 11 — Reduced-Motion Functional Equivalence
+
+Relationship to Solution: resolves Behaviour 11 (Reduced-Motion
 Equivalence), the Rule that reduced motion never blocks reaching a
 functional end-state, and the inherited firm invariant that a
 reduced-motion fallback is mandatory.
@@ -297,12 +351,15 @@ reduced-motion fallback is mandatory.
   functionally register interaction, and the dropdown still reaches its
   correct open/closed state, without relying on animated motion as the
   sole cue.
+- AC7: When active, the divider still reaches the correct segmented or
+  continuous state for the current mark-presence fact (Commitment 10's
+  end-states), without relying on an animated transition.
 
 **Validation Scenarios**
 
 - Scenario — visitor with reduced-motion preference active loads the site
-  and navigates through it as in Commitments 1–9's scenarios
-  - Success Condition: every end-state in Commitments 1–9 is still
+  and navigates through it as in Commitments 1–10's scenarios
+  - Success Condition: every end-state in Commitments 1–10 is still
     reached.
   - Failure Condition: any end-state requires animated motion to be
     reached, or is unreachable without it.
