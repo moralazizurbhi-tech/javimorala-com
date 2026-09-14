@@ -181,13 +181,25 @@ start, not retrofitted here.
   2); and its whole-experience verification obligations (contrast ratios
   against Phase 0's final token values, heading/landmark structure, alt
   text, document-language sync) across everything built in Phases 1–5.
-- `motion-interaction`: all 7 bridge components (Hero Entrance & Ambient
-  Motion Island, About Narrative Reveal Island, Nav Transition Styles,
-  Nav Progress Overlay, CTA Interaction Motion, Secondary Interaction
-  Feedback Styles, Switcher Dropdown Transition), each wrapping a specific
-  Phase 1–5 Feature's already-built static/interactive output, one
-  directional, with no dependency back onto any of them (confirmed
-  explicitly in every target Feature's own Technical Design).
+- `motion-interaction`: 8 Technical Design components as of this Plan's
+  latest refinement (up from the original 7 — Nav Divider Segment
+  Transition is new), realized across 11 Task Catalog tasks — three
+  components (Hero Entrance & Ambient Motion Island, About Narrative
+  Reveal Island, CTA Interaction Motion) are each split into two tasks
+  by separately-verifiable Commitment, per the Task Catalog's own
+  splitting rationale (Hero Entrance & Ambient Motion Island; Hero
+  Scroll-Linked Content Exit & Mark Transformation; About Narrative
+  Reveal Island; About Narrative Photo Tilt; Nav Transition Styles; Nav
+  Progress Overlay; Nav Divider Segment Transition; CTA Interaction
+  Motion; CTA Discoverability Motion; Secondary Interaction Feedback
+  Styles; Switcher Dropdown Transition). Each wraps a specific Phase 1–5
+  Feature's already-built static/interactive output, one directional,
+  with no dependency back onto any of them (confirmed explicitly in
+  every target Feature's own Technical Design). Nav Divider Segment
+  Transition is unblocked now — Section Navigation's exposed
+  segmentation state is already built (per Implementation Report, commit
+  `0c462b8`) — unlike Nav Transition Styles/Nav Progress Overlay's
+  indicator-anatomy portion, which remains gated below.
 
 **Pending gate — per explicit user decision**: Nav Transition Styles and
 Nav Progress Overlay depend on `section-navigation`'s Active Screen
@@ -347,6 +359,14 @@ these decisions silently.
    `accessibility`'s Technical Design, and are not actually fixed
    anywhere. Non-blocking; resolved locally within each content Feature's
    own phase (2–4) as part of its markup authoring.
+6. **Hero Mark Transformation's tablet treatment is blocked** — whether
+   tablet's nav composition supports a central logomark (desktop's
+   layout) or collapses to mobile's hamburger composition is undecided
+   anywhere in the catalog. Owning artifact: `section-navigation` (a
+   future UX/UI decision), not resolved by this Plan. Gates only the
+   tablet portion of Task Catalog's Hero Scroll-Linked Content Exit &
+   Mark Transformation task — its desktop and mobile scope proceed
+   independently.
 
 ## Excluded
 

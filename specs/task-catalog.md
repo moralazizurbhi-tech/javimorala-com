@@ -35,14 +35,41 @@ one-task-per-Feature default.
     placement into both host Features plus Hero's own Commitment 5
     (T-018) — component-build and integration are different ownership
     domains (Integration work, per this Skill's task categories).
-- **`motion-interaction`'s seven components remain seven separate tasks
-  (T-019–T-025)** — each targets a meaningfully different Feature's
-  already-built output (or, for Secondary Interaction Feedback Styles,
-  three), is independently verifiable, and no consuming Feature depends
-  back on any of them (confirmed in each one's own Technical Design). The
-  Motion Playback Store has no independent verifiable behavior of its own
-  and is folded into T-019, its first consumer; T-020 depends on it being
-  established there.
+- **`motion-interaction`'s original seven components spanned seven
+  separate tasks (T-019–T-025)** — each targets a meaningfully different
+  Feature's already-built output (or, for Secondary Interaction Feedback
+  Styles, three), is independently verifiable, and no consuming Feature
+  depends back on any of them (confirmed in each one's own Technical
+  Design). The Motion Playback Store has no independent verifiable
+  behavior of its own and is folded into T-019, its first consumer; T-020
+  depends on it being established there.
+- **Three of those components were each further split into two tasks**,
+  following the same by-responsibility logic already used for Hero
+  (T-009/T-010) and About Narrative (T-013/T-014) — a later Feature
+  refinement added a second, separately-verifiable Commitment to a
+  component that already had a task:
+  - Hero Entrance & Ambient Motion Island: first-load entrance/ambient
+    drift (T-019, Commitment 2) vs. scroll-linked content exit and mark
+    transformation (T-035, Commitments 11/12) — the latter has its own
+    dedicated validation scenarios (reversibility, hysteresis, per-device
+    treatment) genuinely distinct from entrance sequencing.
+  - About Narrative Reveal Island: progressive reveal (T-020, Commitment
+    1) vs. photo tilt (T-036, Commitment 13) — tilt is cursor/scroll-
+    driven and independently verifiable regardless of reveal state.
+  - CTA Interaction Motion: gradient sweep/touch feedback (T-023,
+    Commitments 5/6) vs. discoverability motion — underline, tap-scale,
+    icon flourish (T-038, Commitment 15) — the latter also depends on
+    Direct Contact's own new affordance icon (T-034), a dependency the
+    sweep/touch feedback never had.
+- **Nav Divider Segment Transition (T-037) is a new, ninth
+  `motion-interaction` task**, added when that Feature's own refinement
+  introduced Commitment 10 — a genuinely new component realizing a
+  genuinely new commitment, not a split of an existing one.
+- **Section Navigation's logomark resize (T-033) and Direct Contact's
+  discoverability icon (T-034) are new tasks outside `motion-interaction`
+  entirely** — both revise/extend already-`Realized` Feature output
+  (T-011's and T-015/T-016's) rather than reopening those tasks'
+  identities, preserving their completion history.
 - **`accessibility`'s two new components are split by dependency, not
   bundled** — Focus-Visible Style Module (T-026) needs only Styling
   System tokens (Ready as soon as T-002 fixes their values); Nav
@@ -248,8 +275,9 @@ one-task-per-Feature default.
     - The logomark always moves the page position to Introduction's top, from any screen or scroll position (Commitment 3).
     - The compact logomark icon is absent while Introduction is active and present otherwise, derived from one shared active-section state (Commitment 4).
     - The active-section state accurately reflects Introduction on load, the target screen after a nav-link activation, and the correct screen after free-scrolling, never ambiguous (Commitment 5).
-  realizesCommitments: section-navigation Commitments 1, 2, 3, 4, 5
-  readiness: Ready. The Active Screen Indicator's state-tracking mechanism is delivered in full regardless of its final visual anatomy (colour/underline/weight), which remains Pending in `section-navigation/ux.md`/`ui.md` — that visual treatment is applied via Styling System tokens whenever it's decided, without changing this task's own completion.
+    - The divider line renders as two independently-sized segments around whichever mark occupies the row's center — Hero's mark on Introduction (via its exposed visibility sentinel), the compact logomark on Personal Narrative/Connection — never one continuous line hidden behind a mark (Commitment 8).
+  realizesCommitments: section-navigation Commitments 1, 2, 3, 4, 5, 8
+  readiness: Realized — including Commitment 8, confirmed built in code (Implementation Report, commit `0c462b8`; this entry previously omitted it). The Active Screen Indicator's final visual anatomy (colour/underline/weight) remains Pending in `section-navigation/ux.md`/`ui.md` — that visual treatment is applied via Styling System tokens whenever it's decided, without reopening this task.
 
 - id: T-012
   name: Section Navigation — Mobile Overlay & Language-Control Hosting
@@ -285,17 +313,18 @@ one-task-per-Feature default.
 - id: T-014
   name: About Narrative — Photo Presentation
   type: implementation
-  objective: Render the photo(s) statically and simultaneously, with no toggle/paging/enlargement on interaction.
-  references: about-narrative/contract.md (Commitment 4; contributes 1)
+  objective: Render the photo(s) statically and simultaneously, with no toggle/paging/enlargement on interaction, plus the Ornamental Logo's decorative background layer.
+  references: about-narrative/contract.md (Commitments 4, 5; contributes 1)
   dependencies: T-013
   inputs: photo assets (placeholders acceptable per this Feature's own Pending item)
-  outputs: photo presentation composed alongside T-013's content; alt text authored (accessibility Commitment 4, AC4 — verified at T-028)
+  outputs: photo presentation composed alongside T-013's content; the Ornamental Logo background layer; alt text authored (accessibility Commitment 4, AC4 — verified at T-028)
   acceptanceCriteria:
     - When two photos are used, both are present simultaneously (Commitment 4, AC1).
     - No visitor interaction with a photo changes which photo(s) display or enlarges them (Commitment 4, AC2).
+    - The Ornamental Logo renders as a non-interactive, low-opacity ambient background layer, never blocking Commitment 1's own completeness (Commitment 5).
     - Commitment 1's full three-piece completeness (narrative, photo, AI note, all present without interaction) is verified jointly once this task and T-013 are composed together.
-  realizesCommitments: about-narrative Commitment 4; contributes to 1
-  readiness: Ready
+  realizesCommitments: about-narrative Commitments 4, 5; contributes to 1
+  readiness: Realized — including Commitment 5, confirmed built in code (Implementation Report, commit `7236462`; this entry previously omitted it).
 
 ### Implementation — Direct Contact
 
@@ -362,13 +391,51 @@ one-task-per-Feature default.
   composesCommitments: presence-links Commitment 4; hero-presentation Commitment 5
   readiness: Ready
 
+### Implementation — Post-Refinement Feature Updates
+
+Revisions to already-`Realized` Features, added after their own original
+tasks completed — new tasks rather than reopening T-011's or T-015/
+T-016's identities, preserving their completion history (Task Grouping
+Rationale).
+
+- id: T-033
+  name: Section Navigation — Enlarge Compact Logomark
+  type: implementation
+  objective: Resize the compact logomark icon to its confirmed 158x292 frame (35% larger than the original 117x216), overflowing above the nav row with a top-margin clearance, bottom edge unchanged.
+  references: section-navigation/ui.md (Spacing and Layout — Desktop)
+  dependencies: T-011
+  inputs: Section Navigation's existing compact logomark rendering (T-011)
+  outputs: resized compact logomark icon
+  acceptanceCriteria:
+    - The icon's frame measures 158x292, uniform scaling from the original 117x216.
+    - The icon overflows above the nav row by roughly 76 units, with a small top-margin clearance above its new top edge; its bottom edge stays anchored near the row, unchanged from before.
+    - The existing divider gap (~19% of the bar width) is not altered — it already comfortably fits the larger icon.
+  realizesCommitments: none — revises T-011's existing Commitment 4 realization, not a new commitment
+  readiness: Ready
+
+- id: T-034
+  name: Direct Contact — CTA Discoverability Affordance Icon
+  type: implementation
+  objective: Add the persistent, always-visible envelope-outline affordance icon to the CTA, positioned after the text.
+  references: direct-contact/technical-design.md (Direct Contact Composition — icon responsibility); direct-contact/contract.md (Commitment 7)
+  dependencies: T-015, T-016
+  inputs: the confirmed peaked-envelope SVG (direct-contact/ux.md, Content and Assets)
+  outputs: static, inline SVG icon within the CTA anchor; a stable class hook exposed for `motion-interaction`'s own component to target externally
+  acceptanceCriteria:
+    - The icon is visible immediately upon the Connection screen rendering, without requiring hover, focus, or any prior interaction (Commitment 7, AC1).
+    - The icon does not alter the CTA's destination, function, or accessible name (Commitment 7, AC2).
+    - The icon ships as static markup — no hydration or client-side logic required.
+    - Exposes a stable class hook, consumed later by `motion-interaction`'s T-038, with no dependency in the other direction.
+  realizesCommitments: direct-contact Commitment 7
+  readiness: Ready
+
 ### Implementation — Motion & Interaction
 
 - id: T-019
   name: Hero Entrance & Ambient Motion Island
   type: implementation
   objective: Build Hero's first-load entrance choreography (mark → headline → scroll cue, once per visit) and post-entrance ambient gradient drift, including the shared Motion Playback Store.
-  references: motion-interaction/technical-design.md (Hero Entrance & Ambient Motion Island); motion-interaction/contract.md (Commitment 2; contributes 10)
+  references: motion-interaction/technical-design.md (Hero Entrance & Ambient Motion Island); motion-interaction/contract.md (Commitment 2; contributes 16)
   dependencies: T-002, T-009, T-010
   inputs: Hero Composition's static output (read-only)
   outputs: Hero Entrance & Ambient Motion Island; Motion Playback Store (shared internal store)
@@ -377,14 +444,14 @@ one-task-per-Feature default.
     - Ambient gradient drift begins only after the entrance settles.
     - With reduced-motion active, the sequence resolves directly to its end-state and the ambient drift never begins.
     - Never alters Hero Composition's own markup or completeness guarantee.
-  realizesCommitments: motion-interaction Commitment 2; contributes to 10
+  realizesCommitments: motion-interaction Commitment 2; contributes to 16
   readiness: Ready
 
 - id: T-020
   name: About Narrative Reveal Island
   type: implementation
   objective: Build About Narrative's progressive scroll-triggered reveal and its immediate-reveal behavior on direct-navigation arrival.
-  references: motion-interaction/technical-design.md (About Narrative Reveal Island); motion-interaction/contract.md (Commitment 1; contributes 10)
+  references: motion-interaction/technical-design.md (About Narrative Reveal Island); motion-interaction/contract.md (Commitment 1; contributes 16)
   dependencies: T-002, T-013, T-014, T-019
   inputs: About Narrative Composition's static output (read-only); Motion Playback Store (T-019)
   outputs: About Narrative Reveal Island
@@ -392,14 +459,14 @@ one-task-per-Feature default.
     - Not-yet-revealed pieces reveal progressively as the visitor scrolls to them, and stay revealed within the same tab session.
     - Direct-navigation arrival (via the nav's anchor link) reveals every not-yet-revealed piece immediately, with no per-piece animation for that arrival.
     - With reduced-motion active, every piece reaches its revealed state directly, without animation.
-  realizesCommitments: motion-interaction Commitment 1; contributes to 10
+  realizesCommitments: motion-interaction Commitment 1; contributes to 16
   readiness: Ready
 
 - id: T-021
   name: Nav Transition Styles
   type: implementation
   objective: Add a smooth transition to the compact-logomark presence change and to the Active Screen Indicator's value-change, targeting Section Navigation's existing DOM/class contract with zero code coupling.
-  references: motion-interaction/technical-design.md (Nav Transition Styles); motion-interaction/contract.md (Commitment 3; contributes 4, 10)
+  references: motion-interaction/technical-design.md (Nav Transition Styles); motion-interaction/contract.md (Commitment 3; contributes 4, 16)
   dependencies: T-002, T-011
   inputs: Section Navigation's public DOM/class contract (read-only)
   outputs: SCSS transition partial
@@ -407,29 +474,31 @@ one-task-per-Feature default.
     - The compact-logomark presence change transitions smoothly in both directions, on free scroll or nav-link jump (Commitment 3) — deliverable and verifiable now.
     - Under `prefers-reduced-motion: reduce`, both transitions resolve to an instant value change.
     - Never requires Section Navigation's own component code to import or reference this stylesheet.
-  realizesCommitments: motion-interaction Commitment 3; contributes to 10
+  realizesCommitments: motion-interaction Commitment 3; contributes to 16
   readiness: Partially Pending. The logomark-transition scope (Commitment 3) is Ready now. The indicator value-change transition (contributing to Commitment 4) cannot be built/verified until `section-navigation`'s Active Screen Indicator visual anatomy is decided — Pending, owning artifact `section-navigation/ux.md`, `ui.md`. Per confirmed decision, this task as a whole is scheduled after that resolves.
 
 - id: T-022
   name: Nav Progress Overlay
   type: implementation
-  objective: Build the independently-rendered scroll-progress fill, visually aligned to the nav bar's divider location via shared layout tokens, with zero code dependency on Section Navigation.
-  references: motion-interaction/technical-design.md (Nav Progress Overlay); motion-interaction/contract.md (Commitment 4; contributes 10)
-  dependencies: T-002
-  inputs: Styling System layout tokens
+  objective: Build the independently-rendered scroll-progress fill as two segment fills aligned to Section Navigation's two existing divider segments, reading a shared, weighted-by-actual-length progress value, with zero code dependency on Section Navigation.
+  references: motion-interaction/technical-design.md (Nav Progress Overlay); motion-interaction/contract.md (Commitment 4; contributes 14, 16)
+  dependencies: T-002, T-035
+  inputs: Styling System layout tokens; Shared Scroll Progress Store's overall page-progress value (established at T-035)
   outputs: Nav Progress Overlay island
   acceptanceCriteria:
-    - The fill accurately reflects scroll progress and updates live, on desktop.
-    - Under reduced-motion, the fill still reflects accurate progress without smoothed interpolation.
-    - Never imports or reads Section Navigation's own component internals.
-  realizesCommitments: motion-interaction Commitment 4 (progress component only); contributes to 10
-  readiness: Partially Pending. Desktop scope is Ready now. Mobile treatment is Pending — owning artifact `motion-interaction/ui.md` (not `section-navigation`) — resolvable within this Feature's own UI refinement.
+    - The overall progress value is computed as actual scrolled distance over total scrollable page height — weighted by each section's real content length, not a fixed 1/3-per-section split.
+    - That value maps sequentially across both segments: the first half fills the left segment left-to-right, the second half fills the right segment — a segmented/stepped pattern, not continuous fill across the gap, updating live on desktop.
+    - The fill renders correctly regardless of the divider's current segmented/continuous state (T-037's concern, not this task's) — the two visually cohere on the same divider element without depending on each other's code.
+    - Under reduced-motion, both segment fills still reflect accurate progress without smoothed interpolation.
+    - Never imports or reads Section Navigation's own component internals — alignment via shared Styling System tokens only.
+  realizesCommitments: motion-interaction Commitment 4 (progress component only); contributes to 14, 16
+  readiness: Partially Pending. Desktop scope is Ready once T-035 establishes Shared Scroll Progress Store. Mobile treatment is Pending — owning artifact `motion-interaction/ui.md` (not `section-navigation`) — resolvable within this Feature's own UI refinement.
 
 - id: T-023
   name: CTA Interaction Motion
   type: implementation
   objective: Build Direct Contact's CTA hover gradient-sweep and its touch-equivalent momentary feedback.
-  references: motion-interaction/technical-design.md (CTA Interaction Motion); motion-interaction/contract.md (Commitments 5, 6; contributes 10)
+  references: motion-interaction/technical-design.md (CTA Interaction Motion); motion-interaction/contract.md (Commitments 5, 6; contributes 16)
   dependencies: T-002, T-015
   inputs: Direct Contact's CTA anchor (read-only)
   outputs: CTA Interaction Motion island
@@ -437,14 +506,14 @@ one-task-per-Feature default.
     - Hover triggers the gradient-sweep for the hover's duration (Commitment 5); tap triggers the equivalent feedback momentarily (Commitment 6).
     - The anchor's `href`, text content, and anti-scraping encoding remain completely unaltered.
     - Under reduced-motion, a discrete, non-animated visual change registers interaction instead of the sweep.
-  realizesCommitments: motion-interaction Commitments 5, 6; contributes to 10
+  realizesCommitments: motion-interaction Commitments 5, 6; contributes to 16
   readiness: Ready
 
 - id: T-024
   name: Secondary Interaction Feedback Styles
   type: implementation
   objective: Build the shared hover/focus/touch feedback treatment for Section Navigation's nav links, both Presence Links placements, and the Language Switcher's trigger/options.
-  references: motion-interaction/technical-design.md (Secondary Interaction Feedback Styles); motion-interaction/contract.md (Commitments 7, 8; contributes 9, 10)
+  references: motion-interaction/technical-design.md (Secondary Interaction Feedback Styles); motion-interaction/contract.md (Commitments 7, 8; contributes 9, 16)
   dependencies: T-002, T-008, T-011, T-018
   inputs: each target's existing public DOM (read-only)
   outputs: SCSS feedback partial
@@ -453,14 +522,14 @@ one-task-per-Feature default.
     - Hover/focus on Presence Links produces the same distinguishing feedback identically at both placements, without altering destination or new-tab behavior (Commitment 8).
     - Hover is gated to `(hover: hover) and (pointer: fine)`; `:active` covers touch/coarse-pointer input on all three targets, including the switcher's trigger/options (contributes to Commitment 9, AC3).
     - Under reduced-motion, the fill's transition duration is disabled.
-  realizesCommitments: motion-interaction Commitments 7, 8; contributes to 9, 10
+  realizesCommitments: motion-interaction Commitments 7, 8; contributes to 9, 16
   readiness: Ready. Full Commitment 9 verification (dropdown open/close plus hover/focus/touch feedback together) requires this task and T-025 both complete.
 
 - id: T-025
   name: Switcher Dropdown Transition
   type: implementation
   objective: Build the Language Switcher's dropdown open/close transition, targeting its Radix `data-state` attribute with zero code coupling.
-  references: motion-interaction/technical-design.md (Switcher Dropdown Transition); motion-interaction/contract.md (Commitment 9; contributes 10)
+  references: motion-interaction/technical-design.md (Switcher Dropdown Transition); motion-interaction/contract.md (Commitment 9; contributes 16)
   dependencies: T-002, T-008
   inputs: Language Switcher's open/closed state exposure (read-only)
   outputs: SCSS transition partial
@@ -468,8 +537,75 @@ one-task-per-Feature default.
     - The dropdown's open and its close are each an observable, discrete transition (Commitment 9, AC1–AC2).
     - Under reduced-motion, the transition resolves to an instant state change.
     - Never alters Language Override's own selection, persistence, or no-op behavior.
-  realizesCommitments: motion-interaction Commitment 9 (open/close only); contributes to 10
+  realizesCommitments: motion-interaction Commitment 9 (open/close only); contributes to 16
   readiness: Ready. Full Commitment 9 verification requires this task and T-024 both complete.
+
+- id: T-035
+  name: Hero — Scroll-Linked Content Exit & Mark Transformation
+  type: implementation
+  objective: Build the Hero's scroll-linked content exit (headline/scroll cue/Presence Links fade) and mark transformation (desktop/tablet-with-space morph into the nav logo; mobile reverse stroke-reveal), sharing one scroll-progress value, including establishing the shared Shared Scroll Progress Store.
+  references: motion-interaction/technical-design.md (Hero Entrance & Ambient Motion Island — scroll-linked responsibilities; Shared Scroll Progress Store); motion-interaction/contract.md (Commitments 11, 12; contributes 14, 16)
+  dependencies: T-002, T-009, T-010, T-019, T-033
+  inputs: Hero Composition's static output (read-only); the confirmed nav-logo target size (T-033)
+  outputs: scroll-linked content exit and mark transformation, layered onto T-019's island; Shared Scroll Progress Store (shared internal store)
+  acceptanceCriteria:
+    - Headline/scroll cue/Presence Links fade continuously (opacity 1→0) tracked directly against scroll position over the Hero's height, reversible in both directions (Commitment 11).
+    - Desktop/tablet-with-space: the mark continuously morphs (not crossfades with a second element) into the nav logo's confirmed 158x292 position/form; mobile: the mark dissolves via a reverse trace of its own entrance stroke (Commitment 12, AC1–AC2).
+    - Both transformations are reversible 1:1 with scroll position (Commitment 12, AC3); a hysteresis margin prevents visible flicker near the boundary (Commitment 12, AC4).
+    - Tablet: no committed behavior — genuinely Pending per Implementation Plan Readiness Issue 6, blocked by a Section Navigation nav-composition decision that doesn't exist yet.
+    - Under reduced-motion, both remain fully active and unaffected — driven directly by scroll position, not autoplaying motion (Commitment 16 AC9).
+  realizesCommitments: motion-interaction Commitments 11, 12 (desktop/mobile only — tablet not committed); contributes to 14, 16
+  readiness: Ready for desktop/mobile. Tablet is Pending — see Implementation Plan Readiness Issue 6.
+
+- id: T-036
+  name: About Narrative — Photo Tilt
+  type: implementation
+  objective: Add cursor-driven (desktop, max 4°) and scroll-driven (mobile) tilt to About Narrative's revealed photos, additive to any existing base rotation.
+  references: motion-interaction/technical-design.md (About Narrative Reveal Island — tilt responsibilities); motion-interaction/contract.md (Commitment 13)
+  dependencies: T-002, T-013, T-014, T-020
+  inputs: About Narrative Composition's revealed photos (read-only, via T-020's reveal state)
+  outputs: photo tilt, layered onto T-020's island
+  acceptanceCriteria:
+    - Desktop: tilt follows cursor position while hovered, up to 4°, additive to any existing base rotation; eases back to rest on cursor-leave, not an instant snap (Commitment 13, AC1–AC2).
+    - Mobile: tilt derives from scroll direction/velocity, without requesting or requiring any device orientation/motion permission (Commitment 13, AC3).
+    - Applies only to photos already `Revealed` (T-020's state) — a `Hidden` photo doesn't tilt.
+    - Under reduced-motion, disabled entirely — photos remain at their static base rotation, no cursor/scroll-driven tilt (Commitment 16 AC10).
+  realizesCommitments: motion-interaction Commitment 13
+  readiness: Ready
+
+- id: T-037
+  name: Nav Divider Segment Transition
+  type: implementation
+  objective: Add a smooth extend/retract transition to the divider's segmented/continuous state, targeting Section Navigation's exposed segmentation-state class with zero code coupling.
+  references: motion-interaction/technical-design.md (Nav Divider Segment Transition); motion-interaction/contract.md (Commitment 10; contributes 16)
+  dependencies: T-002, T-011
+  inputs: Section Navigation's exposed segmentation-state class/attribute (read-only — already built, per Implementation Report commit `0c462b8`)
+  outputs: SCSS transition partial
+  acceptanceCriteria:
+    - While a mark occupies the divider's center, it renders segmented; otherwise continuous (Commitment 10, AC1–AC2).
+    - The transition between states is observable and discrete, not an instantaneous snap (Commitment 10, AC3).
+    - Independent of the Merged Active/Progress Indicator's active-screen transition — the two may coincide on Introduction but are governed separately (Commitment 10, AC4).
+    - Under reduced-motion, resolves to an instant state change.
+    - Never requires Section Navigation's own component code to import or reference this stylesheet.
+  realizesCommitments: motion-interaction Commitment 10; contributes to 16
+  readiness: Ready — Section Navigation's exposed segmentation state already exists in code (commit `0c462b8`), so this task has no upstream blocker despite being new.
+
+- id: T-038
+  name: Direct Contact — CTA Discoverability Motion
+  type: implementation
+  objective: Build the CTA's underline draw-on, tap scale-down, and the affordance icon's tap flourish.
+  references: motion-interaction/technical-design.md (CTA Interaction Motion — discoverability responsibilities); motion-interaction/contract.md (Commitment 15; contributes 16)
+  dependencies: T-002, T-023, T-034
+  inputs: Direct Contact's CTA anchor and affordance icon (read-only, T-034's exposed class hook)
+  outputs: underline draw-on, tap scale-down, and icon flourish, layered onto T-023's island
+  acceptanceCriteria:
+    - Hovering the CTA produces an underline that draws left-to-right beneath the text, in addition to T-023's existing sweep (Commitment 15, AC1).
+    - Tapping/clicking produces a momentary scale-down of the text (Commitment 15, AC2), and a brief flourish on the affordance icon at the same moment (Commitment 15, AC4).
+    - Neither treatment alters the CTA's destination, function, or the icon's presence/accessible name (Commitment 15, AC3, AC5).
+    - The icon flourish targets T-034's exposed class hook, not its component code — no import or code dependency in either direction.
+    - Under reduced-motion, all three resolve to their final state without the draw-on/scale/flourish motion, consistent with the existing hover-feedback pattern (Commitment 16 AC8).
+  realizesCommitments: motion-interaction Commitment 15; contributes to 16
+  readiness: Ready
 
 ### Implementation — Accessibility
 
@@ -541,7 +677,7 @@ one-task-per-Feature default.
   type: verification
   objective: Re-verify T-028's commitments hold once Phase 6's motion layer is composed in, and confirm motion doesn't introduce a new accessibility defect.
   references: accessibility/contract.md (Commitments 1, 2, 3, 4, 6)
-  dependencies: T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-027, T-028
+  dependencies: T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-027, T-028, T-033, T-034, T-035, T-036, T-037, T-038
   inputs: the fully composed, motion-enabled experience
   outputs: a verification record
   acceptanceCriteria:
@@ -553,13 +689,14 @@ one-task-per-Feature default.
   name: Reduced-Motion Equivalence Cross-Check
   type: verification
   objective: Verify reduced-motion functional equivalence holds simultaneously across every `motion-interaction` consumer together, not just per-component.
-  references: motion-interaction/contract.md (Commitment 10)
-  dependencies: T-019, T-020, T-021, T-022, T-023, T-024, T-025
+  references: motion-interaction/contract.md (Commitment 16)
+  dependencies: T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-035, T-036, T-037, T-038
   inputs: the fully composed motion layer under `prefers-reduced-motion: reduce`
   outputs: a verification record
   acceptanceCriteria:
     - With reduced-motion active site-wide, every animated end-state remains reachable and no information or feedback is lost anywhere in the composed experience.
-  validatesCommitments: motion-interaction Commitment 10
+    - Two components are deliberately exempt from the "resolves to end-state directly, no motion" pattern, per Commitment 16 AC9/AC10 — confirm each holds its own specific treatment, not the default one: T-035's Hero scroll-linked content exit and mark transformation stay fully active and scroll-driven (they are not autoplaying motion, so are not suppressed); T-036's photo tilt is disabled entirely (no cursor/scroll-driven rotation at all, not merely non-animated).
+  validatesCommitments: motion-interaction Commitment 16
   readiness: Ready once all listed dependencies are complete.
 
 - id: T-032
@@ -567,13 +704,30 @@ one-task-per-Feature default.
   type: verification
   objective: Regression-test the composed three-domain experience across device classes and all three locales.
   references: project-design.md (Cross-Functional Rules); project-ux.md (Visual Foundations — responsive scaling outcome)
-  dependencies: T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016, T-018, T-029, T-030, T-031
+  dependencies: T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016, T-018, T-029, T-030, T-031, T-033, T-034
   inputs: the fully integrated, motion-complete, three-locale experience
   outputs: a verification record
   acceptanceCriteria:
     - Every screen holds its composition, hierarchy, and functionality at both device classes and in all three languages, with no defect specific to a device-class/locale combination.
   validatesCommitments: none (cross-cutting, whole-experience check)
   readiness: Ready once all listed dependencies are complete.
+
+### Infrastructure — Final Cleanup
+
+- id: T-039
+  name: Sass `calc()` Readability Refactor
+  type: infrastructure
+  objective: Simplify and clarify the codebase's existing dense/nested `calc()` expressions — no visual or behavioral change, readability only.
+  references: none — a code-quality pass over existing implementation, not traceable to any Feature Commitment
+  dependencies: T-002, T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016, T-017, T-018, T-033, T-034, T-035, T-036, T-037, T-038
+  inputs: the full Sass codebase at that point, including `src/styles/mixins/_fluid.scss` (the `clamp(calc(...))` fluid-scaling composition) and `src/features/section-navigation/SectionNav.module.scss` (the divider-gap math, the `117/216`-style ratio calc, and centering-offset calcs) — the two files confirmed to contain dense `calc()` today; any other `calc()` introduced by Phase 6's motion work in the meantime is in scope too
+  outputs: the same Sass files, refactored for readability (named intermediate Sass variables/comments explaining each ratio or offset in place of unlabeled inline arithmetic)
+  acceptanceCriteria:
+    - Every existing `calc()` expression this task touches is functionally identical before and after — verified by pixel-level screenshot comparison at both device classes, not just a visual glance.
+    - `npm run build` and the full test suite still pass unchanged.
+    - No new visual defect, regression, or behavior change is introduced anywhere the refactored partials apply.
+  enablesCommitments: none
+  readiness: Ready once all listed dependencies are complete — deliberately scheduled last, per explicit user decision, so it accounts for every `calc()` this project will ever introduce rather than needing a second pass.
 
 ---
 
