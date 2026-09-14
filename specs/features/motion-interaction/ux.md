@@ -200,9 +200,11 @@ Specializes Language Override's "Switch to a different language" flow.
   register without animated motion, the dropdown still reaches its
   open/closed state directly, and the Hero's ambient gradient drift
   pauses (Contract Commitment 16). The Hero's scroll-linked content exit
-  and mark transformation, and About Narrative's photo tilt, are not
-  covered here — their reduced-motion meaning remains explicitly
-  Pending, not resolved in this pass.
+  and mark transformation continue exactly as specified, still driven
+  directly by scroll position — not autoplaying motion, so not
+  suppressed. About Narrative's photo tilt is disabled entirely —
+  purely decorative and rotation-based, the same treatment as the
+  ambient gradient drift.
 
 ## Screens
 

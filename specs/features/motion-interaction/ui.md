@@ -303,16 +303,20 @@ concern.
   with-gap state → merged single-line state, via the extend/retract
   transition described above. Not applicable on mobile.
 - **Hero Content Exit:** continuous opacity 1→0 mapped directly to
-  scroll position (~0-35% of Hero height); reversible. Reduced-motion
-  meaning: Pending (not resolved in this pass).
+  scroll position (~0-35% of Hero height); reversible. Reduced-motion:
+  unaffected — continues exactly as specified, since it's driven
+  directly by scroll position, not autoplaying motion.
 - **Hero Mark Transformation:** desktop/tablet-with-space: continuous
   morph mapped to scroll position (~25-70% of Hero height, overlapping
   the content exit); mobile: continuous reverse stroke-reveal on the
   same mapping; tablet: unresolved. Hysteresis buffer prevents flicker
-  near the boundary. Reduced-motion meaning: Pending.
+  near the boundary. Reduced-motion: unaffected, same reasoning as Hero
+  Content Exit.
 - **Photo Tilt:** continuous rotation value following cursor (desktop,
   ±4°) or scroll motion (mobile); ease-out to rest on cursor-leave
-  (desktop). Reduced-motion meaning: Pending.
+  (desktop). Reduced-motion: disabled entirely — photos stay at their
+  static base rotation, same treatment as the ambient gradient drift
+  (purely decorative, rotation-based).
 - **CTA Feedback:** gradient sweep + underline draw-on, sustained while
   hovering / momentary on tap; tap also triggers the text scale-down
   (and, once it exists, the icon flourish).
@@ -332,9 +336,11 @@ concern.
   its final state directly, with no extend/retract animation; the CTA's
   underline/tap-scale resolve to their final state without the
   draw-on/scale animation, consistent with the existing hover-feedback
-  pattern. The Hero content exit, mark transformation, and photo tilt's
-  reduced-motion end-state remain explicitly Pending, not decided in
-  this pass.
+  pattern. Two exceptions to the "render final value directly, no
+  transition" rule above: the Hero content exit and mark transformation
+  remain fully active and scroll-linked (not autoplaying motion, so not
+  suppressed); photo tilt is disabled entirely (purely decorative,
+  rotation-based, same treatment as ambient drift).
 - Desktop vs. mobile: motion applies atop each realized Feature's own
   existing per-device layout; new per-device splits this round: the
   Hero mark's morph (desktop/tablet-with-space) vs. reverse stroke-

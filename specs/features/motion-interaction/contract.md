@@ -514,20 +514,27 @@ reduced-motion fallback is mandatory.
 - AC8: When active, the CTA's underline/tap-scale feedback (Commitment
   15) still registers via the existing discrete non-animated change
   (AC5), without relying on the draw-on/scale motion.
-
-Note (not an AC): reduced-motion's meaning for Commitments 11, 12, and
-13 remains Pending, carried forward from Solution — not committed here.
+- AC9: When active, the Hero's scroll-linked content exit and mark
+  transformation (Commitments 11, 12) continue functioning exactly as
+  specified — driven directly by the visitor's own scroll position, not
+  independently-timed animation, and not suppressed by reduced motion.
+- AC10: When active, About Narrative's photo tilt (Commitment 13) is
+  disabled — photos remain at their static base rotation, with no
+  cursor/scroll-driven tilt, consistent with the ambient gradient
+  drift's own reduced-motion treatment.
 
 **Validation Scenarios**
 
 - Scenario — visitor with reduced-motion preference active loads the site
-  and navigates through it as in Commitments 1–10, 14, and 15's
-  scenarios
-  - Success Condition: every end-state in Commitments 1–10, 14, and 15
-    is still reached (Commitments 11, 12, and 13 are excluded — their
-    reduced-motion end-state is Pending, not yet defined).
+  and navigates through it as in Commitments 1–15's scenarios
+  - Success Condition: every end-state in Commitments 1–15 is still
+    reached — Commitments 11 and 12 continue reflecting scroll position
+    exactly as without reduced motion; Commitment 13's tilt is absent
+    rather than reaching an alternate end-state.
   - Failure Condition: any end-state requires animated motion to be
-    reached, or is unreachable without it.
+    reached, or is unreachable without it; Commitment 11/12 stop
+    tracking scroll position when reduced motion is active; or photo
+    tilt still occurs.
 
 ---
 

@@ -44,9 +44,12 @@ Hero Composition's static output without altering it.
   decision (Context Problem 12) settles it.
 - Read the reduced-motion platform signal directly; when active, skip the
   entrance sequence to its end-state and never begin the ambient drift
-  (Commitment 16). The scroll-linked exit/transformation's reduced-motion
-  behavior is explicitly Pending (Solution/Contract) — not implemented
-  here.
+  (Commitment 16). The scroll-linked content exit and mark
+  transformation remain fully active and unaffected by this signal —
+  they continue reading Shared Scroll Progress Store and driving opacity/
+  transform exactly as when reduced motion is inactive, since they are
+  directly driven by the visitor's own scroll position, not
+  independently-timed animation (Commitment 16 AC9).
 
 **Owned Concepts**
 
@@ -138,9 +141,11 @@ Hero Composition's static output without altering it.
 - Contributes to Commitment 14 → this component's scroll-driven values
   are read from Shared Scroll Progress Store, guaranteeing
   synchronization with Nav Progress Overlay.
+- Commitment 16 AC9 → the scroll-linked exit/transformation stays active
+  and unaffected under reduced motion, reading Shared Scroll Progress
+  Store exactly as normal.
 - Contributes to Commitment 16 → reduced-motion handling for the
-  entrance and the ambient drift (the scroll-linked exit/transformation's
-  reduced-motion behavior remains Pending, not realized here).
+  entrance and the ambient drift.
 
 ### Motion Playback Store
 
@@ -337,8 +342,9 @@ on top of About Narrative Composition's static output.
   (not yet scrolled to) doesn't tilt.
 - Read the reduced-motion platform signal directly; when active, every
   piece reaches its revealed state directly, without the scroll-triggered
-  or direct-arrival animation (Commitment 16). Photo tilt's
-  reduced-motion behavior is explicitly Pending — not implemented here.
+  or direct-arrival animation (Commitment 16). When active, photo tilt is
+  disabled entirely — each photo renders at its static base rotation
+  only, with no cursor/scroll-driven tilt applied (Commitment 16 AC10).
 
 **Owned Concepts**
 
@@ -414,9 +420,10 @@ on top of About Narrative Composition's static output.
   reveal, Motion Playback Store's revealed-piece set.
 - Commitment 13 → the desktop cursor-tilt and mobile scroll-tilt
   behaviors.
+- Commitment 16 AC10 → photo tilt is disabled entirely when reduced
+  motion is active.
 - Contributes to Commitment 16 → reduced-motion handling for both reveal
-  paths (photo tilt's reduced-motion behavior remains Pending, not
-  realized here).
+  paths.
 
 ### Nav Transition Styles
 

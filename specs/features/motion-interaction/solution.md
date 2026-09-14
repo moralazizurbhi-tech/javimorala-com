@@ -102,13 +102,21 @@ serves an articulable purpose rather than decoration.
     Problem 15 — full resolution is blocked until that icon exists.
 16. **Reduced-Motion Equivalence** — every behavior above still reaches
     its full end-state without animated motion when the visitor's
-    reduced-motion preference is active. Reduced-motion's precise
-    meaning for the scroll-linked content exit and mark transformation
-    (Behaviours 11, 12), the photo tilt (Behaviour 13), and the ambient
-    gradient drift and hover sweeps, remains explicitly Pending —
-    carried forward, not resolved in this pass. Behaviour 15's underline/tap-scale do get normal
-    coverage: resolve to final state without the draw-on/scale
-    animation, consistent with the existing hover-feedback pattern.
+    reduced-motion preference is active. The ambient gradient drift and
+    every hover sweep/fill were already resolved before this Feature's
+    current refinement (forced to Static; discrete non-animated
+    feedback, respectively) — unchanged. The scroll-linked content exit
+    and mark transformation (Behaviours 11, 12) remain fully active
+    under reduced motion — they are driven directly by the visitor's
+    own scroll position, not independently-timed animation, and are
+    functionally meaningful (actual content visibility, actual mark
+    identity), unlike purely decorative motion — so reduced motion does
+    not suppress them. The photo tilt (Behaviour 13) is disabled
+    entirely under reduced motion — purely decorative and rotation-
+    based, the same treatment as the ambient gradient drift. Behaviour
+    15's underline/tap-scale get normal coverage: resolve to final
+    state without the draw-on/scale animation, consistent with the
+    existing hover-feedback pattern.
 
 ### Flows
 
