@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import SectionNav from '../features/section-navigation/SectionNav';
 import PresenceLinkGroup from '../features/presence-links/PresenceLinkGroup.astro';
+import HeroEntranceIsland from '../features/motion-interaction/HeroEntranceIsland';
 import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
@@ -25,18 +26,29 @@ const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = A
 	/>
 	<main>
 		<section id="introduction" class="introduction">
-			<slot name="introduction" />
 			<!--
-				Presence Links' Introduction placement (T-018; presence-links
-				Commitment 4 AC1; hero-presentation Commitment 5) — composed here,
-				at the Introduction Domain Section level, as a sibling of Hero
-				Composition, never inside it (Hero's own Commitment 5 AC5: this
-				Feature doesn't decide Presence Links' content). Single shared
-				component (T-017), instantiated identically at both placements.
+				Hero Entrance & Ambient Motion Island (T-019;
+				motion-interaction/technical-design.md) — hydrates around Hero
+				Composition's and Presence Links' already-rendered static markup
+				(static-children-in-island pattern), targeting both by class from
+				inside. Wraps them together, not just Hero's own slot, since
+				Presence Links' first-load entrance beat (Commitment 2 AC3) needs
+				this island to reach it too. Never alters either's own markup.
 			-->
-			<div class="introduction__presence-links">
-				<PresenceLinkGroup />
-			</div>
+			<HeroEntranceIsland client:load>
+				<slot name="introduction" />
+				<!--
+					Presence Links' Introduction placement (T-018; presence-links
+					Commitment 4 AC1; hero-presentation Commitment 5) — composed here,
+					at the Introduction Domain Section level, as a sibling of Hero
+					Composition, never inside it (Hero's own Commitment 5 AC5: this
+					Feature doesn't decide Presence Links' content). Single shared
+					component (T-017), instantiated identically at both placements.
+				-->
+				<div class="introduction__presence-links">
+					<PresenceLinkGroup />
+				</div>
+			</HeroEntranceIsland>
 		</section>
 		<section id="personal-narrative">
 			<slot name="personal-narrative" />
