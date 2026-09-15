@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import SectionNav from './SectionNav';
 
@@ -75,6 +75,15 @@ function renderNav() {
   render(<SectionNav wordmark="javimorala.com" navLabelAbout="about" navLabelContact="contact" />);
 }
 
+// Scopes a query to the desktop bar alone (`<nav aria-label="Primary">`).
+// Needed once the mobile closed bar's own compact logomark link (T-040,
+// Commitment 4 AC3) is unconditionally present: an unscoped query for a
+// link named "Introduction" now matches it too, on every screen,
+// independent of the desktop-only conditional instance under test here.
+function desktopNav() {
+  return within(screen.getByRole('navigation'));
+}
+
 describe('SectionNav (section-navigation/contract.md Commitments 1-5)', () => {
   it('Commitment 3: the wordmark always links to Introduction\'s top', () => {
     renderNav();
@@ -94,20 +103,20 @@ describe('SectionNav (section-navigation/contract.md Commitments 1-5)', () => {
     expect(screen.getByRole('link', { name: 'contact' }).getAttribute('href')).toBe('#connection');
   });
 
-  it('Commitment 4 AC1 & 5 AC1: Introduction is active and the compact logomark is absent on initial render', () => {
+  it('Commitment 4 AC1 & 5 AC1: Introduction is active and the desktop compact logomark is absent on initial render', () => {
     renderNav();
-    expect(screen.queryByRole('link', { name: 'Introduction' })).toBeNull();
-    expect(screen.getByRole('link', { name: 'about' }).className).not.toMatch(/linkActive/);
-    expect(screen.getByRole('link', { name: 'contact' }).className).not.toMatch(/linkActive/);
+    expect(desktopNav().queryByRole('link', { name: 'Introduction' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBeNull();
+    expect(screen.getByRole('link', { name: 'contact' }).getAttribute('aria-current')).toBeNull();
   });
 
-  it('Commitment 4 AC2 & 5 AC2/AC3: entering Personal Narrative shows the compact logomark and marks "about" active', () => {
+  it('Commitment 4 AC2 & 5 AC2/AC3: entering Personal Narrative shows the desktop compact logomark and marks "about" active', () => {
     renderNav();
     triggerIntersectionChange(['personal-narrative'], ['introduction']);
 
-    expect(screen.getByRole('link', { name: 'Introduction' }).getAttribute('href')).toBe('#introduction');
-    expect(screen.getByRole('link', { name: 'about' }).className).toMatch(/linkActive/);
-    expect(screen.getByRole('link', { name: 'contact' }).className).not.toMatch(/linkActive/);
+    expect(desktopNav().getByRole('link', { name: 'Introduction' }).getAttribute('href')).toBe('#introduction');
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBe('page');
+    expect(screen.getByRole('link', { name: 'contact' }).getAttribute('aria-current')).toBeNull();
   });
 
   it('Commitment 5 AC3/AC4: free-scrolling into Connection updates the indicator to exactly that screen', () => {
@@ -115,8 +124,8 @@ describe('SectionNav (section-navigation/contract.md Commitments 1-5)', () => {
     triggerIntersectionChange(['personal-narrative'], ['introduction']);
     triggerIntersectionChange(['connection'], ['personal-narrative']);
 
-    expect(screen.getByRole('link', { name: 'about' }).className).not.toMatch(/linkActive/);
-    expect(screen.getByRole('link', { name: 'contact' }).className).toMatch(/linkActive/);
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBeNull();
+    expect(screen.getByRole('link', { name: 'contact' }).getAttribute('aria-current')).toBe('page');
   });
 
   it('Commitment 5 AC1: Introduction wins even when it is simultaneously intersecting with Personal Narrative', () => {
@@ -130,16 +139,42 @@ describe('SectionNav (section-navigation/contract.md Commitments 1-5)', () => {
     renderNav();
     triggerIntersectionChange(['introduction', 'personal-narrative']);
 
-    expect(screen.queryByRole('link', { name: 'Introduction' })).toBeNull();
-    expect(screen.getByRole('link', { name: 'about' }).className).not.toMatch(/linkActive/);
+    expect(desktopNav().queryByRole('link', { name: 'Introduction' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBeNull();
   });
 
-  it('Commitment 4 AC1: returning to Introduction removes the compact logomark again', () => {
+  it('Commitment 4 AC1: returning to Introduction removes the desktop compact logomark again', () => {
     renderNav();
     triggerIntersectionChange(['personal-narrative'], ['introduction']);
     triggerIntersectionChange(['introduction'], ['personal-narrative']);
 
-    expect(screen.queryByRole('link', { name: 'Introduction' })).toBeNull();
+    expect(desktopNav().queryByRole('link', { name: 'Introduction' })).toBeNull();
+  });
+});
+
+describe('SectionNav mobile closed-bar compact logomark (section-navigation/contract.md Commitment 4 AC3)', () => {
+  // The mobile closed bar's own compact logomark link is a second,
+  // unconditional instance rendered alongside the desktop bar's
+  // conditional one — both share the "Introduction" accessible name, so
+  // these assertions count all matches rather than assuming exactly one.
+  it('renders on initial load (Introduction active), unlike the desktop instance', () => {
+    renderNav();
+    const introLinks = screen.getAllByRole('link', { name: 'Introduction' });
+    expect(introLinks.length).toBe(1);
+    expect(introLinks[0].getAttribute('href')).toBe('#introduction');
+  });
+
+  it('keeps rendering once Personal Narrative becomes active, alongside the now-present desktop instance', () => {
+    renderNav();
+    triggerIntersectionChange(['personal-narrative'], ['introduction']);
+    expect(screen.getAllByRole('link', { name: 'Introduction' }).length).toBe(2);
+  });
+
+  it('keeps rendering after returning to Introduction, when the desktop instance disappears again', () => {
+    renderNav();
+    triggerIntersectionChange(['personal-narrative'], ['introduction']);
+    triggerIntersectionChange(['introduction'], ['personal-narrative']);
+    expect(screen.getAllByRole('link', { name: 'Introduction' }).length).toBe(1);
   });
 });
 
@@ -157,6 +192,22 @@ describe('SectionNav mobile overlay (section-navigation/contract.md Commitment 6
     // The language control is hosted, not owned, here — its own trigger
     // renders inside the open dialog (Commitment 7, AC2).
     expect(screen.getAllByRole('button', { name: 'EN' }).length).toBeGreaterThan(0);
+  });
+
+  it('applies the Active Screen Indicator identically inside the open overlay (ui.md, Component Anatomy)', () => {
+    renderNav();
+    triggerIntersectionChange(['personal-narrative'], ['introduction']);
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const overlayAbout = screen
+      .getAllByRole('link', { name: 'about' })
+      .find((el) => el.closest('[role="dialog"]'));
+    const overlayContact = screen
+      .getAllByRole('link', { name: 'contact' })
+      .find((el) => el.closest('[role="dialog"]'));
+
+    expect(overlayAbout?.getAttribute('aria-current')).toBe('page');
+    expect(overlayContact?.getAttribute('aria-current')).toBeNull();
   });
 
   it('AC2: activating a link inside the open overlay closes it (its own default navigation is left to proceed)', () => {
@@ -184,7 +235,7 @@ describe('SectionNav mobile overlay (section-navigation/contract.md Commitment 6
     expect(screen.queryByRole('dialog')).toBeNull();
     // Desktop "about" link (still in the DOM, dialog now unmounted)
     // remains the active one — unaffected by the close action.
-    expect(screen.getByRole('link', { name: 'about' }).className).toMatch(/linkActive/);
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBe('page');
   });
 });
 
@@ -223,7 +274,7 @@ describe('SectionNav divider line (section-navigation/contract.md Commitment 8)'
     triggerIntersectionChange(['personal-narrative'], ['introduction']);
 
     expect(dividerState()).toBe('logo');
-    expect(screen.getByRole('link', { name: 'Introduction' })).not.toBeNull();
+    expect(desktopNav().getByRole('link', { name: 'Introduction' })).not.toBeNull();
 
     triggerIntersectionChange(['connection'], ['personal-narrative']);
     expect(dividerState()).toBe('logo');

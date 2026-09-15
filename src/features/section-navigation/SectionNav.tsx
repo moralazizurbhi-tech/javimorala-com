@@ -27,13 +27,25 @@ import styles from './SectionNav.module.scss';
 // top, on every screen (ui.md: "consistent across all three screens'
 // nav"); the compact logomark icon is `section-navigation`'s own
 // "Logomark Home-Link" realization (ux.md), also linking to
-// Introduction's top, but conditionally present only outside
-// Introduction (Commitment 4). Together they guarantee Commitment 3
-// holds on every screen, including while still on Introduction
-// (Commitment 3's own "partway scrolled through Introduction" scenario)
-// — an Implementation Detail resolving the mechanism, not a new
-// decision: the always-present wordmark is the vehicle whenever the
-// icon itself is hidden.
+// Introduction's top. On desktop it stays conditionally present only
+// outside Introduction (Commitment 4, AC1/AC2), so the wordmark is the
+// vehicle whenever the icon itself is hidden there (Commitment 3's own
+// "partway scrolled through Introduction" scenario — an Implementation
+// Detail resolving the mechanism, not a new decision). On mobile's
+// closed bar (T-040), the same icon instead renders unconditionally,
+// immediately before the wordmark, on every screen including
+// Introduction (Commitment 4, AC3) — its presence there no longer
+// depends on active-section state at all.
+//
+// Active Screen Indicator (T-040, Commitment 5): the active "about"/
+// "contact" link carries a plain `aria-current="page"` attribute
+// (technical-design.md, Design Decision 8) rather than a CSS-Module
+// class — a stable, semantic, externally-observable signal that
+// `motion-interaction`'s Nav Transition Styles component can target
+// with zero code coupling, with no separate mirroring mechanism needed
+// alongside it. The static (non-animated) background-pill styling this
+// drives lives entirely in SectionNav.module.scss, keyed off the same
+// attribute.
 //
 // The mobile overlay is built on the Accessible Primitives Layer
 // (Radix UI's Dialog), per the Technical Design's own Constraint —
@@ -160,7 +172,8 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 						<li>
 							<a
 								href="#personal-narrative"
-								className={activeSection === 'personal-narrative' ? `${styles.link} ${styles.linkActive}` : styles.link}
+								className={styles.link}
+								aria-current={activeSection === 'personal-narrative' ? 'page' : undefined}
 							>
 								{navLabelAbout}
 							</a>
@@ -168,7 +181,8 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 						<li>
 							<a
 								href="#connection"
-								className={activeSection === 'connection' ? `${styles.link} ${styles.linkActive}` : styles.link}
+								className={styles.link}
+								aria-current={activeSection === 'connection' ? 'page' : undefined}
 							>
 								{navLabelContact}
 							</a>
@@ -182,9 +196,14 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 
 			<Dialog.Root open={overlayOpen} onOpenChange={setOverlayOpen}>
 				<div className={styles.mobileBar}>
-					<a href="#introduction" className={styles.mobileWordmark}>
-						{wordmark}
-					</a>
+					<div className={styles.mobileBrand}>
+						<a href="#introduction" className={styles.mobileCompactMark} aria-label="Introduction">
+							<img src="/ornamental-logo.svg" alt="" aria-hidden="true" />
+						</a>
+						<a href="#introduction" className={styles.mobileWordmark}>
+							{wordmark}
+						</a>
+					</div>
 					<Dialog.Trigger className={styles.toggle} aria-label="Open menu">
 						<svg viewBox="0 0 32 8" aria-hidden="true" focusable="false">
 							<line x1="0" y1="1" x2="32" y2="1" stroke="currentColor" strokeWidth="2" />
@@ -213,11 +232,8 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 								<Dialog.Close asChild>
 									<a
 										href="#personal-narrative"
-										className={
-											activeSection === 'personal-narrative'
-												? `${styles.overlayLink} ${styles.linkActive}`
-												: styles.overlayLink
-										}
+										className={styles.overlayLink}
+										aria-current={activeSection === 'personal-narrative' ? 'page' : undefined}
 									>
 										{navLabelAbout}
 									</a>
@@ -227,9 +243,8 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 								<Dialog.Close asChild>
 									<a
 										href="#connection"
-										className={
-											activeSection === 'connection' ? `${styles.overlayLink} ${styles.linkActive}` : styles.overlayLink
-										}
+										className={styles.overlayLink}
+										aria-current={activeSection === 'connection' ? 'page' : undefined}
 									>
 										{navLabelContact}
 									</a>

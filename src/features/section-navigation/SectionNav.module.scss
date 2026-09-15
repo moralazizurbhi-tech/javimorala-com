@@ -138,22 +138,45 @@ $mobile-nav-height: 3rem;
 	list-style: none;
 }
 
+// Active Screen Indicator (T-040, Commitment 5) — a soft background
+// pill behind whichever of "about"/"contact" is currently active,
+// keyed off the plain `aria-current="page"` attribute the component
+// exposes (technical-design.md, Design Decision 8) rather than a
+// second, independently-toggled CSS-Module class. `position: relative`
+// gives the pseudo-element a positioning context without affecting the
+// link's own in-flow box, so the pill never shifts sibling spacing when
+// it appears; the pseudo-element's negative `z-index` (within that new
+// local stacking context) keeps it behind the link's own text, painted
+// after it in source order. Static/non-animated by design — the
+// task-catalog-scoped, animated layer on top of this same attribute is
+// `motion-interaction`'s own separate Nav Transition Styles task.
+%active-screen-indicator {
+	position: relative;
+
+	&[aria-current='page']::before {
+		content: '';
+		position: absolute;
+		z-index: -1;
+		// Snugly fits the link's own text plus a small padding: full
+		// $space-xs horizontally, a proportionally smaller half of it
+		// vertically, comfortably containing the line-height without
+		// visually dominating the text the way a full $space-xs would
+		// (ui.md, Component Anatomy and Variants).
+		inset: calc(#{tokens.$space-xs} / -2) calc(-1 * #{tokens.$space-xs});
+		// Fully rounded (capsule) corners — a value larger than the pill
+		// can ever be tall guarantees this regardless of text length.
+		border-radius: 999px;
+		background-color: rgba(tokens.$color-accent, 0.15);
+	}
+}
+
 .link {
+	@extend %active-screen-indicator;
 	font-family: tokens.$font-family-body;
 	font-size: tokens.$font-size-label;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
 	text-transform: lowercase;
-}
-
-// Active Screen Indicator (Commitment 5) — the state-tracking mechanism
-// is what this task delivers; the exact visual anatomy remains Pending
-// (ux.md/ui.md) and is applied via Styling System tokens whenever it's
-// decided (Task Catalog readiness note). Bold weight stands in as a
-// minimal, non-colour placeholder, mirroring language-override's own
-// Active Language Indicator convention.
-.linkActive {
-	font-weight: tokens.$font-weight-display;
 }
 
 // Language Override hosting slot, desktop bar (Commitment 7, AC1). Exact
@@ -182,6 +205,16 @@ $mobile-nav-height: 3rem;
 	}
 }
 
+// Groups the mobile closed-bar's compact logomark and wordmark so the
+// bar's own `justify-content: space-between` can still push the toggle
+// to the far right without the icon/wordmark pair drifting apart from
+// each other (ui.md, Spacing and Layout — Mobile, Closed).
+.mobileBrand {
+	display: flex;
+	align-items: center;
+	gap: calc(#{tokens.$space-xs} / 2);
+}
+
 // Sized to match Hero's own scroll-cue tier — a distinct treatment
 // specific to the collapsed mobile bar (ui.md, Typography Application).
 // Previously half the desktop/open-overlay wordmark size, which read as
@@ -192,6 +225,34 @@ $mobile-nav-height: 3rem;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
 	text-transform: lowercase;
+}
+
+// Mobile closed-bar compact logomark (T-040, Commitment 4 AC3) — the
+// same Ornamental Logo asset as desktop's compact mark, but scaled to
+// roughly match the wordmark's own measured height rather than
+// desktop's enlarged, row-overflowing treatment: "small enough to pair
+// with the compact wordmark rather than dominate it" (ui.md, Spacing
+// and Layout — Mobile). $font-size-caption is the same token driving
+// `.mobileWordmark`'s own rendered height, so the two stay visually
+// paired across viewport widths; the 117:216 ratio matches the asset's
+// own unscaled aspect (desktop's 211:389 frame is a uniform 1.8x scale
+// of the same ratio, specific to desktop's row-overflow treatment, not
+// applicable here). Renders unconditionally, independent of
+// active-section state — unlike desktop's compact mark.
+.mobileCompactMark {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: tokens.$font-size-caption;
+	width: calc(#{tokens.$font-size-caption} * 117 / 216);
+
+	img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		pointer-events: none;
+	}
 }
 
 .toggle {
@@ -252,8 +313,10 @@ $mobile-nav-height: 3rem;
 
 // Same tier as the desktop links — measured identical (46) in both
 // contexts; no size reduction once the overlay opens (ui.md, Typography
-// Application).
+// Application). Shares the desktop links' Active Screen Indicator pill
+// (ui.md: "Applies identically inside the mobile overlay's link list").
 .overlayLink {
+	@extend %active-screen-indicator;
 	font-family: tokens.$font-family-body;
 	font-size: tokens.$font-size-label;
 	font-weight: tokens.$font-weight-label;
