@@ -1,5 +1,5 @@
 import { useLayoutEffect, useEffect, useRef, type ReactNode } from 'react';
-import { animate, type AnimationPlaybackControls } from 'framer-motion';
+import { animate, type AnimationPlaybackControlsWithThen } from 'framer-motion';
 import { isHeroEntrancePlayed, markHeroEntrancePlayed } from './motionPlaybackStore';
 
 // Hero Entrance & Ambient Motion Island (T-019) —
@@ -55,18 +55,21 @@ function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Mark bloom: a left-to-right clip-path wipe standing in for the
+// Mark bloom: a center-outward clip-path wipe standing in for the
 // "traced" stroke-reveal ui.md describes (see file-top note) — begins
 // immediately, the longest/unhurried beat (ui.md, Relative Entrance
-// Pacing).
-const MARK_CLIP_HIDDEN = 'inset(0 100% 0 0)';
-const MARK_CLIP_VISIBLE = 'inset(0 0% 0 0)';
-const MARK_BLOOM_DURATION = 1.1;
+// Pacing). Revealed by shrinking equal left/right insets from the
+// center simultaneously (developer direction, post-implementation
+// refinement — was a plain left-to-right wipe).
+const MARK_CLIP_HIDDEN = 'inset(0 50% 0 50%)';
+const MARK_CLIP_VISIBLE = 'inset(0 0% 0 0%)';
+const MARK_BLOOM_DURATION = 1.6; // developer direction: longer than the original 1.1s
 
 // Headline cascade: starts while the mark is still blooming (ui.md:
 // "overlapping it rather than waiting for it to finish"), each of the
-// three lines staggering in quickly.
-const HEADLINE_START_DELAY_MS = 260;
+// three lines staggering in quickly. Start delay lengthened (developer
+// direction: text should enter later) from an original 260ms.
+const HEADLINE_START_DELAY_MS = 550;
 const HEADLINE_STAGGER_MS = 90;
 const HEADLINE_LINE_DURATION = 0.42;
 
@@ -126,10 +129,10 @@ export default function HeroEntranceIsland({ children }: Props) {
     ].filter(isElement);
 
     let cancelled = false;
-    let ambientControls: AnimationPlaybackControls | undefined;
-    const activeControls: AnimationPlaybackControls[] = [];
+    let ambientControls: AnimationPlaybackControlsWithThen | undefined;
+    const activeControls: AnimationPlaybackControlsWithThen[] = [];
 
-    function track(controls: AnimationPlaybackControls): AnimationPlaybackControls {
+    function track(controls: AnimationPlaybackControlsWithThen): AnimationPlaybackControlsWithThen {
       activeControls.push(controls);
       return controls;
     }
@@ -171,14 +174,32 @@ export default function HeroEntranceIsland({ children }: Props) {
     }
 
     async function playEntrance() {
+      // Every animation this sequence starts is collected here so
+      // settlement (below) can wait on their own real completion —
+      // never on a `setTimeout` guessed to match their duration. A
+      // guessed-duration wait fires on schedule regardless of whether
+      // the animations themselves actually finished (confirmed via a
+      // live repro: a freshly opened tab, throttled while not yet
+      // visible, reached `markHeroEntrancePlayed()` — and stopped
+      // replaying forever — while the mark/headline were still stuck at
+      // their pre-entrance hidden state, never having visibly played at
+      // all). Awaiting each animation's own `AnimationPlaybackControlsWithThen`
+      // (Framer's DOM `animate()` return value is itself awaitable,
+      // resolving only once that animation truly finishes) makes
+      // settlement wait for what actually happened on screen, not an
+      // assumption about elapsed time.
+      const sequenceAnimations: AnimationPlaybackControlsWithThen[] = [];
+
       if (mark) {
         mark.style.opacity = '0';
         mark.style.clipPath = MARK_CLIP_HIDDEN;
-        track(
-          animate(
-            mark,
-            { opacity: [0, 1], clipPath: [MARK_CLIP_HIDDEN, MARK_CLIP_VISIBLE] },
-            { duration: MARK_BLOOM_DURATION, ease: 'easeOut' },
+        sequenceAnimations.push(
+          track(
+            animate(
+              mark,
+              { opacity: [0, 1], clipPath: [MARK_CLIP_HIDDEN, MARK_CLIP_VISIBLE] },
+              { duration: MARK_BLOOM_DURATION, ease: 'easeOut' },
+            ),
           ),
         );
       }
@@ -192,22 +213,31 @@ export default function HeroEntranceIsland({ children }: Props) {
         el.style.transform = `translateY(${ENTRANCE_Y_OFFSET}px)`;
       });
 
+      // This delay is deliberate choreography (the headline cascade
+      // starting before the mark's own bloom finishes, per ui.md's
+      // "overlapping it rather than waiting for it to finish") — unlike
+      // the guessed-duration settlement wait above, its role is pacing
+      // between beats, not deciding whether anything has finished.
       await wait(HEADLINE_START_DELAY_MS);
       if (cancelled) return;
 
       if (headlinePrimary) {
-        track(animate(headlinePrimary, { opacity: [0, 1] }, { duration: HEADLINE_LINE_DURATION, ease: 'easeOut' }));
+        sequenceAnimations.push(
+          track(animate(headlinePrimary, { opacity: [0, 1] }, { duration: HEADLINE_LINE_DURATION, ease: 'easeOut' })),
+        );
       }
       for (const [index, el] of secondaryHeadlineEls.entries()) {
         if (index > 0) {
           await wait(HEADLINE_STAGGER_MS);
           if (cancelled) return;
         }
-        track(
-          animate(
-            el,
-            { opacity: [0, 1], y: [ENTRANCE_Y_OFFSET, 0] },
-            { duration: HEADLINE_LINE_DURATION, ease: 'easeOut' },
+        sequenceAnimations.push(
+          track(
+            animate(
+              el,
+              { opacity: [0, 1], y: [ENTRANCE_Y_OFFSET, 0] },
+              { duration: HEADLINE_LINE_DURATION, ease: 'easeOut' },
+            ),
           ),
         );
       }
@@ -216,16 +246,18 @@ export default function HeroEntranceIsland({ children }: Props) {
       if (cancelled) return;
 
       finalBeatEls.forEach((el) => {
-        track(
-          animate(
-            el,
-            { opacity: [0, 1], y: [ENTRANCE_Y_OFFSET, 0] },
-            { duration: FINAL_BEAT_DURATION, ease: 'easeOut' },
+        sequenceAnimations.push(
+          track(
+            animate(
+              el,
+              { opacity: [0, 1], y: [ENTRANCE_Y_OFFSET, 0] },
+              { duration: FINAL_BEAT_DURATION, ease: 'easeOut' },
+            ),
           ),
         );
       });
 
-      await wait(FINAL_BEAT_DURATION * 1000);
+      await Promise.all(sequenceAnimations);
       if (cancelled) return;
 
       markHeroEntrancePlayed();

@@ -7,10 +7,24 @@ import * as motionPlaybackStore from './motionPlaybackStore';
 const animateCalls: Array<{ target: Element; keyframes: Record<string, unknown>; options: Record<string, unknown> }> = [];
 const stoppedControls: Element[] = [];
 
+// Returns a thenable (not just `{ stop }`) so the component's real
+// `await Promise.all(sequenceAnimations)` gating logic — awaiting each
+// animation's own completion rather than a guessed-duration timer — is
+// genuinely exercised under fake timers, not short-circuited by a
+// mock that resolves instantly regardless of `duration`. An
+// infinite-repeat animation (the ambient drift) never resolves, same
+// as a real one never "finishing".
 vi.mock('framer-motion', () => ({
   animate: (target: Element, keyframes: Record<string, unknown>, options: Record<string, unknown>) => {
     animateCalls.push({ target, keyframes, options });
-    return { stop: () => stoppedControls.push(target) };
+    let resolveFn: () => void = () => {};
+    const promise = new Promise<void>((resolve) => {
+      resolveFn = resolve;
+    });
+    if (options.repeat !== Infinity && typeof options.duration === 'number') {
+      setTimeout(resolveFn, options.duration * 1000);
+    }
+    return { stop: () => stoppedControls.push(target), then: promise.then.bind(promise) };
   },
 }));
 
@@ -106,18 +120,25 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
     expect((animateCalls[0].target as Element).className).toContain('hero__mark');
 
     // Headline cascade (primary + two secondary lines) starts shortly after, before the closing beat.
-    await vi.advanceTimersByTimeAsync(600);
+    await vi.advanceTimersByTimeAsync(700);
     const headlineTargets = animateCalls.slice(1).map((call) => (call.target as Element).className);
     expect(headlineTargets.some((c) => c.includes('hero__headline-primary'))).toBe(true);
     expect(headlineTargets.some((c) => c.includes('hero__headline-secondary--1'))).toBe(true);
     expect(headlineTargets.some((c) => c.includes('hero__headline-secondary--2'))).toBe(true);
     expect(markPlayedSpy).not.toHaveBeenCalled();
 
-    // Closing beat (scroll cue + Presence Links) plus settle.
-    await vi.advanceTimersByTimeAsync(2000);
+    // Closing beat (scroll cue + Presence Links) starts and finishes well before the
+    // mark's own (longer) bloom does — settlement must still wait for the mark.
+    await vi.advanceTimersByTimeAsync(600);
     const closingTargets = animateCalls.map((call) => (call.target as Element).className);
     expect(closingTargets.some((c) => c.includes('hero__scroll-cue'))).toBe(true);
     expect(closingTargets.some((c) => c.includes('introduction__presence-links'))).toBe(true);
+    expect(markPlayedSpy).not.toHaveBeenCalled();
+
+    // Only once the slowest animation (the mark's own bloom) actually finishes does
+    // settlement happen — the regression this guards: settlement must never fire on a
+    // guessed elapsed-time timer while an animation is still genuinely in flight.
+    await vi.advanceTimersByTimeAsync(1000);
     expect(markPlayedSpy).toHaveBeenCalledTimes(1);
 
     // Ambient drift begins only after settling, as the final call.
