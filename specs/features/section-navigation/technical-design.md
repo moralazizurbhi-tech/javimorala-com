@@ -24,9 +24,18 @@ Domain Sections.
 - Track, at runtime, which Domain Section currently occupies the
   viewport, exposing it as one shared "active section" state (Commitment
   5).
-- Derive the compact logomark icon's presence from that same
+- On desktop, derive the compact logomark icon's presence from that same
   active-section state — hidden while Introduction is active, shown
-  otherwise (Commitment 4); not a second, independently tracked concept.
+  otherwise (Commitment 4, AC1/AC2); not a second, independently tracked
+  concept. On mobile's closed bar, render the compact logomark icon
+  unconditionally, independent of active-section state (Commitment 4,
+  AC3).
+- Expose which nav link ("about"/"contact") is currently active via a
+  plain `aria-current="page"` attribute on that link's own anchor
+  element — a stable, semantic, externally-observable signal, not a
+  CSS-Module-scoped class — consumed by `motion-interaction`'s Nav
+  Transition Styles component to render the Active Screen Indicator's
+  pill (Commitment 5).
 - On mobile, provide a toggle that opens/closes a full-screen overlay
   exposing the same links, the active-section indicator, and the
   language control's hosting slot; closes on link activation (with
@@ -135,14 +144,17 @@ Domain Sections.
    Feature Definition's boundary.
 5. The static (pre-hydration) baseline renders the wordmark,
    "about"/"contact" links with correct anchor hrefs, and the toggle
-   button — functional without JS — with the compact logomark omitted
-   by default, matching Commitment 5 AC1's "Introduction active on
-   initial load." Hydration then takes over to update the active-section
-   state, the compact-logomark condition, and the overlay's
-   interactivity. Rationale: keeps the nav's core navigation
-   (Commitments 1–3) working even before/without hydration completing,
-   consistent with Architecture's static-first, fast-first-paint
-   principle — this Feature's only meaningful failure mode is "JS
+   button — functional without JS — with the desktop compact logomark
+   omitted by default, matching Commitment 5 AC1's "Introduction active
+   on initial load." Hydration then takes over to update the
+   active-section state, the desktop compact-logomark condition, and the
+   overlay's interactivity. Mobile's closed-bar logomark (Commitment 4
+   AC3) is the one exception: since its presence no longer depends on
+   any runtime state, it renders in the static baseline directly,
+   needing no hydration to decide it. Rationale: keeps the nav's core
+   navigation (Commitments 1–3) working even before/without hydration
+   completing, consistent with Architecture's static-first, fast-first-
+   paint principle — this Feature's only meaningful failure mode is "JS
    hasn't hydrated yet," not a data or network failure.
 6. The desktop bar and mobile toggle/overlay are two responsive
    presentations of one component tree (Styling System breakpoints
@@ -159,6 +171,13 @@ Domain Sections.
    this phase exists to close — and it structurally cannot produce
    Introduction's segmented state at all, since no element there
    currently covers the line.
+8. The active nav link is marked via the standard `aria-current="page"`
+   attribute, not a CSS-Module-scoped class. Rationale: a plain,
+   semantic HTML attribute is externally targetable with zero code
+   coupling — satisfying `motion-interaction`'s Nav Transition Styles
+   component's dependency on "Section Navigation's existing DOM/class
+   contract" — and is natively understood by assistive technology,
+   without requiring a separate mirroring mechanism.
 
 **Contract Traceability**
 
@@ -168,9 +187,11 @@ Domain Sections.
   route change.
 - Commitment 3 → logomark link's fixed target (Introduction's top
   anchor).
-- Commitment 4 → derived from the shared active-section state.
+- Commitment 4 → desktop derived from the shared active-section state
+  (AC1/AC2); mobile closed bar rendered unconditionally (AC3).
 - Commitment 5 → the active-section state itself (client-side
-  observation of Domain Section boundaries).
+  observation of Domain Section boundaries), exposed on the active link
+  via `aria-current="page"` for external/AT consumption.
 - Commitment 6 → mobile overlay open/close state, built on the
   Accessible Primitives Layer.
 - Commitment 7 → hosting slot for `language-override`'s own component,
