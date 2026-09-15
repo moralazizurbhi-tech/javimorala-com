@@ -6,7 +6,7 @@
 
 Realizes Feature UX's nav-bar/overlay composition across all three
 screens — wordmark, "about"/"contact" links, conditional compact
-logomark, active-indicator (Pending), language control hosting, mobile
+logomark, active-indicator, language control hosting, mobile
 toggle/overlay — informed by the same explicitly-provided Figma reference
 (file `CCwye9dUj8Sy4f2lgy6i9f`: "Home" `4:65`/"Home - mobile" `22:41`,
 "About" `13:2`/"About - mobile" `22:112`, "Contact" `22:2`/"Contact -
@@ -34,9 +34,9 @@ motion/transition treatment (`motion-interaction`).
   same tier as the desktop wordmark, regular weight, lowercase, matching
   its visual weight (no separate emphasis) — measured height 46 in both
   contexts, confirming no size reduction once the overlay opens.
-- No distinct typographic treatment observed for an active state —
-  consistent with Feature UX's Pending marker on the indicator's visual
-  expression.
+- No distinct typographic treatment for an active state — the Active
+  Screen Indicator's visual expression is a background pill (Component
+  Anatomy and Variants), not a font-weight or size change.
 
 ## Spacing and Layout
 
@@ -89,6 +89,14 @@ motion/transition treatment (`motion-interaction`).
 - Closed: wordmark top-left at its half-size (measured 23), hamburger
   toggle top-right measuring 32x8 (two horizontal lines) — no divider
   line observed in the mobile reference.
+- Closed, logomark addition (new, not observed in the Figma reference —
+  confirmed by explicit user decision): the compact logomark icon (same
+  Ornamental Logo asset as desktop) renders immediately before the
+  wordmark, on every screen including Introduction (Contract Commitment
+  4 AC3). Proposed sizing: scaled to roughly match the wordmark's own
+  measured height (23 units) — small enough to pair with the compact
+  wordmark rather than dominate it — with a small gap (a reduced
+  fraction of `$space-xs`) between icon and text.
 - Open (overlay): the toggle is replaced by a close ("X") glyph in the
   same top-right position, measuring ~22.6x23 (two crossed lines);
   "about" and "contact" are centered together in the vertical middle of
@@ -104,13 +112,15 @@ motion/transition treatment (`motion-interaction`).
 ## Component Anatomy and Variants
 
 - **Persistent Nav Bar (desktop):** plain text wordmark + plain text
-  links, no button chrome, border, or pill shape — consistent with the
-  site's chrome-free, typography-driven aesthetic. The connecting line
-  renders as two independent segments, not one bar-wide element sitting
-  behind a mark. The compact logomark (Ornamental Logo) is a symmetric,
-  spiked, hourglass-shaped mini-mark with crown tendrils top and bottom
-  — a small standalone mark, no container — not a plain geometric shape
-  (e.g. not a simple circle/pill).
+  links, no button chrome or border — consistent with the site's
+  chrome-free, typography-driven aesthetic. The Active Screen Indicator
+  (below) is the one deliberate exception to this, a soft background
+  pill. The connecting line renders as two independent segments, not one
+  bar-wide element sitting behind a mark. The compact logomark
+  (Ornamental Logo) is a symmetric, spiked, hourglass-shaped mini-mark
+  with crown tendrils top and bottom — a small standalone mark, no
+  container — not a plain geometric shape (e.g. not a simple
+  circle/pill).
 - **Mobile Hamburger Toggle:** two-horizontal-line glyph, no surrounding
   button surface.
 - **Mobile Close Control:** an "X" glyph in the toggle's same position
@@ -118,10 +128,16 @@ motion/transition treatment (`motion-interaction`).
 - **Mobile Navigation Overlay:** full-screen flat surface (same
   background as the rest of the site), links as plain centered text, no
   button chrome.
-- **Active Screen Indicator:** Pending — no anatomy observed in Figma;
-  left to a future refinement of this Definition once a treatment is
-  decided (color change, underline, weight change, or similar), per
-  Feature UX's Pending marker.
+- **Active Screen Indicator:** a soft background pill sitting behind
+  whichever of "about"/"contact" is currently active — fully rounded
+  corners (capsule shape), sized to snugly fit the link's own text plus
+  a small padding (`$space-xs` horizontal, a proportionally smaller
+  vertical padding comfortably containing the link's own line-height).
+  Applies only to the "about"/"contact" links — the wordmark never
+  carries it, and Introduction shows no indicator at all (Hero's own
+  presence already signals it — a deliberate, confirmed interpretation
+  of Feature Contract Commitment 5 AC1, not a gap). Applies identically
+  inside the mobile overlay's link list.
 
 ## Colour Application
 
@@ -143,9 +159,11 @@ motion/transition treatment (`motion-interaction`).
   interactive/focus states.
 - No colour differentiation observed between "about" and "contact," or
   between any nav element and the shared near-black background.
-- Active-indicator colour: Pending, per Feature UX — no value to extend
-  from Visual Foundations yet, since no active-state treatment exists in
-  the reference.
+- Active-indicator colour: pill background is `$color-accent` (the
+  lilac gradient-start, `#9b7fd4`) at low opacity (~15%) — a Feature-
+  specific extension, since Visual Foundations doesn't define a preset
+  opacity for this use. Link text colour is unchanged (off-white) while
+  its pill shows.
 
 ## Borders, Radii, Shadows, Surfaces
 
@@ -158,15 +176,18 @@ overlay, consistent with the site's chrome-free style.
 - Close control: two crossed lines forming an "X" (observed, "Menu -
   mobile").
 - No icons for "about"/"contact" or the wordmark — plain text only.
+- Compact logomark (Ornamental Logo): the same asset already used on
+  desktop, now also rendered on mobile's closed bar (Spacing and
+  Layout — Mobile).
 
 ## Visual States and Responsive Layout
 
 - Mobile Overlay Closed / Open: two concrete realizations as above
   (toggle vs. close glyph, collapsed bar vs. full-screen link list) —
   Feature UX's Mobile Overlay states.
-- Active Screen Indicator: no concrete visual realization yet — remains
-  Pending, consistent with Feature UX; this Definition intentionally
-  does not invent one.
+- Active Screen Indicator: `Inactive` (no pill) / `Active` (background
+  pill behind the link) — applies identically on desktop and inside the
+  mobile overlay's link list; never behind the wordmark.
 - Desktop vs. mobile: two distinct concrete layouts, not a resize/reflow
   of one layout — matching Feature UX's device-distinct treatment.
 
