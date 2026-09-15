@@ -76,20 +76,21 @@ const HEADLINE_LINE_DURATION = 0.42;
 const CLOSING_BEAT_PAUSE_MS = 220;
 const FINAL_BEAT_DURATION = 0.32;
 
-// Standalone `translate` (not the `transform` shorthand): the two
-// secondary headline lines and the final-beat elements have no
-// existing `transform` of their own, but `.hero__headline-primary` and
-// `.hero__mark` do (mobile rotation / device-class positioning, in
-// HeroComposition.astro's own stylesheet) — animating `transform`
-// there would silently overwrite it. `translate` composes independently
-// of `transform` in every current browser, so it's used everywhere an
-// element needs a vertical entrance offset, leaving any existing
-// `transform` untouched. `.hero__headline-primary` itself gets no
-// offset at all (opacity-only entrance) for the same reason, since it's
-// the one element whose existing `transform` this component must
-// preserve unconditionally on mobile.
-const TRANSLATE_OFFSET = '0 0.75rem';
-const TRANSLATE_SETTLED = '0 0';
+// Vertical entrance offset for the two secondary headline lines and the
+// final-beat elements — none of which carry an existing `transform` of
+// their own (unlike `.hero__headline-primary` / `.hero__mark`, which do:
+// mobile rotation / device-class positioning, in HeroComposition.astro's
+// own stylesheet — animating `transform` there would silently overwrite
+// it, which is why those two get no offset at all, opacity-only). Driven
+// via Framer Motion's own `y` keyframe key (composes into
+// `transform: translateY()` through Framer's positional-value system),
+// not the literal CSS `translate` property: a live Chrome reproduction
+// (T-019 post-implementation correction) confirmed Framer's DOM
+// `animate()` silently drops an unrecognized `translate` keyframe
+// instead of animating it — `getAnimations()[].effect.getKeyframes()`
+// showed only `opacity` ever reached the resulting Web Animation,
+// `translate` simply absent, with no thrown error to surface the defect.
+const ENTRANCE_Y_OFFSET = 12; // px
 
 const AMBIENT_DRIFT_DURATION = 18;
 const AMBIENT_HUE_SHIFT_DEG = 10;
@@ -184,11 +185,11 @@ export default function HeroEntranceIsland({ children }: Props) {
       if (headlinePrimary) headlinePrimary.style.opacity = '0';
       secondaryHeadlineEls.forEach((el) => {
         el.style.opacity = '0';
-        el.style.translate = TRANSLATE_OFFSET;
+        el.style.transform = `translateY(${ENTRANCE_Y_OFFSET}px)`;
       });
       finalBeatEls.forEach((el) => {
         el.style.opacity = '0';
-        el.style.translate = TRANSLATE_OFFSET;
+        el.style.transform = `translateY(${ENTRANCE_Y_OFFSET}px)`;
       });
 
       await wait(HEADLINE_START_DELAY_MS);
@@ -205,7 +206,7 @@ export default function HeroEntranceIsland({ children }: Props) {
         track(
           animate(
             el,
-            { opacity: [0, 1], translate: [TRANSLATE_OFFSET, TRANSLATE_SETTLED] },
+            { opacity: [0, 1], y: [ENTRANCE_Y_OFFSET, 0] },
             { duration: HEADLINE_LINE_DURATION, ease: 'easeOut' },
           ),
         );
@@ -218,7 +219,7 @@ export default function HeroEntranceIsland({ children }: Props) {
         track(
           animate(
             el,
-            { opacity: [0, 1], translate: [TRANSLATE_OFFSET, TRANSLATE_SETTLED] },
+            { opacity: [0, 1], y: [ENTRANCE_Y_OFFSET, 0] },
             { duration: FINAL_BEAT_DURATION, ease: 'easeOut' },
           ),
         );

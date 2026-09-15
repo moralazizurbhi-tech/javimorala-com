@@ -141,4 +141,33 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
       }
     }
   });
+
+  it('regression: gives the secondary headline lines, scroll cue, and Presence Links an actual `y` entrance offset, never the unsupported literal `translate` property', async () => {
+    // Framer Motion's DOM `animate()` silently drops an unrecognized
+    // `translate` keyframe instead of animating it (confirmed via a live
+    // Chrome reproduction — T-019 post-implementation correction) — this
+    // guards against reintroducing that exact regression.
+    vi.stubGlobal('matchMedia', matchMediaMock(false));
+    vi.spyOn(motionPlaybackStore, 'isHeroEntrancePlayed').mockReturnValue(false);
+    vi.spyOn(motionPlaybackStore, 'markHeroEntrancePlayed').mockImplementation(() => {});
+
+    render(<HeroEntranceIsland>{heroStaticMarkup()}</HeroEntranceIsland>);
+    await vi.advanceTimersByTimeAsync(3000);
+
+    const offsetTargetClasses = [
+      'hero__headline-secondary--1',
+      'hero__headline-secondary--2',
+      'hero__scroll-cue',
+      'introduction__presence-links',
+    ];
+    const offsetCalls = animateCalls.filter((call) =>
+      offsetTargetClasses.some((cls) => (call.target as Element).className.includes(cls)),
+    );
+
+    expect(offsetCalls).toHaveLength(4);
+    for (const call of offsetCalls) {
+      expect(call.keyframes.translate).toBeUndefined();
+      expect(call.keyframes.y).toEqual([12, 0]);
+    }
+  });
 });
