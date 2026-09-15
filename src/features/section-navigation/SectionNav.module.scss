@@ -85,17 +85,23 @@ $mobile-nav-height: 3rem;
 }
 
 // Ornamental Logo Home-Link (Commitment 4) — the real, shared compact-
-// mark asset (ui.md: a symmetric, spiked, hourglass-shaped mini-mark,
-// 117:216 aspect ratio, spanning the row's full height), centered in the
-// bar's divider gap; its own gradient fill comes from the SVG asset
-// itself, not an independently authored CSS gradient.
+// mark asset (ui.md: a symmetric, spiked, hourglass-shaped mini-mark),
+// centered in the bar's divider gap; its own gradient fill comes from
+// the SVG asset itself, not an independently authored CSS gradient.
+//
+// Sized to its confirmed 158x292 frame (T-033) — a uniform 1.35x scale
+// of the original 117:216 aspect ratio, applied to the row-height-based
+// formula rather than to the rounded 158/292 figures, so the mark's
+// proportions stay exact. No longer fits within the row's own height:
+// bottom-anchored (unchanged from before) so the growth extends upward
+// only, overflowing above the row (ui.md, Spacing and Layout — Desktop).
 .compactMark {
 	position: absolute;
 	left: 50%;
-	top: 0;
+	bottom: 0;
 	transform: translateX(-50%);
-	height: 100%;
-	width: calc(#{$nav-height} * 117 / 216);
+	height: calc(#{$nav-height} * 1.35);
+	width: calc(#{$nav-height} * 1.35 * 117 / 216);
 	display: flex;
 	align-items: center;
 	justify-content: center;
