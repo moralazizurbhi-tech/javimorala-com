@@ -184,10 +184,25 @@ $mobile-nav-height: 3rem;
 		// "vivid at the high-impact point, fading toward receding edges"
 		// gradient pattern (previously only applied to the Ornamental
 		// Mark/Logo) to this new use (ui.md, Colour Application). Kept
-		// low-opacity throughout (28% center / 6% edge) so the off-white
-		// link text painted on top stays clearly readable at every point.
+		// low-opacity throughout (28% center / 6% edge, per ui.md) so the
+		// off-white link text painted on top stays clearly readable at
+		// every point. `ellipse closest-side` (not the default sizing,
+		// `farthest-corner`, and not `circle`) — in a capsule far wider
+		// than tall, `farthest-corner` spreads the entire fade across the
+		// pill's full width, leaving only a couple of imperceptible
+		// pixels of visible transition at its far left/right ends; a
+		// `circle` (one shared radius) sized to the closest side instead
+		// confines the visible fade to a small circle in the pill's
+		// vertical middle, leaving most of its width at the flat edge
+		// colour (both confirmed by developer visual review). An ellipse
+		// sized to each axis's own closest side stretches independently
+		// to reach all four edges of the capsule at once, so the fade is
+		// visible across the pill's whole area — an Implementation Detail
+		// (the sizing keyword isn't specified by ui.md's "radial gradient
+		// centered in the pill"), not a change to the confirmed opacity
+		// values.
 		background: radial-gradient(
-			ellipse at center,
+			ellipse closest-side at center,
 			rgba(tokens.$color-gradient-start, 0.28) 0%,
 			rgba(tokens.$color-gradient-end, 0.06) 100%
 		);
@@ -249,6 +264,19 @@ $mobile-nav-height: 3rem;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
 	text-transform: lowercase;
+	// `.mobileBrand`'s `align-items: center` only centers this anchor's
+	// own inline BOX against `.mobileCompactMark`'s box — not the two
+	// elements' visible content. The icon's artwork is centered in its
+	// own asset (Canvas pixel-bounds check, developer verification), but
+	// "javimorala.com" is not centered in ITS box: Canvas TextMetrics at
+	// this font-size measured fontBoundingBoxAscent 25 / actualAscent 14
+	// and fontBoundingBoxDescent 7 / actualDescent 4 — ~11px of unused
+	// ascent space against only ~3px of unused descent, pulling the
+	// visible glyphs ~0.26em below the box's (and thus the icon's) own
+	// center. Nudged back up by that measured amount so the two align
+	// on their actual visible content, not their boxes.
+	position: relative;
+	top: -0.26em;
 }
 
 // Mobile closed-bar compact logomark (T-040, Commitment 4 AC3) — the
