@@ -198,19 +198,28 @@ start, not retrofitted here.
   every target Feature's own Technical Design). Nav Divider Segment
   Transition is unblocked now — Section Navigation's exposed
   segmentation state is already built (per Implementation Report, commit
-  `0c462b8`) — unlike Nav Transition Styles/Nav Progress Overlay's
-  indicator-anatomy portion, which remains gated below.
+  `0c462b8`) — unlike Nav Transition Styles' indicator-anatomy portion and
+  Nav Progress Overlay's own separate blockers, both gated below.
 
-**Pending gate — per explicit user decision**: Nav Transition Styles and
-Nav Progress Overlay depend on `section-navigation`'s Active Screen
+**Pending gate — per explicit user decision**: Nav Transition Styles'
+indicator value-change transition (its logomark-transition scope is
+otherwise Ready now) depends on `section-navigation`'s Active Screen
 Indicator visual anatomy, which is explicitly left Pending in that
 Feature's own Approved UX Specification and UI Definition (no anatomy —
 colour change, underline, weight change, or similar — was ever decided).
 Per your confirmed decision, this must be resolved as a return trip to
-`section-navigation`'s UX/UI refinement **before** these two tasks are
-scheduled for execution. The other 5 `motion-interaction` components and
-all of `accessibility`'s work in this phase are unaffected and may proceed
-independently of this gate.
+`section-navigation`'s UX/UI refinement **before** this task is scheduled
+for execution as a whole.
+
+Nav Progress Overlay has two separate blockers of its own, unrelated to
+that gate: its desktop scope needs Hero — Scroll-Linked Content Exit &
+Mark Transformation (Task Catalog) to establish the Shared Scroll
+Progress Store first, and its mobile treatment remains Pending in
+`motion-interaction/ui.md`'s own UI refinement (not `section-navigation`).
+
+The other 9 `motion-interaction` Task Catalog tasks and all of
+`accessibility`'s work in this phase are unaffected and may proceed
+independently of both gates above.
 
 ### Phase 7 — Application-Level Validation
 

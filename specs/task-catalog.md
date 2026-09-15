@@ -477,6 +477,23 @@ Rationale).
   realizesCommitments: motion-interaction Commitment 3; contributes to 16
   readiness: Partially Pending. The logomark-transition scope (Commitment 3) is Ready now. The indicator value-change transition (contributing to Commitment 4) cannot be built/verified until `section-navigation`'s Active Screen Indicator visual anatomy is decided — Pending, owning artifact `section-navigation/ux.md`, `ui.md`. Per confirmed decision, this task as a whole is scheduled after that resolves.
 
+- id: T-035
+  name: Hero — Scroll-Linked Content Exit & Mark Transformation
+  type: implementation
+  objective: Build the Hero's scroll-linked content exit (headline/scroll cue/Presence Links fade) and mark transformation (desktop/tablet-with-space morph into the nav logo; mobile reverse stroke-reveal), sharing one scroll-progress value, including establishing the shared Shared Scroll Progress Store.
+  references: motion-interaction/technical-design.md (Hero Entrance & Ambient Motion Island — scroll-linked responsibilities; Shared Scroll Progress Store); motion-interaction/contract.md (Commitments 11, 12; contributes 14, 16)
+  dependencies: T-002, T-009, T-010, T-019, T-033
+  inputs: Hero Composition's static output (read-only); the confirmed nav-logo target size (T-033)
+  outputs: scroll-linked content exit and mark transformation, layered onto T-019's island; Shared Scroll Progress Store (shared internal store)
+  acceptanceCriteria:
+    - Headline/scroll cue/Presence Links fade continuously (opacity 1→0) tracked directly against scroll position over the Hero's height, reversible in both directions (Commitment 11).
+    - Desktop/tablet-with-space: the mark continuously morphs (not crossfades with a second element) into the nav logo's confirmed 158x292 position/form; mobile: the mark dissolves via a reverse trace of its own entrance stroke (Commitment 12, AC1–AC2).
+    - Both transformations are reversible 1:1 with scroll position (Commitment 12, AC3); a hysteresis margin prevents visible flicker near the boundary (Commitment 12, AC4).
+    - Tablet: no committed behavior — genuinely Pending per Implementation Plan Readiness Issue 6, blocked by a Section Navigation nav-composition decision that doesn't exist yet.
+    - Under reduced-motion, both remain fully active and unaffected — driven directly by scroll position, not autoplaying motion (Commitment 16 AC9).
+  realizesCommitments: motion-interaction Commitments 11, 12 (desktop/mobile only — tablet not committed); contributes to 14, 16
+  readiness: Ready for desktop/mobile. Tablet is Pending — see Implementation Plan Readiness Issue 6.
+
 - id: T-022
   name: Nav Progress Overlay
   type: implementation
@@ -539,23 +556,6 @@ Rationale).
     - Never alters Language Override's own selection, persistence, or no-op behavior.
   realizesCommitments: motion-interaction Commitment 9 (open/close only); contributes to 16
   readiness: Ready. Full Commitment 9 verification requires this task and T-024 both complete.
-
-- id: T-035
-  name: Hero — Scroll-Linked Content Exit & Mark Transformation
-  type: implementation
-  objective: Build the Hero's scroll-linked content exit (headline/scroll cue/Presence Links fade) and mark transformation (desktop/tablet-with-space morph into the nav logo; mobile reverse stroke-reveal), sharing one scroll-progress value, including establishing the shared Shared Scroll Progress Store.
-  references: motion-interaction/technical-design.md (Hero Entrance & Ambient Motion Island — scroll-linked responsibilities; Shared Scroll Progress Store); motion-interaction/contract.md (Commitments 11, 12; contributes 14, 16)
-  dependencies: T-002, T-009, T-010, T-019, T-033
-  inputs: Hero Composition's static output (read-only); the confirmed nav-logo target size (T-033)
-  outputs: scroll-linked content exit and mark transformation, layered onto T-019's island; Shared Scroll Progress Store (shared internal store)
-  acceptanceCriteria:
-    - Headline/scroll cue/Presence Links fade continuously (opacity 1→0) tracked directly against scroll position over the Hero's height, reversible in both directions (Commitment 11).
-    - Desktop/tablet-with-space: the mark continuously morphs (not crossfades with a second element) into the nav logo's confirmed 158x292 position/form; mobile: the mark dissolves via a reverse trace of its own entrance stroke (Commitment 12, AC1–AC2).
-    - Both transformations are reversible 1:1 with scroll position (Commitment 12, AC3); a hysteresis margin prevents visible flicker near the boundary (Commitment 12, AC4).
-    - Tablet: no committed behavior — genuinely Pending per Implementation Plan Readiness Issue 6, blocked by a Section Navigation nav-composition decision that doesn't exist yet.
-    - Under reduced-motion, both remain fully active and unaffected — driven directly by scroll position, not autoplaying motion (Commitment 16 AC9).
-  realizesCommitments: motion-interaction Commitments 11, 12 (desktop/mobile only — tablet not committed); contributes to 14, 16
-  readiness: Ready for desktop/mobile. Tablet is Pending — see Implementation Plan Readiness Issue 6.
 
 - id: T-036
   name: About Narrative — Photo Tilt
