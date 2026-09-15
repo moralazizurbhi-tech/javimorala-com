@@ -22,13 +22,19 @@ cue" problem.
 - The nav offers: a logomark link (→ Introduction), an "about" link (→
   Personal Narrative), a "contact" link (→ Connection), and hosts the
   language override control's placement.
-- While composed over the Introduction/Hero screen, the nav omits its own
-  compact logomark-icon element — the Hero's own large ornamental mark
-  (owned by `hero-presentation`) already serves that identity role there.
-  On every other screen (Personal Narrative, Connection), the nav includes
-  its compact logomark icon alongside the wordmark and links. This is a
-  confirmed, observed difference in the reference design (Figma), not a
-  new element introduced here.
+- On desktop, while composed over the Introduction/Hero screen, the nav
+  omits its own compact logomark-icon element — the Hero's own large
+  ornamental mark (owned by `hero-presentation`) already serves that
+  identity role there. On every other screen (Personal Narrative,
+  Connection), the desktop nav includes its compact logomark icon
+  alongside the wordmark and links. This per-screen difference is
+  confirmed, observed in the reference design (Figma), not a new element
+  introduced here.
+- On mobile's closed bar, the compact logomark icon is present
+  unconditionally, alongside the wordmark, regardless of which screen is
+  active — a deliberate device-specific exception to the desktop rule
+  above, per explicit user decision (not observed in the reference
+  design, which predates this addition).
 - The nav bar's connecting line renders as two segments with a gap at
   the row's horizontal center whenever a mark is actually present at
   that position — this Feature's own compact logomark icon (present
