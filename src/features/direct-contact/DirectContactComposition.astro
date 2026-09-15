@@ -94,7 +94,17 @@ const { headingText, ctaText, farewellLine1, farewellLine2 } = Astro.props;
 const CTA_EMAIL = 'javimorala@outlook.com';
 const mailtoHref = encodeCharacterReferences(`mailto:${CTA_EMAIL}`);
 const escapedCtaText = ctaText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const ctaAnchorHtml = `<a class="contact__cta" href="${mailtoHref}">${escapedCtaText}</a>`;
+
+// CTA Discoverability Affordance Icon (T-034; Commitment 7) — the
+// confirmed peaked-envelope outline (ux.md, Content and Assets),
+// inline rather than a referenced file so its `currentColor` stroke
+// inherits the CTA's own off-white foreground (ui.md, Colour
+// Application). `aria-hidden` keeps it out of the CTA's accessible
+// name (Commitment 7 AC2) — a decorative affordance, not new content.
+const affordanceIconSvg =
+	'<svg class="contact__cta-icon" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 6 L16 1 L29 6 L29 20 L3 20 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter"/><path d="M3 6 L16 13 L29 6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter"/></svg>';
+
+const ctaAnchorHtml = `<a class="contact__cta" href="${mailtoHref}">${escapedCtaText}${affordanceIconSvg}</a>`;
 ---
 
 <div class="contact">
@@ -235,6 +245,25 @@ const ctaAnchorHtml = `<a class="contact__cta" href="${mailtoHref}">${escapedCta
 		letter-spacing: tokens.$letter-spacing-heading;
 		color: tokens.$color-base-fg;
 		text-transform: capitalize;
+	}
+
+	// CTA affordance icon (T-034; Commitment 7) — sized in `em` against
+	// the CTA's own oversized, fluid display-scale font-size rather than
+	// a fixed size, so it scales proportionally with it and approximates
+	// the text's own x-height (ui.md, Component Anatomy: "proportionally
+	// large given the CTA's own oversized display scale, not a small
+	// inline glyph"). No explicit width on the SVG itself, so its 32:24
+	// viewBox ratio is preserved from the CSS-set height alone, the same
+	// way a sized `<img>` would. Off-white via `currentColor`, inheriting
+	// `.contact__cta`'s own colour (ui.md, Colour Application) rather
+	// than an independently authored fill. A stable, publicly-targetable
+	// class hook for `motion-interaction`'s own T-038 tap flourish — this
+	// component neither imports nor is aware of that external targeting.
+	:global(.contact__cta-icon) {
+		display: inline-block;
+		height: 0.5em;
+		width: auto;
+		margin-left: 0.25em;
 	}
 
 	// Static, non-interactive text (Commitment 5) — no handlers, no
