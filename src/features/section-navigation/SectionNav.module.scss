@@ -179,7 +179,18 @@ $mobile-nav-height: 3rem;
 		// Fully rounded (capsule) corners — a value larger than the pill
 		// can ever be tall guarantees this regardless of text length.
 		border-radius: 999px;
-		background-color: rgba(tokens.$color-accent, 0.15);
+		// Radial gradient, vivid lilac at the pill's own center fading to
+		// muted purple at its edge — extends Project UX's established
+		// "vivid at the high-impact point, fading toward receding edges"
+		// gradient pattern (previously only applied to the Ornamental
+		// Mark/Logo) to this new use (ui.md, Colour Application). Kept
+		// low-opacity throughout (28% center / 6% edge) so the off-white
+		// link text painted on top stays clearly readable at every point.
+		background: radial-gradient(
+			ellipse at center,
+			rgba(tokens.$color-gradient-start, 0.28) 0%,
+			rgba(tokens.$color-gradient-end, 0.06) 100%
+		);
 	}
 }
 
@@ -241,23 +252,25 @@ $mobile-nav-height: 3rem;
 }
 
 // Mobile closed-bar compact logomark (T-040, Commitment 4 AC3) — the
-// same Ornamental Logo asset as desktop's compact mark, but scaled to
-// roughly match the wordmark's own measured height rather than
-// desktop's enlarged, row-overflowing treatment: "small enough to pair
-// with the compact wordmark rather than dominate it" (ui.md, Spacing
-// and Layout — Mobile). $font-size-caption is the same token driving
-// `.mobileWordmark`'s own rendered height, so the two stay visually
-// paired across viewport widths; the 117:216 ratio matches the asset's
-// own unscaled aspect (desktop's 211:389 frame is a uniform 1.8x scale
-// of the same ratio, specific to desktop's row-overflow treatment, not
-// applicable here). Renders unconditionally, independent of
-// active-section state — unlike desktop's compact mark.
+// same Ornamental Logo asset as desktop's compact mark, scaled
+// noticeably larger than the wordmark's own measured height rather
+// than merely matching it (ui.md, Spacing and Layout — Mobile, revised
+// per developer visual review: matching height read as too small).
+// 1.6x $font-size-caption chosen empirically, mirroring the desktop
+// mark's own iterative-enlargement precedent (117:216 unscaled aspect,
+// same ratio desktop's 211:389 frame uniformly scales); `.mobileBrand`'s
+// own `align-items: center` keeps it vertically centered with the
+// wordmark regardless of the two now differing in height. Still fits
+// `$mobile-nav-height`'s existing row comfortably at this scale, so the
+// bar itself doesn't need to grow (ui.md left that free if it did).
+// Renders unconditionally, independent of active-section state — unlike
+// desktop's compact mark.
 .mobileCompactMark {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: tokens.$font-size-caption;
-	width: calc(#{tokens.$font-size-caption} * 117 / 216);
+	height: calc(#{tokens.$font-size-caption} * 1.6);
+	width: calc(#{tokens.$font-size-caption} * 1.6 * 117 / 216);
 
 	img {
 		display: block;
