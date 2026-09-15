@@ -2,6 +2,63 @@
 
 ## Progress Summary
 
+**T-033 (Section Navigation — Enlarge Compact Logomark) and T-034
+(Direct Contact — CTA Discoverability Affordance Icon) are both
+complete**, on branch `worktree-motion-interaction-refinement` (5
+commits: `3c3f56c`, `b60a8ab`, `46f9e4c`, `5ce1cb9`, `6dcff2d`), pushed
+to `origin/worktree-motion-interaction-refinement` — **not merged into
+`main`**. This differs from this report's prior "uncommitted on `main`"
+caveats: this work is fully committed and pushed, just on an unmerged
+feature branch.
+
+Both tasks became `Ready` via prior spec-refinement-only commits
+already on this branch before this session started (`a990cda`,
+`c6bb351`, `4379b50`, `b583059`, `f3cf100`, `4c726aa`, `e11037c` — all
+touch only `specs/`, no source code; confirmed via `git show --stat`).
+These extended `motion-interaction`'s spec substantially (not yet
+implemented — see Pending Work) and added `section-navigation/ui.md`'s
+logomark-resize spec and `direct-contact`'s Commitment 7 (CTA
+Discoverability Affordance).
+
+**T-033** was initially implemented literally per the then-approved
+`ui.md` text (bottom-anchored, growing upward, 158x292). Live-rendering
+verification (via the Claude-in-Chrome extension, once connected)
+revealed this was physically unachievable: the nav sits flush against
+the viewport's own top edge, so upward growth clips against the browser
+viewport itself — contradicting that same spec text's own "doesn't
+crowd the frame's top edge" qualifier. This was a genuine Contradiction
+discoverable only once rendered, not from the spec text alone. Per
+direct, real-time developer direction, corrected to
+top-anchored/downward-growth, and `section-navigation/ui.md` was edited
+to match (an approved-spec edit made directly during execution, at the
+live product owner's explicit instruction, rather than a formal
+stop-and-escalate cycle — see Known Issues). Final size was reached
+through three live-feedback iterations (158x292 → 176x324 → 211x389),
+each confirmed too small until the last.
+
+**T-034** was initially `BLOCKED`: its declared input ("the confirmed
+peaked-envelope SVG," `ux.md` Content and Assets) turned out to be a
+prose description only — no actual SVG markup existed anywhere in the
+repository or specs, despite `ux.md` framing it as already "provided
+directly by the user in this session" (a prior planning session). The
+user supplied the literal SVG markup directly in this conversation,
+unblocking the task. Two live-feedback rounds followed (baseline
+alignment, then a `viewBox` fix once "baseline" alone didn't visibly
+move it — root cause: the SVG's `viewBox` had ~3 units of dead space
+below the drawn artwork).
+
+**A dev-environment issue was found and fixed locally (not a source
+change) during T-033's verification**: this worktree's own
+`node_modules` was empty; Vite resolved `@fontsource*` and
+`@astrojs/react` from the main checkout's `node_modules` (outside the
+worktree), and its dev-server `fs.allow` boundary 403'd every request
+for them — breaking both font loading and all client-side hydration (so
+`SectionNav`'s compact-logomark visibility, which depends on hydrated
+scroll state, silently never appeared). Fixed by running `npm install`
+inside this worktree. This is local machine state, not a commit — any
+other fresh worktree would hit the same issue until it runs its own
+`npm install`.
+
 **Direct Contact (T-015, T-016) is complete and committed to `main`**
 (`ba9149d`) — built the CTA (mailto with HTML numeric-reference
 anti-scraping encoding), the section heading, farewell lines, and the
@@ -141,15 +198,31 @@ using a ≥500px proxy width for automated checks from that point on.
 | content-localization | Yes (T-006, T-007 done; T-029 real-content exercise still pending) | Provisional — unchanged; full real-content coverage still deferred to later Features' own phases |
 | language-override | Yes (T-005, T-008 done) | Realized and merged — unchanged. Still carries the pre-existing Implementation Placeholder (`"EN"`/`"ES"`/`"EU"` labels) |
 | hero-presentation | Yes — T-009, T-010, and now T-018 (Commitment 5) all done, all 5 Commitments realized | Provisional — Commitment 5's own mechanism is now Realized (Presence Links correctly included/subordinate/omittable); Feature-level status stays Provisional only because Spanish/Euskera copy remains AI-drafted, still pending native-speaker review (unchanged, pre-existing) |
-| section-navigation | Task Catalog's T-011 entry predates Commitment 8 and still lists only Commitments 1–5 | Realized — unchanged. **Known inconsistency carried forward:** the Task Catalog's own T-011 entry was written before Commitment 8 existed |
+| section-navigation | Task Catalog's T-011 entry predates Commitment 8 and still lists only Commitments 1–5. **This branch only**: T-033 revises the compact logomark's size/position (117x216 → 211x389, growth direction corrected) | Realized on `main` in its pre-T-033 form — unchanged there. This branch carries an unmerged revision, verified via computed geometry + live screenshot confirmation (Claude-in-Chrome). **Known inconsistency carried forward:** the Task Catalog's own T-011 entry was written before Commitment 8 existed |
 | **about-narrative** | **Yes — T-013, T-014 done.** Contract Commitment 5 (Ornamental Logo decorative presence) is also realized in code, though it isn't listed under either task's `realizesCommitments` in the Task Catalog (see Known Issues) | **Provisional.** Real narrative text (en/es/eu) and real developer-supplied photos now render — no longer placeholders. Provisional because: (1) `ux.md` itself flags the Euskera narrative as a "lower-confidence draft" pending native-speaker review (pre-existing, not introduced this session); (2) the two supplied photos are both portrait-oriented, not literally satisfying `ux.md`'s "contrasting orientations" content note; (3) the section kicker ("get to know me.") is new copy authored directly in conversation, not yet reconciled into `ux.md`'s own Content and Assets |
-| direct-contact | Yes — T-015, T-016 done (Commitments 1–6 all realized) | Realized. Known issue carried in code comments: `ux.md`/`ui.md` name the background asset "Ornamental Logo" but the actual asset used is Hero's own "Ornamental Mark" — a spec/evidence naming contradiction, not resolved here |
+| direct-contact | Yes — T-015, T-016 done (Commitments 1–6 all realized). **This branch only**: T-034 adds Commitment 7 (CTA Discoverability Affordance) | Realized on `main` in its pre-T-034 form — unchanged there. This branch carries an unmerged addition (CTA affordance icon), verified via build/dev-server HTML inspection and explicit user visual confirmation ("nows perfect"). Known issue carried in code comments: `ux.md`/`ui.md` name the background asset "Ornamental Logo" but the actual asset used is Hero's own "Ornamental Mark" — a spec/evidence naming contradiction, not resolved here |
 | presence-links | Yes — T-017, T-018 done (Commitments 1–4 all realized) | Realized, after this session's two corrections (colour, URLs — see Progress Summary). Known issue: `ui.md`'s Colour Application text still describes a gradient, no longer matching the plain-text implementation |
 | motion-interaction | Pending (no task started) | — |
 | accessibility | Pending (no task started) | — |
 
 ## Completed Work
 
+- **T-033 — Section Navigation: Enlarge Compact Logomark** (`3c3f56c`,
+  `b60a8ab`, branch `worktree-motion-interaction-refinement`).
+  `.compactMark` resized from 117x216 to 211x389 (1.8x uniform scale),
+  top-anchored with a small breathing-margin offset, growth extending
+  downward under the nav row. `section-navigation/ui.md` corrected to
+  match (growth direction + final size).
+- **T-034 — Direct Contact: CTA Discoverability Affordance Icon**
+  (`46f9e4c`, `5ce1cb9`, `6dcff2d`, branch
+  `worktree-motion-interaction-refinement`). Inline, static
+  peaked-envelope SVG (`currentColor` stroke) appended after the CTA
+  text inside the existing `set:html` fragment; `.contact__cta-icon`
+  class hook exposed for `motion-interaction`'s future T-038;
+  `aria-hidden="true"` so it doesn't alter the CTA's accessible name;
+  sized in `em` against the CTA's own display-scale font-size;
+  baseline-aligned; `viewBox` tightened to remove dead space below the
+  artwork.
 - **T-015 — Direct Contact: CTA & Anti-Scraping Mechanism** (`ba9149d`).
   Mailto CTA with HTML numeric character-reference encoding
   (`encodeCharacterReferences.ts` + test), injected via `set:html` to
@@ -287,7 +360,18 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Pending Work
 
-- T-019–T-032 (14 tasks) — unchanged, not started.
+- **Refreshed against the resynced Task Catalog (`e11037c`)**:
+  T-019–T-032, T-035–T-039 (21 tasks) — no source code implemented yet
+  for any of `motion-interaction` (T-019–T-025, T-035–T-038),
+  `accessibility` (T-026–T-028), or the remaining
+  `content-localization`/integration/verification tasks (T-029–T-032,
+  T-039), despite `motion-interaction`'s own spec now being
+  substantially more detailed than the prior report reflected (three
+  spec-refinement commits, `a990cda`/`c6bb351`/`f3cf100`/`4c726aa`, not
+  yet translated into code).
+- **New**: this session's T-033/T-034 work is committed and pushed to
+  `worktree-motion-interaction-refinement` but not merged into `main` —
+  merging is a developer decision, not done automatically by any Skill.
 - **New**: `presence-links/ui.md`'s Colour Application section needs
   revising to match the plain-text implementation (owned by Planning, if
   reconciliation is wanted).
@@ -328,6 +412,16 @@ unchanged from the prior report — preserved for continuity:**
   remain unreconciled — not re-investigated this session.
 
 ## Generated Artifacts
+
+*(new this session, T-033/T-034, branch
+`worktree-motion-interaction-refinement`)*
+
+- `src/features/section-navigation/SectionNav.module.scss` —
+  `.compactMark` resize/reposition (T-033).
+- `specs/features/section-navigation/ui.md` — growth-direction and size
+  correction (T-033).
+- `src/features/direct-contact/DirectContactComposition.astro` —
+  affordance icon + SCSS (T-034).
 
 *(new/changed since the prior report's own snapshot, `ba5040b`)*
 
@@ -371,7 +465,24 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Implementation Decisions
 
-*(new this session)*
+*(new this session, T-033/T-034)*
+
+- T-033's icon scale computed via the exact multiplier applied to the
+  existing row-height formula, rather than the spec's own rounded
+  figures, to preserve the original aspect ratio exactly (Implementation
+  Detail).
+- T-033's downward-growth correction was applied directly to the
+  approved `section-navigation/ui.md`, at the live product owner's
+  explicit real-time direction, rather than a formal
+  stop/escalate/resume cycle — a deliberate deviation from
+  `vibe-execute-planned-work`'s normal artifact boundary, made because
+  the Contradiction was resolved on the spot by the person who owns that
+  decision. Flagged as a process note in Known Issues, not a defect.
+- T-034's "sized to the CTA text's x-height" requirement implemented as
+  an `em`-relative approximation (0.5em height, aspect ratio preserved),
+  not a literal font-metric measurement — Implementation Detail.
+
+*(prior session)*
 
 - Presence Links composed via a named Astro `<slot>` inside
   `DirectContactComposition.astro`, rather than as an external sibling at
@@ -448,6 +559,24 @@ own message)*
 
 ## Known Issues
 
+- **New — dev-environment gap** (T-033 discovery; see Progress
+  Summary): a freshly created worktree with no local `npm install`
+  breaks Vite dev-server font loading and all React hydration via
+  `fs.allow` 403s. Not a source-code defect; not fixed at the repo/config
+  level (would need e.g. a `vite.server.fs.allow` addition in
+  `astro.config.mjs`, a decision not made here).
+- **New — spec/content gap**: `direct-contact/ux.md`'s Content and
+  Assets still doesn't embed the actual envelope SVG markup — only a
+  prose description, even after this session recovered the real asset
+  from the user directly. The literal SVG now lives only in
+  `DirectContactComposition.astro`. Owning artifact: `direct-contact/
+  ux.md` (Planning Workflow), if reconciliation is wanted.
+- **New — process note**: T-033's spec correction (see Implementation
+  Decisions) edited an approved Feature UI Definition directly from
+  within the execution Skill, outside its normal artifact-access
+  boundary — done at explicit, real-time product-owner direction rather
+  than a formal escalation. Recorded for transparency, not as an
+  unresolved item.
 - **New — spec/implementation mismatch**: `presence-links/ui.md`'s
   Colour Application section still specifies a lilac-to-purple gradient
   text-fill; the implementation now uses plain off-white text, per
@@ -502,6 +631,29 @@ own message)*
   earlier reports remain unreconciled (not re-investigated here).
 
 ## Execution Evidence
+
+*(new this session, T-033/T-034)*
+
+- `npx vitest run src/features/section-navigation/SectionNav.test.tsx`
+  — 15/15 passing (T-033), unchanged after all three size iterations.
+- `npx vitest run src/features/direct-contact` — 3/3 passing (T-034,
+  `encodeCharacterReferences` tests; unaffected by the icon addition).
+- `npm run build` — clean, multiple times across both tasks.
+- T-033: computed geometry verification (1.8x scale ⇒ 211x389 from
+  117x216, exact); live browser screenshot confirmation via
+  Claude-in-Chrome showing the corrected downward-hanging icon;
+  console-error inspection confirming the React hydration fix
+  (`[astro-island] Error hydrating...` gone after `npm install`).
+- T-034: `dist/en/index.html` and dev-server HTML both grepped to
+  confirm the icon markup, `mailto:` encoding untouched, and
+  `aria-hidden` present; final state explicitly confirmed by the user
+  ("nows perfect").
+- `git log main..HEAD` / `git show --stat` on each pre-existing commit —
+  confirmed the 7 commits ahead of `main` before this session were
+  spec-only, and this session's 5 commits are the only source-code
+  changes on this branch.
+
+*(prior session)*
 
 - `npm run build` (astro build) — clean, both before and after this
   session's post-implementation corrections.
@@ -575,4 +727,5 @@ own message)*
 
 ---
 
-*Created: 2026-09-09. Refined: 2026-09-11, 2026-09-12, 2026-09-13.*
+*Created: 2026-09-09. Refined: 2026-09-11, 2026-09-12, 2026-09-13,
+2026-09-15.*
