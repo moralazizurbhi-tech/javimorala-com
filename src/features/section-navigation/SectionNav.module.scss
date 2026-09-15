@@ -158,11 +158,24 @@ $mobile-nav-height: 3rem;
 		position: absolute;
 		z-index: -1;
 		// Snugly fits the link's own text plus a small padding: full
-		// $space-xs horizontally, a proportionally smaller half of it
-		// vertically, comfortably containing the line-height without
-		// visually dominating the text the way a full $space-xs would
-		// (ui.md, Component Anatomy and Variants).
-		inset: calc(#{tokens.$space-xs} / -2) calc(-1 * #{tokens.$space-xs});
+		// $space-xs horizontally (ui.md, Component Anatomy and Variants).
+		// Vertically, the anchor's own inline box is NOT a safe reference
+		// point: measured directly against Darker Grotesque Variable at
+		// 36px (Canvas TextMetrics, developer verification), the font
+		// reserves ascent 38px / descent 11px above/below baseline, while
+		// "about"/"contact" (no descenders in either word) only need 21px
+		// / 1px of actual ink — an asymmetric ~17px/~10px of unused space
+		// baked into the box itself, which a symmetric inset off that box
+		// visibly inherits as a top-heavy pill (developer visual review).
+		// Expressed in em (scales with the link's own fluid font-size,
+		// unlike a fixed px value) rather than off the box: shrink in from
+		// the top by the ascent's own unused space minus the intended
+		// ~0.15em breathing room, and from the bottom by the descent's
+		// smaller unused space minus that same margin.
+		top: 0.32em;
+		bottom: 0.13em;
+		left: calc(-1 * #{tokens.$space-xs});
+		right: calc(-1 * #{tokens.$space-xs});
 		// Fully rounded (capsule) corners — a value larger than the pill
 		// can ever be tall guarantees this regardless of text length.
 		border-radius: 999px;
