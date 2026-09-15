@@ -120,8 +120,9 @@ motion/transition treatment (`motion-interaction`).
 - **Persistent Nav Bar (desktop):** plain text wordmark + plain text
   links, no button chrome or border — consistent with the site's
   chrome-free, typography-driven aesthetic. The Active Screen Indicator
-  (below) is the one deliberate exception to this, a soft background
-  pill. The connecting line renders as two independent segments, not one
+  (below) is the one deliberate exception to this, a small rounded blob
+  emerging from the active link's own bottom edge. The connecting line
+  renders as two independent segments, not one
   bar-wide element sitting behind a mark. The compact logomark
   (Ornamental Logo) is a symmetric, spiked, hourglass-shaped mini-mark
   with crown tendrils top and bottom — a small standalone mark, no
@@ -134,16 +135,20 @@ motion/transition treatment (`motion-interaction`).
 - **Mobile Navigation Overlay:** full-screen flat surface (same
   background as the rest of the site), links as plain centered text, no
   button chrome.
-- **Active Screen Indicator:** a soft background pill sitting behind
-  whichever of "about"/"contact" is currently active — fully rounded
-  corners (capsule shape), sized to snugly fit the link's own text plus
-  a small padding (`$space-xs` horizontal, a proportionally smaller
-  vertical padding comfortably containing the link's own line-height).
-  Applies only to the "about"/"contact" links — the wordmark never
-  carries it, and Introduction shows no indicator at all (Hero's own
-  presence already signals it — a deliberate, confirmed interpretation
-  of Feature Contract Commitment 5 AC1, not a gap). Applies identically
-  inside the mobile overlay's link list.
+- **Active Screen Indicator:** revised from an earlier background-pill
+  treatment (read as an unintentional "smudge" in live rendering,
+  developer visual review) to a small rounded blob emerging from the
+  link's own bottom edge — anchored below the text's baseline, extending
+  downward past the link's own box, rather than a surface sitting behind
+  the text on all sides. Sized narrower than the link's own text width
+  (roughly 60–70%), tall enough to read as a distinct rounded shape, not
+  a thin underline. Positioned so it never overlaps or dims the text
+  itself — legibility is unaffected by construction, not by opacity
+  tuning. Applies only to the "about"/"contact" links — the wordmark
+  never carries it, and Introduction shows no indicator at all (Hero's
+  own presence already signals it — a deliberate, confirmed
+  interpretation of Feature Contract Commitment 5 AC1, not a gap).
+  Applies identically inside the mobile overlay's link list.
 
 ## Colour Application
 
@@ -165,19 +170,18 @@ motion/transition treatment (`motion-interaction`).
   interactive/focus states.
 - No colour differentiation observed between "about" and "contact," or
   between any nav element and the shared near-black background.
-- Active-indicator colour: pill background is a radial gradient
-  centered in the pill — `$color-gradient-start` (`#9b7fd4`, lilac) at
-  ~28% opacity at the center, fading to `$color-gradient-end`
-  (`#4b2178`, muted purple) at ~6% opacity toward the pill's edge.
-  Extends Project UX's established "vivid at the high-impact point,
-  fading toward receding edges" gradient pattern (previously only
-  applied to the Ornamental Mark/Logo) to this new use — a Feature-
-  specific extension, since Visual Foundations doesn't define a preset
-  radial application. Kept low-opacity throughout so the off-white link
-  text sitting on top stays clearly readable against the near-black nav
-  background at every point in the gradient (no accessibility-contrast
-  regression versus the previous flat treatment). Link text colour
-  remains unchanged (off-white) while its pill shows.
+- Active-indicator colour: the blob is a radial gradient —
+  `$color-gradient-start` (`#9b7fd4`, lilac) at the blob's own center,
+  fading to `$color-gradient-end` (`#4b2178`, muted purple) at its edge
+  — the same gradient family Project UX establishes as "vivid at the
+  high-impact point, fading toward receding edges" (previously only
+  applied to the Ornamental Mark/Logo), extended here as a Feature-
+  specific extension since Visual Foundations doesn't define a preset
+  radial application. Since the blob no longer sits under the text
+  (Component Anatomy and Variants), it can run more saturated than the
+  earlier pill treatment without any readability tradeoff: ~55% opacity
+  at the center, fading to ~15% at the edge. Link text colour remains
+  unchanged (off-white).
 
 ## Borders, Radii, Shadows, Surfaces
 
@@ -199,9 +203,10 @@ overlay, consistent with the site's chrome-free style.
 - Mobile Overlay Closed / Open: two concrete realizations as above
   (toggle vs. close glyph, collapsed bar vs. full-screen link list) —
   Feature UX's Mobile Overlay states.
-- Active Screen Indicator: `Inactive` (no pill) / `Active` (background
-  pill behind the link) — applies identically on desktop and inside the
-  mobile overlay's link list; never behind the wordmark.
+- Active Screen Indicator: `Inactive` (no blob) / `Active` (blob
+  emerging from the link's own bottom edge) — applies identically on
+  desktop and inside the mobile overlay's link list; never on the
+  wordmark.
 - Desktop vs. mobile: two distinct concrete layouts, not a resize/reflow
   of one layout — matching Feature UX's device-distinct treatment.
 
