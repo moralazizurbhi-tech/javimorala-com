@@ -93,10 +93,16 @@ motion/transition treatment (`motion-interaction`).
   confirmed by explicit user decision): the compact logomark icon (same
   Ornamental Logo asset as desktop) renders immediately before the
   wordmark, on every screen including Introduction (Contract Commitment
-  4 AC3). Proposed sizing: scaled to roughly match the wordmark's own
-  measured height (23 units) — small enough to pair with the compact
-  wordmark rather than dominate it — with a small gap (a reduced
-  fraction of `$space-xs`) between icon and text.
+  4 AC3). Proposed sizing: scaled noticeably larger than the
+  wordmark's own measured height (23 units) — no longer sized to
+  merely match it — while remaining vertically centered with the
+  wordmark text; exact scale factor is an Implementation Detail tuned
+  via developer visual review (mirrors the desktop compact mark's own
+  iterative-enlargement precedent, above). If the enlarged icon no
+  longer comfortably fits the mobile bar's existing row height, the
+  bar's own height is free to grow to accommodate it — that dimension
+  was never pinned by this Definition. Small gap (a reduced fraction of
+  `$space-xs`) between icon and text unchanged.
 - Open (overlay): the toggle is replaced by a close ("X") glyph in the
   same top-right position, measuring ~22.6x23 (two crossed lines);
   "about" and "contact" are centered together in the vertical middle of
@@ -159,11 +165,19 @@ motion/transition treatment (`motion-interaction`).
   interactive/focus states.
 - No colour differentiation observed between "about" and "contact," or
   between any nav element and the shared near-black background.
-- Active-indicator colour: pill background is `$color-accent` (the
-  lilac gradient-start, `#9b7fd4`) at low opacity (~15%) — a Feature-
+- Active-indicator colour: pill background is a radial gradient
+  centered in the pill — `$color-gradient-start` (`#9b7fd4`, lilac) at
+  ~28% opacity at the center, fading to `$color-gradient-end`
+  (`#4b2178`, muted purple) at ~6% opacity toward the pill's edge.
+  Extends Project UX's established "vivid at the high-impact point,
+  fading toward receding edges" gradient pattern (previously only
+  applied to the Ornamental Mark/Logo) to this new use — a Feature-
   specific extension, since Visual Foundations doesn't define a preset
-  opacity for this use. Link text colour is unchanged (off-white) while
-  its pill shows.
+  radial application. Kept low-opacity throughout so the off-white link
+  text sitting on top stays clearly readable against the near-black nav
+  background at every point in the gradient (no accessibility-contrast
+  regression versus the previous flat treatment). Link text colour
+  remains unchanged (off-white) while its pill shows.
 
 ## Borders, Radii, Shadows, Surfaces
 
