@@ -277,7 +277,7 @@ one-task-per-Feature default.
     - The active-section state accurately reflects Introduction on load, the target screen after a nav-link activation, and the correct screen after free-scrolling, never ambiguous (Commitment 5).
     - The divider line renders as two independently-sized segments around whichever mark occupies the row's center — Hero's mark on Introduction (via its exposed visibility sentinel), the compact logomark on Personal Narrative/Connection — never one continuous line hidden behind a mark (Commitment 8).
   realizesCommitments: section-navigation Commitments 1, 2, 3, 4, 5, 8
-  readiness: Realized — including Commitment 8, confirmed built in code (Implementation Report, commit `0c462b8`; this entry previously omitted it). The Active Screen Indicator's final visual anatomy (colour/underline/weight) remains Pending in `section-navigation/ux.md`/`ui.md` — that visual treatment is applied via Styling System tokens whenever it's decided, without reopening this task.
+  readiness: Realized — including Commitment 8, confirmed built in code (Implementation Report, commit `0c462b8`; this entry previously omitted it). The Active Screen Indicator's visual anatomy is now decided (`section-navigation/ui.md`); Commitment 4's new AC3 (mobile logomark) and Commitment 5's `aria-current` exposure are outside this task's original scope — covered by T-040, per the same non-reopening precedent as T-033/T-034.
 
 - id: T-012
   name: Section Navigation — Mobile Overlay & Language-Control Hosting
@@ -429,6 +429,21 @@ Rationale).
   realizesCommitments: direct-contact Commitment 7
   readiness: Ready
 
+- id: T-040
+  name: Section Navigation — Active-Indicator Pill & Mobile Logomark
+  type: implementation
+  objective: Add the Active Screen Indicator's static background-pill styling, the mobile closed bar's unconditional compact logomark, and the active nav link's aria-current attribute exposure — revising T-011's already-Realized output without reopening its identity.
+  references: section-navigation/ui.md (Active Screen Indicator; Mobile logomark addition); section-navigation/technical-design.md (aria-current Design Decision 8; device-split logomark); section-navigation/contract.md (Commitment 4 AC3; Commitment 5)
+  dependencies: T-011
+  inputs: Section Navigation's existing active-section state and compact-logomark rendering (T-011)
+  outputs: active-link aria-current attribute; static (non-animated) Active Screen Indicator pill; mobile closed-bar compact logomark
+  acceptanceCriteria:
+    - The active "about"/"contact" link carries aria-current="page"; the inactive one does not (Commitment 5).
+    - A background pill (fully rounded, ~15% opacity accent) renders behind the active link's text, desktop and inside the mobile overlay; the wordmark never carries it; Introduction shows none.
+    - Mobile's closed bar renders the compact logomark unconditionally, before the wordmark, on every screen including Introduction (Commitment 4 AC3). Desktop's existing per-screen behavior (AC1/AC2) is unchanged.
+  realizesCommitments: section-navigation Commitment 4 AC3 (new); contributes to Commitment 5's visual realization
+  readiness: Ready — Solution, Contract, UI, and Technical Design are all Approved with this exact content.
+
 ### Implementation — Motion & Interaction
 
 - id: T-019
@@ -467,15 +482,16 @@ Rationale).
   type: implementation
   objective: Add a smooth transition to the compact-logomark presence change and to the Active Screen Indicator's value-change, targeting Section Navigation's existing DOM/class contract with zero code coupling.
   references: motion-interaction/technical-design.md (Nav Transition Styles); motion-interaction/contract.md (Commitment 3; contributes 4, 16)
-  dependencies: T-002, T-011
+  dependencies: T-002, T-011, T-040
   inputs: Section Navigation's public DOM/class contract (read-only)
   outputs: SCSS transition partial
   acceptanceCriteria:
-    - The compact-logomark presence change transitions smoothly in both directions, on free scroll or nav-link jump (Commitment 3) — deliverable and verifiable now.
+    - On desktop, the compact-logomark presence change transitions smoothly in both directions, on free scroll or nav-link jump (Commitment 3) — deliverable and verifiable now, using T-011's existing output alone.
+    - The Active Screen Indicator's value-change (T-040's pill moving between links) transitions smoothly rather than snapping.
     - Under `prefers-reduced-motion: reduce`, both transitions resolve to an instant value change.
     - Never requires Section Navigation's own component code to import or reference this stylesheet.
   realizesCommitments: motion-interaction Commitment 3; contributes to 16
-  readiness: Partially Pending. The logomark-transition scope (Commitment 3) is Ready now. The indicator value-change transition (contributing to Commitment 4) cannot be built/verified until `section-navigation`'s Active Screen Indicator visual anatomy is decided — Pending, owning artifact `section-navigation/ux.md`, `ui.md`. Per confirmed decision, this task as a whole is scheduled after that resolves.
+  readiness: Ready once T-040 completes — needs the pill's base styling to exist before a transition can be added to it. The logomark-transition scope (Commitment 3) is independently buildable now, using T-011's existing desktop output alone.
 
 - id: T-035
   name: Hero — Scroll-Linked Content Exit & Mark Transformation
@@ -637,7 +653,7 @@ Rationale).
     - Before hydration, no current-state attribute is set (an eventually-consistent fallback), rather than an incorrect guess.
     - Introduces no second, independently-tracked active-section state.
   realizesCommitments: accessibility Commitment 5
-  readiness: Ready
+  readiness: Ready. Flagged, not resolved here: section-navigation/technical-design.md now specifies the active nav link carries `aria-current="page"` natively (Design Decision 8, added resolving T-040) — this task's own mirroring mechanism may be redundant. Not deprecated pending a decision in `accessibility`'s own Technical Design (still commits to Commitment 5 via this mechanism); a Feature Development or feature-set-review pass on `accessibility` should resolve whether this task is still needed before it's built.
 
 ### Verification — Motion & Accessibility (Phase 6)
 
@@ -677,7 +693,7 @@ Rationale).
   type: verification
   objective: Re-verify T-028's commitments hold once Phase 6's motion layer is composed in, and confirm motion doesn't introduce a new accessibility defect.
   references: accessibility/contract.md (Commitments 1, 2, 3, 4, 6)
-  dependencies: T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-027, T-028, T-033, T-034, T-035, T-036, T-037, T-038
+  dependencies: T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-027, T-028, T-033, T-034, T-035, T-036, T-037, T-038, T-040
   inputs: the fully composed, motion-enabled experience
   outputs: a verification record
   acceptanceCriteria:
@@ -704,7 +720,7 @@ Rationale).
   type: verification
   objective: Regression-test the composed three-domain experience across device classes and all three locales.
   references: project-design.md (Cross-Functional Rules); project-ux.md (Visual Foundations — responsive scaling outcome)
-  dependencies: T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016, T-018, T-029, T-030, T-031, T-033, T-034
+  dependencies: T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016, T-018, T-029, T-030, T-031, T-033, T-034, T-040
   inputs: the fully integrated, motion-complete, three-locale experience
   outputs: a verification record
   acceptanceCriteria:
@@ -719,8 +735,8 @@ Rationale).
   type: infrastructure
   objective: Simplify and clarify the codebase's existing dense/nested `calc()` expressions — no visual or behavioral change, readability only.
   references: none — a code-quality pass over existing implementation, not traceable to any Feature Commitment
-  dependencies: T-002, T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016, T-017, T-018, T-033, T-034, T-035, T-036, T-037, T-038
-  inputs: the full Sass codebase at that point, including `src/styles/mixins/_fluid.scss` (the `clamp(calc(...))` fluid-scaling composition) and `src/features/section-navigation/SectionNav.module.scss` (the divider-gap math, the `117/216`-style ratio calc, and centering-offset calcs) — the two files confirmed to contain dense `calc()` today; any other `calc()` introduced by Phase 6's motion work in the meantime is in scope too
+  dependencies: T-002, T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016, T-017, T-018, T-033, T-034, T-035, T-036, T-037, T-038, T-040
+  inputs: the full Sass codebase at that point, including `src/styles/mixins/_fluid.scss` (the `clamp(calc(...))` fluid-scaling composition) and `src/features/section-navigation/SectionNav.module.scss` (the divider-gap math, the `117/216`-style ratio calc, and centering-offset calcs) — the two files confirmed to contain dense `calc()` today; any other `calc()` introduced by Phase 6's motion work or by T-040's pill/logomark sizing in the meantime is in scope too
   outputs: the same Sass files, refactored for readability (named intermediate Sass variables/comments explaining each ratio or offset in place of unlabeled inline arithmetic)
   acceptanceCriteria:
     - Every existing `calc()` expression this task touches is functionally identical before and after — verified by pixel-level screenshot comparison at both device classes, not just a visual glance.

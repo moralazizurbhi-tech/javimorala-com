@@ -198,28 +198,34 @@ start, not retrofitted here.
   every target Feature's own Technical Design). Nav Divider Segment
   Transition is unblocked now — Section Navigation's exposed
   segmentation state is already built (per Implementation Report, commit
-  `0c462b8`) — unlike Nav Transition Styles' indicator-anatomy portion and
-  Nav Progress Overlay's own separate blockers, both gated below.
+  `0c462b8`) — unlike Nav Transition Styles' indicator-value-change
+  portion and Nav Progress Overlay's own separate blockers, both gated
+  below.
 
-**Pending gate — per explicit user decision**: Nav Transition Styles'
-indicator value-change transition (its logomark-transition scope is
-otherwise Ready now) depends on `section-navigation`'s Active Screen
-Indicator visual anatomy, which is explicitly left Pending in that
-Feature's own Approved UX Specification and UI Definition (no anatomy —
-colour change, underline, weight change, or similar — was ever decided).
-Per your confirmed decision, this must be resolved as a return trip to
-`section-navigation`'s UX/UI refinement **before** this task is scheduled
-for execution as a whole.
+**Resolved, tracked as a Task Catalog dependency now**: `section-navigation`'s
+Active Screen Indicator visual anatomy — previously Pending in that
+Feature's own Approved UX Specification and UI Definition — has been
+decided via a Feature Development revision (background pill behind the
+active link; a plain `aria-current="page"` attribute exposes which link
+is active, satisfying Nav Transition Styles' dependency on "Section
+Navigation's existing DOM/class contract"). Building the pill itself and
+that attribute is now Task Catalog's own T-040, a new task revising
+Section Navigation's already-Realized output without reopening it (the
+same pattern as T-033/T-034). Nav Transition Styles' indicator
+value-change transition now gates on T-040 completing (a Task Catalog
+dependency, not an open Feature-spec question) — its logomark-transition
+scope remains independently Ready now, using Section Navigation's
+existing desktop output alone.
 
 Nav Progress Overlay has two separate blockers of its own, unrelated to
-that gate: its desktop scope needs Hero — Scroll-Linked Content Exit &
+the above: its desktop scope needs Hero — Scroll-Linked Content Exit &
 Mark Transformation (Task Catalog) to establish the Shared Scroll
 Progress Store first, and its mobile treatment remains Pending in
 `motion-interaction/ui.md`'s own UI refinement (not `section-navigation`).
 
 The other 9 `motion-interaction` Task Catalog tasks and all of
 `accessibility`'s work in this phase are unaffected and may proceed
-independently of both gates above.
+independently of both of the above.
 
 ### Phase 7 — Application-Level Validation
 
