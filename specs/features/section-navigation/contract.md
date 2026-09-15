@@ -74,25 +74,33 @@ screen."
 
 ### Commitment 4 — Compact Logomark Icon Conditional Presence
 
-Relationship to Solution: resolves "nav omits its own compact
-logomark-icon element while over Introduction/Hero... includes it on
-Personal Narrative, Connection."
+Relationship to Solution: resolves "on desktop, nav omits its own
+compact logomark-icon element while over Introduction/Hero... includes
+it on Personal Narrative, Connection" and "on mobile's closed bar, the
+compact logomark icon is present unconditionally, regardless of active
+screen."
 
 **Acceptance Criteria**
 
-- AC1: While Introduction is active, the nav does not render the compact
-  logomark icon.
-- AC2: While Personal Narrative or Connection is active, the nav renders
-  the compact logomark icon.
+- AC1: On desktop, while Introduction is active, the nav does not
+  render the compact logomark icon.
+- AC2: On desktop, while Personal Narrative or Connection is active,
+  the nav renders the compact logomark icon.
+- AC3: On mobile's closed bar, the compact logomark icon is always
+  rendered, regardless of which screen is active.
 
 **Validation Scenarios**
 
-- Scenario — visitor on Introduction
+- Scenario — desktop, visitor on Introduction
   - Success Condition: no compact icon present.
   - Failure Condition: icon present.
-- Scenario — visitor on Personal Narrative or Connection
+- Scenario — desktop, visitor on Personal Narrative or Connection
   - Success Condition: icon present.
   - Failure Condition: icon absent.
+- Scenario — mobile closed bar, visitor on any screen including
+  Introduction
+  - Success Condition: icon present.
+  - Failure Condition: icon absent on any screen.
 
 ### Commitment 5 — Active Screen Indicator Accuracy
 
