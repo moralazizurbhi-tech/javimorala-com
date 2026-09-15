@@ -3,6 +3,7 @@ import BaseLayout from './BaseLayout.astro';
 import SectionNav from '../features/section-navigation/SectionNav';
 import PresenceLinkGroup from '../features/presence-links/PresenceLinkGroup.astro';
 import HeroEntranceIsland from '../features/motion-interaction/HeroEntranceIsland';
+import AboutNarrativeRevealIsland from '../features/motion-interaction/AboutNarrativeRevealIsland';
 import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
@@ -51,7 +52,16 @@ const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = A
 			</HeroEntranceIsland>
 		</section>
 		<section id="personal-narrative">
-			<slot name="personal-narrative" />
+			<!--
+				About Narrative Reveal Island (T-020;
+				motion-interaction/technical-design.md) — hydrates around About
+				Narrative Composition's already-rendered static markup
+				(static-children-in-island pattern), targeting its paragraphs/
+				photos by class from inside. Never alters that file's own markup.
+			-->
+			<AboutNarrativeRevealIsland client:load>
+				<slot name="personal-narrative" />
+			</AboutNarrativeRevealIsland>
 		</section>
 		<section id="connection">
 			<slot name="connection" />
