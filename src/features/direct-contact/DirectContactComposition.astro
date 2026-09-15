@@ -102,7 +102,7 @@ const escapedCtaText = ctaText.replace(/&/g, '&amp;').replace(/</g, '&lt;').repl
 // Application). `aria-hidden` keeps it out of the CTA's accessible
 // name (Commitment 7 AC2) — a decorative affordance, not new content.
 const affordanceIconSvg =
-	'<svg class="contact__cta-icon" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 6 L16 1 L29 6 L29 20 L3 20 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter"/><path d="M3 6 L16 13 L29 6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter"/></svg>';
+	'<svg class="contact__cta-icon" viewBox="0 0 32 21" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 6 L16 1 L29 6 L29 20 L3 20 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter"/><path d="M3 6 L16 13 L29 6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter"/></svg>';
 
 const ctaAnchorHtml = `<a class="contact__cta" href="${mailtoHref}">${escapedCtaText}${affordanceIconSvg}</a>`;
 ---
