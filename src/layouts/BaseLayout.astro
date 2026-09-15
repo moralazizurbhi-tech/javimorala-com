@@ -20,6 +20,45 @@ const { title, description, lang } = Astro.props;
 		<meta name="description" content={description} />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<script is:inline>
+			// Pre-hide guard for Hero's entrance (motion-interaction/T-019,
+			// post-implementation correction) — runs synchronously, before
+			// the body below is even parsed, so the Hero elements below
+			// start hidden at first paint instead of flashing fully visible
+			// for the moment before HeroEntranceIsland hydrates and hides
+			// them itself. Mirrors that component's own eligibility check
+			// (reduced motion / already played this session) so it only
+			// hides when an entrance will actually follow. Keys/shape must
+			// stay in sync with motionPlaybackStore.ts (STORAGE_KEY
+			// 'motion-playback') and HeroEntranceIsland.tsx's own hidden
+			// values (clip-path 50%/50%, 12px offset).
+			//
+			// Never hides on any failure (storage blocked, JSON malformed,
+			// matchMedia unsupported) — Hero's completeness guarantee must
+			// hold even if this guard can't run correctly. A timeout safety
+			// net also unhides everything a few seconds later regardless,
+			// in case the island's own JS chunk never loads/hydrates at
+			// all — completeness must never depend on that succeeding.
+			(function () {
+				try {
+					var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+					var played = false;
+					var raw = sessionStorage.getItem('motion-playback');
+					if (raw) {
+						var parsed = JSON.parse(raw);
+						played = parsed && parsed.heroEntrancePlayed === true;
+					}
+					if (!reduced && !played) {
+						document.documentElement.classList.add('js-hero-entrance-pending');
+						setTimeout(function () {
+							document.documentElement.classList.remove('js-hero-entrance-pending');
+						}, 4000);
+					}
+				} catch (error) {
+					// Completeness wins over the pre-hide optimization.
+				}
+			})();
+		</script>
 	</head>
 	<body class="rt-scaffold">
 		<slot />

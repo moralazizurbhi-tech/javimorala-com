@@ -116,4 +116,41 @@ const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = A
 			bottom: tokens.$space-lg;
 		}
 	}
+
+	// Pre-hide guard for Hero's entrance (motion-interaction/T-019,
+	// post-implementation correction) — BaseLayout.astro's blocking
+	// script toggles this class on <html> before the body below is even
+	// parsed, so these elements start hidden at first paint instead of
+	// flashing fully visible for the moment before HeroEntranceIsland
+	// hydrates and hides them itself via JS. Values here must stay in
+	// sync with HeroEntranceIsland.tsx's own hidden state (MARK_CLIP_HIDDEN,
+	// ENTRANCE_Y_OFFSET) — this is the same hidden state, just applied a
+	// moment earlier, via CSS instead of JS. Never baked into
+	// HeroComposition.astro's own file, and never able to hide anything
+	// permanently: BaseLayout's script only adds this class when JS is
+	// actually running (so completeness holds under no-JS) and removes
+	// it itself a few seconds later regardless, in case the island never
+	// hydrates.
+	:global(html.js-hero-entrance-pending) {
+		:global(.hero__mark) {
+			opacity: 0;
+			clip-path: inset(0 50% 0 50%);
+		}
+
+		:global(.hero__headline-primary) {
+			opacity: 0;
+		}
+
+		:global(.hero__headline-secondary--1),
+		:global(.hero__headline-secondary--2) {
+			opacity: 0;
+			transform: translateY(12px);
+		}
+
+		:global(.hero__scroll-cue),
+		:global(.introduction__presence-links) {
+			opacity: 0;
+			transform: translateY(12px);
+		}
+	}
 </style>

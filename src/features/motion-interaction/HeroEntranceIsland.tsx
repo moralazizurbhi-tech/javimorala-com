@@ -109,6 +109,14 @@ export default function HeroEntranceIsland({ children }: Props) {
     const container = containerRef.current;
     if (!container) return;
 
+    // BaseLayout.astro's blocking script pre-hides these elements via
+    // this class (see RootLayout.astro's matching CSS) so there's no
+    // flash of fully-visible content before this effect ever runs — its
+    // job is done the moment this component takes over, in every
+    // branch below (each one either sets its own inline hidden styles
+    // before animating, or renders the final state directly).
+    document.documentElement.classList.remove('js-hero-entrance-pending');
+
     const mark = container.querySelector<HTMLElement>('.hero__mark');
     const headlinePrimary = container.querySelector<HTMLElement>('.hero__headline-primary');
     const secondaryHeadlineEls = [

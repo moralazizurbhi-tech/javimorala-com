@@ -75,6 +75,20 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
     vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    document.documentElement.classList.remove('js-hero-entrance-pending');
+  });
+
+  it('removes BaseLayout\'s pre-hide guard class on mount, in every branch (reduced motion, already played, and the full sequence)', () => {
+    // BaseLayout.astro's blocking script adds `js-hero-entrance-pending`
+    // to <html> before first paint to avoid a flash of fully-visible
+    // content; this component must remove it the moment it takes over,
+    // regardless of which path it then takes.
+    document.documentElement.classList.add('js-hero-entrance-pending');
+    vi.stubGlobal('matchMedia', matchMediaMock(true));
+
+    render(<HeroEntranceIsland>{heroStaticMarkup()}</HeroEntranceIsland>);
+
+    expect(document.documentElement.classList.contains('js-hero-entrance-pending')).toBe(false);
   });
 
   it('never alters Hero Composition\'s own static markup/content', () => {
