@@ -89,19 +89,23 @@ $mobile-nav-height: 3rem;
 // centered in the bar's divider gap; its own gradient fill comes from
 // the SVG asset itself, not an independently authored CSS gradient.
 //
-// Sized to its confirmed 158x292 frame (T-033) — a uniform 1.35x scale
+// Sized to its confirmed 211x389 frame (T-033) — a uniform 1.8x scale
 // of the original 117:216 aspect ratio, applied to the row-height-based
-// formula rather than to the rounded 158/292 figures, so the mark's
-// proportions stay exact. No longer fits within the row's own height:
-// bottom-anchored (unchanged from before) so the growth extends upward
-// only, overflowing above the row (ui.md, Spacing and Layout — Desktop).
+// formula rather than to the rounded figures, so the mark's proportions
+// stay exact. No longer fits within the row's own height: the nav sits
+// flush against the viewport's top edge, so there's no room to grow
+// upward without the browser clipping the icon against its own edge
+// (developer verification against the live rendering) — top edge offset
+// by a small breathing margin instead of sitting flush at the row's own
+// top, so the growth extends downward, under the nav and over the page
+// content beneath it (ui.md, Spacing and Layout — Desktop).
 .compactMark {
 	position: absolute;
 	left: 50%;
-	bottom: 0;
+	top: tokens.$space-xs;
 	transform: translateX(-50%);
-	height: calc(#{$nav-height} * 1.35);
-	width: calc(#{$nav-height} * 1.35 * 117 / 216);
+	height: calc(#{$nav-height} * 1.8);
+	width: calc(#{$nav-height} * 1.8 * 117 / 216);
 	display: flex;
 	align-items: center;
 	justify-content: center;

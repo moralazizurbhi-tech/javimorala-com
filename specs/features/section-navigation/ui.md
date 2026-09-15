@@ -58,16 +58,22 @@ motion/transition treatment (`motion-interaction`).
   8 AC3), even though this Feature doesn't own or render that mark, only
   its own line's response to it.
 - On About and Contact, the compact logomark icon is centered
-  horizontally in the gap; its frame is 158x292 (35% larger than the
+  horizontally in the gap; its frame is 211x389 (80% larger than the
   previously-specified 117x216, uniform scaling to preserve the mark's
   proportions — a Feature-specific extension beyond the Figma
-  reference, which only shows the original size). It no longer fits
-  exactly within the row's height — it now overflows above the row by
-  roughly 76 units, with a small top-margin clearance reserved above
-  its new top edge (comparable to the row's own existing vertical
-  padding) so it doesn't crowd the frame's top edge. Its bottom edge
-  stays anchored near the row, unchanged from before — the growth
-  extends upward, not downward. The icon itself is a symmetric, spiked,
+  reference, which only shows the original size; enlarged in two
+  further developer-review passes, from an initial 158x292/35% and then
+  176x324/50%, both of which still read as too small in the live
+  rendering). It no longer fits exactly within the row's height. The
+  nav bar sits flush against the viewport's own
+  top edge, so there is no room to grow upward without the icon's top
+  portion being clipped by the browser viewport itself (developer
+  verification against the live rendering, correcting this Definition's
+  earlier upward-growth assumption). The icon's top edge sits a small
+  breathing margin below the row's own top — the Styling System's
+  smallest spacing tier, not flush against it — and the growth extends
+  downward from there, under the nav bar and over the page content
+  beneath the fixed row. The icon itself is a symmetric, spiked,
   hourglass-shaped mini-mark with crown-like tendrils at both top and
   bottom (observed in Figma "logo smallll") — not a plain geometric
   shape. On
