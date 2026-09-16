@@ -138,16 +138,20 @@ $mobile-nav-height: 3rem;
 	list-style: none;
 }
 
-// Active Screen Indicator (T-040, Commitment 5) — a soft background
-// pill behind whichever of "about"/"contact" is currently active,
-// keyed off the plain `aria-current="page"` attribute the component
-// exposes (technical-design.md, Design Decision 8) rather than a
-// second, independently-toggled CSS-Module class. `position: relative`
-// gives the pseudo-element a positioning context without affecting the
-// link's own in-flow box, so the pill never shifts sibling spacing when
-// it appears; the pseudo-element's negative `z-index` (within that new
-// local stacking context) keeps it behind the link's own text, painted
-// after it in source order. Static/non-animated by design — the
+// Active Screen Indicator (T-040, Commitment 5) — a small rounded blob
+// emerging from whichever of "about"/"contact" is currently active's own
+// bottom edge (ui.md, Component Anatomy and Variants — revised from an
+// earlier background-pill treatment that read as an unintentional
+// "smudge" in live rendering), keyed off the plain `aria-current="page"`
+// attribute the component exposes (technical-design.md, Design Decision
+// 8) rather than a second, independently-toggled CSS-Module class.
+// `position: relative` gives the pseudo-element a positioning context
+// without affecting the link's own in-flow box; the pseudo-element's
+// negative `z-index` (within that new local stacking context) keeps it
+// behind the link's own text, painted after it in source order — moot
+// for text overlap now (the blob sits below the box, never behind the
+// glyphs themselves), but still correct so it never sits above other
+// nav content painted after it. Static/non-animated by design — the
 // task-catalog-scoped, animated layer on top of this same attribute is
 // `motion-interaction`'s own separate Nav Transition Styles task.
 %active-screen-indicator {
@@ -157,54 +161,44 @@ $mobile-nav-height: 3rem;
 		content: '';
 		position: absolute;
 		z-index: -1;
-		// Snugly fits the link's own text plus a small padding: full
-		// $space-xs horizontally (ui.md, Component Anatomy and Variants).
-		// Vertically, the anchor's own inline box is NOT a safe reference
-		// point: measured directly against Darker Grotesque Variable at
-		// 36px (Canvas TextMetrics, developer verification), the font
-		// reserves ascent 38px / descent 11px above/below baseline, while
-		// "about"/"contact" (no descenders in either word) only need 21px
-		// / 1px of actual ink — an asymmetric ~17px/~10px of unused space
-		// baked into the box itself, which a symmetric inset off that box
-		// visibly inherits as a top-heavy pill (developer visual review).
-		// Expressed in em (scales with the link's own fluid font-size,
-		// unlike a fixed px value) rather than off the box: shrink in from
-		// the top by the ascent's own unused space minus the intended
-		// ~0.15em breathing room, and from the bottom by the descent's
-		// smaller unused space minus that same margin.
-		top: 0.32em;
-		bottom: 0.13em;
-		left: calc(-1 * #{tokens.$space-xs});
-		right: calc(-1 * #{tokens.$space-xs});
-		// Fully rounded (capsule) corners — a value larger than the pill
-		// can ever be tall guarantees this regardless of text length.
-		border-radius: 999px;
-		// Radial gradient, vivid lilac at the pill's own center fading to
+		// Narrower than the link's own text (ui.md: "roughly 60-70%"),
+		// centered horizontally; `top: 100%` starts it flush with the
+		// link's own bottom edge — attached to it, not floating below
+		// with a visible gap (developer visual review: a detached dot
+		// read as a separate floating element, not something "emerging
+		// from the bottom edge" as ui.md intends) — and extends downward
+		// from there. The box's own bottom edge already sits below the
+		// font's actual descent ink (same font-metrics reserve measured
+		// for the earlier pill fix), so anchoring exactly there is a
+		// safe, word-independent lower bound that never reaches the
+		// visible ink even for a word with true descenders (e.g. "about"/
+		// "contact" have none, but this doesn't rely on that).
+		left: 50%;
+		top: 100%;
+		width: 60%;
+		height: 0.4em;
+		transform: translateX(-50%);
+		// A flatter top (attached to the edge it emerges from) and a
+		// rounder bottom (the liquid bulge) rather than a uniform ellipse
+		// — reads as dripping from the border rather than a separate
+		// floating dot (ui.md, Component Anatomy and Variants: "a small
+		// rounded blob emerging from the link's own bottom edge").
+		border-radius: 20% 20% 50% 50% / 15% 15% 60% 60%;
+		// Radial gradient, vivid lilac at the blob's own center fading to
 		// muted purple at its edge — extends Project UX's established
 		// "vivid at the high-impact point, fading toward receding edges"
 		// gradient pattern (previously only applied to the Ornamental
-		// Mark/Logo) to this new use (ui.md, Colour Application). Kept
-		// low-opacity throughout (28% center / 6% edge, per ui.md) so the
-		// off-white link text painted on top stays clearly readable at
-		// every point. `ellipse closest-side` (not the default sizing,
-		// `farthest-corner`, and not `circle`) — in a capsule far wider
-		// than tall, `farthest-corner` spreads the entire fade across the
-		// pill's full width, leaving only a couple of imperceptible
-		// pixels of visible transition at its far left/right ends; a
-		// `circle` (one shared radius) sized to the closest side instead
-		// confines the visible fade to a small circle in the pill's
-		// vertical middle, leaving most of its width at the flat edge
-		// colour (both confirmed by developer visual review). An ellipse
-		// sized to each axis's own closest side stretches independently
-		// to reach all four edges of the capsule at once, so the fade is
-		// visible across the pill's whole area — an Implementation Detail
-		// (the sizing keyword isn't specified by ui.md's "radial gradient
-		// centered in the pill"), not a change to the confirmed opacity
-		// values.
+		// Mark/Logo) to this new use (ui.md, Colour Application). No
+		// longer sitting under the text, so it can run more saturated
+		// than the earlier pill (55% center / 15% edge, per ui.md) with
+		// no readability tradeoff. `ellipse closest-side` stretches
+		// independently on each axis to reach all four edges of this
+		// shape at once, rather than the default `farthest-corner` (which
+		// smears the fade too thin to see, the pill's own original defect).
 		background: radial-gradient(
 			ellipse closest-side at center,
-			rgba(tokens.$color-gradient-start, 0.28) 0%,
-			rgba(tokens.$color-gradient-end, 0.06) 100%
+			rgba(tokens.$color-gradient-start, 0.55) 0%,
+			rgba(tokens.$color-gradient-end, 0.15) 100%
 		);
 	}
 }
@@ -367,7 +361,7 @@ $mobile-nav-height: 3rem;
 
 // Same tier as the desktop links — measured identical (46) in both
 // contexts; no size reduction once the overlay opens (ui.md, Typography
-// Application). Shares the desktop links' Active Screen Indicator pill
+// Application). Shares the desktop links' Active Screen Indicator blob
 // (ui.md: "Applies identically inside the mobile overlay's link list").
 .overlayLink {
 	@extend %active-screen-indicator;
