@@ -133,14 +133,28 @@ reflects actual scroll position.
 - **Merged indicator (progress):** realized as the segmented
   divider-fill described under Spacing and Layout; each segment fills
   independently per its own half of overall scroll progress.
-- **Merged indicator (active-screen):** the active-screen transition is
-  realized as a layout animation — the indicator element itself
-  slides/resizes toward the active link's position — rather than a
-  cross-fade between states, wherever Section Navigation's own
-  eventually-assigned anatomy supports a positionable/sizable element;
-  applies to whatever base anatomy Section Navigation's own UI
-  Definition eventually assigns (currently Pending there) — unchanged in
-  its contingency, refined in its transition character.
+- **Merged indicator (active-screen):** a three-phase transition, not a
+  continuous slide/resize or cross-fade: (1) **Flatten**, at the origin
+  position — `scaleY` 1 → ~0.05–0.1 (never exactly 0, avoiding a
+  frame-drop flicker to nothing), `transform-origin: center`, clean
+  ease-out, no overshoot; (2) **Travel** — with the element already
+  flattened to a thin line, `translateX` from origin to target position;
+  the indicator's own container may change width during this phase
+  without it being perceptible, since it's reduced to a line; (3)
+  **Sprout**, at the target position — `scaleY` back to 1, with a small
+  overshoot/bounce (past 1, settling back) as this system's signature
+  curve character. Phases are sequential, never overlapping (~30% /
+  ~40% / ~30% of the total duration — exact split and total duration,
+  250–350ms, are Technical Design's to tune by feel). The "about"/
+  "contact" font-weight swap (bold active / normal inactive) happens
+  during phase 2 specifically, camouflaged by the indicator's own low
+  visual prominence there; if the body typeface is variable (it is —
+  Darker Grotesque Variable), animating `font-variation-settings` across
+  that same window is an optional refinement over an instant swap.
+  Applies to whatever base anatomy Section Navigation's own UI
+  Definition assigns — unchanged in contingency, replaced in transition
+  character (supersedes the previous "slides/resizes toward the active
+  link's position" description).
 - **Nav divider segment transition:** the gap between the two segments
   closes by both segments extending toward the center (continuous
   state), or opens by both segments retracting back to their segmented

@@ -111,9 +111,19 @@ any screen directly" flows.
   (Contract Commitment 3, 4).
 - Visitor scrolls back toward Introduction → the reverse transition
   occurs.
-- Visitor activates a nav link → the indicator transitions to the target
-  screen; if the jump crosses the Hero boundary, the nav identity
-  transition also occurs.
+- Visitor activates a nav link, or free-scroll crosses a section
+  boundary → the indicator's active-screen component transitions to the
+  target link's position as a three-phase "flatten / travel / sprout"
+  motion — it flattens at its origin, travels while flattened to the
+  new position, then sprouts back to full shape there — rather than
+  sliding or resizing continuously, or cross-fading between states. The
+  active/inactive font-weight distinction between "about" and "contact"
+  switches during the flattened travel phase, when the indicator itself
+  is least visually prominent, camouflaging the otherwise-abrupt weight
+  change. If the jump crosses the Hero boundary, the nav identity
+  transition also occurs. Under reduced-motion, the indicator and the
+  font-weight both jump directly to the target state, per the existing
+  Reduced-motion section.
 
 ### Nav divider segment transition
 

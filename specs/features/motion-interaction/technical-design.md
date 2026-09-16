@@ -241,27 +241,34 @@ attaching its own scroll listener.
 - Observe the page's scroll position once (a single listener), and
   derive from it: (a) a Hero-relative progress value (0→1, mapped
   across the Hero's own height, for the content exit/mark
-  transformation) and (b) an overall page-progress value (0→1, mapped
+  transformation), (b) an overall page-progress value (0→1, mapped
   across the total scrollable page height, weighted by actual content
-  length — not a fixed per-section split) for the nav progress fill.
-- Expose both values for read access to Hero Entrance & Ambient Motion
-  Island and Nav Progress Overlay; no other component reads or writes
+  length — not a fixed per-section split) for the nav progress fill,
+  and (c) which nav section ("about"/"contact", or neither) is active,
+  via each section's top edge crossing a fixed ~30%-from-top viewport
+  point.
+- Expose all three values for read access to Hero Entrance & Ambient
+  Motion Island, Nav Progress Overlay, and Nav Active Indicator
+  Transition Island respectively; no other component reads or writes
   it.
-- Recompute both values on scroll, keeping them derived from the same
-  single observed scroll position at all times — never independently
-  re-measured per consumer.
+- Recompute all three values on scroll, keeping them derived from the
+  same single observed scroll position at all times — never
+  independently re-measured per consumer.
 
 **Owned Concepts**
 
 - The scroll-position observation mechanism (a single listener/
   observer).
-- The Hero-relative and overall page-progress derivation formulas.
+- The Hero-relative and overall page-progress derivation formulas, and
+  the ~30%-from-top active-nav-section threshold.
 
 **Collaborations**
 
 - Hero Entrance & Ambient Motion Island — reads the Hero-relative
   progress value.
 - Nav Progress Overlay — reads the overall page-progress value.
+- Nav Active Indicator Transition Island — reads the active-nav-section
+  value.
 
 **Dependencies**
 
@@ -271,14 +278,18 @@ None internal; no outward dependency on either collaborator.
 
 - Must observe scroll position exactly once (a single source), not
   duplicate per-consumer listeners — the reason this component exists.
-- Does not extend to Section Navigation's own active-section detection
-  or the value Nav Divider Segment Transition consumes — both remain
-  external to this store, consistent with this Feature's existing "no
-  dependency on Section Navigation's own component" pattern. Nav
-  Divider Segment Transition's consistency with the values here is
-  achieved by construction (both ultimately derive from the same
-  physical scroll position and the same Hero boundary), not by sharing
-  this store directly.
+- Does not extend to the value Nav Divider Segment Transition consumes
+  — that remains external to this store (it traces back to Hero's
+  separately-exposed sentinel, a different physical signal), consistent
+  with this Feature's existing "no dependency on Section Navigation's
+  own component" pattern. Nav Divider Segment Transition's consistency
+  with the values here is achieved by construction (both ultimately
+  derive from the same physical scroll position and the same Hero
+  boundary), not by sharing this store directly. This store's own
+  active-nav-section value (above) is a deliberate, narrower exception
+  to that pattern (Design Decision 2) — Section Navigation's own
+  `aria-current` detection is untouched by it and may use a different
+  threshold.
 
 **Design Decisions**
 
@@ -290,22 +301,35 @@ None internal; no outward dependency on either collaborator.
    from that single observation guarantees consistency
    architecturally, avoiding the redundant-listener risk Context
    Problem 14 identified.
-2. Scoped to this Feature's own components only (Hero Entrance & Ambient
-   Motion Island, Nav Progress Overlay) — does not attempt to
-   coordinate Section Navigation's own active-section detection or the
-   value Nav Divider Segment Transition consumes (which traces back to
-   Hero's separately-exposed sentinel, not this store). Rationale:
-   extending this store's authority over another Feature's internal
-   detection mechanism, or over a value this Feature already consumes
+2. Scoped to this Feature's own components (Hero Entrance & Ambient
+   Motion Island, Nav Progress Overlay, and now Nav Active Indicator
+   Transition Island) — still does not attempt to coordinate the value
+   Nav Divider Segment Transition consumes (which traces back to Hero's
+   separately-exposed sentinel, not this store). Rationale: extending
+   this store's authority over a value this Feature already consumes
    externally by design (Nav Divider Segment Transition's own Design
-   Decision), would introduce coupling this Feature doesn't need and
-   doesn't have authority to impose.
+   Decision) would introduce coupling this Feature doesn't need and
+   doesn't have authority to impose. The active-nav-section value is a
+   narrower, deliberate exception (revising this Design Decision's
+   earlier, broader exclusion of "Section Navigation's own active-
+   section detection" entirely): this Feature's own indicator-transition
+   island needs an active-section signal without attaching its own
+   redundant scroll observer, and Section Navigation's own Technical
+   Design was never asked to expose one for this purpose. This
+   Feature's own value and Section Navigation's own `aria-current`
+   detection are independently derived (different threshold models) and
+   may disagree at the margins on sections of very different lengths —
+   an accepted consequence, not reconciled here, since aligning the two
+   would require a decision inside Section Navigation's own Technical
+   Design, outside this phase's authority.
 
 **Contract Traceability**
 
 - Commitment 14 → the shared, single-observed source guaranteeing Hero
   Entrance & Ambient Motion Island's and Nav Progress Overlay's values
   stay mutually consistent.
+- Contributes to Commitment 4 → the active-nav-section value Nav Active
+  Indicator Transition Island consumes.
 
 ### About Narrative Reveal Island
 
@@ -430,20 +454,28 @@ on top of About Narrative Composition's static output.
 **Purpose**
 
 Realize the transition for the compact-logomark-icon's Hero-context/
-post-Hero presence change, and for whatever value-change transition
-Section Navigation's own (currently Pending) indicator anatomy supports
-via class/attribute changes (Contract Commitment 3, contributing to 4) —
-without any code dependency on Section Navigation's own component.
+post-Hero presence change, and the "about"/"contact" font-weight swap's
+timing (Contract Commitment 3, contributing to 4) — without any code
+dependency on Section Navigation's own component. The indicator's own
+flatten/travel/sprout motion is a separate component (Nav Active
+Indicator Transition Island, below); this one stays CSS-only.
 
 **Responsibilities**
 
 - Provide an SCSS stylesheet partial (Styling System's authoring
   language, compiling to standard CSS transitions) that targets Section
   Navigation's existing, already-approved DOM/class contract — the
-  compact logomark icon's conditional presence, and whatever
-  class/attribute Section Navigation's own indicator anatomy exposes for
-  its active value — applying a smooth transition whenever that
-  underlying class/attribute changes, rather than an instant swap.
+  compact logomark icon's conditional presence — applying a smooth
+  transition whenever that underlying class/attribute changes, rather
+  than an instant swap.
+- Apply a `transition-delay`-timed font-weight (or, since the body
+  typeface is variable, `font-variation-settings`) change to Section
+  Navigation's public `[aria-current='page']` link, delayed to start at
+  the flatten/travel/sprout sequence's own phase 2 onset (~30% into its
+  total duration) — camouflaging the weight swap during the indicator's
+  own least-prominent moment (Feature UI, Merged indicator
+  (active-screen)) without this stylesheet needing to know anything
+  about that sequence beyond its own timing constant.
 - Disable/shorten these transitions under the browser's
   `prefers-reduced-motion` media query, natively, without any JavaScript
   detection.
@@ -451,7 +483,11 @@ without any code dependency on Section Navigation's own component.
 **Owned Concepts**
 
 - The transition timing/property declarations themselves (exact values
-  Implementation-level, per Feature UI's qualitative pacing guidance).
+  Implementation-level, per Feature UI's qualitative pacing guidance),
+  including the font-weight swap's own delay constant, which must stay
+  numerically consistent with Nav Active Indicator Transition Island's
+  own phase-1 duration even though the two components share no code —
+  an Implementation-level coordination point to keep in sync by hand.
 
 **Collaborations**
 
@@ -473,13 +509,13 @@ without any code dependency on Section Navigation's own component.
 
 - Must not require Section Navigation's own component code to import,
   reference, or otherwise become aware of this stylesheet.
-- Must resolve to no transition (an instant value) under
-  `prefers-reduced-motion: reduce`, satisfying Commitment 16 for this
-  specific transition without any JavaScript.
-- Cannot itself define the indicator's base visual anatomy — that
-  remains Pending, owned by Section Navigation's own UI Definition; this
-  stylesheet only adds a transition to whatever anatomy is eventually
-  assigned there.
+- Must resolve to no transition (an instant value, immediate weight
+  swap) under `prefers-reduced-motion: reduce`, satisfying Commitment 16
+  for this specific transition without any JavaScript.
+- Cannot itself define the indicator's own flatten/travel/sprout motion
+  — that belongs to Nav Active Indicator Transition Island; this
+  stylesheet owns only the logomark-icon transition and the font-weight
+  swap's timing.
 
 **Design Decisions**
 
@@ -492,14 +528,115 @@ without any code dependency on Section Navigation's own component.
    automatically whenever the underlying class/attribute Section
    Navigation's own state management already changes, requiring no
    JavaScript coordination between the two Features.
+2. The font-weight swap stays here (CSS-only, `transition-delay`) rather
+   than moving into Nav Active Indicator Transition Island alongside the
+   motion it's synchronized with. Rationale: the swap targets Section
+   Navigation's own link element, a different DOM node than the
+   indicator island renders; reaching into that element from the new
+   JS island would be exactly the weaker external-mutation coupling
+   this Feature avoids everywhere else (Nav Progress Overlay, Nav
+   Divider Segment Transition), and a fixed delay is sufficient to
+   synchronize two components sharing no code, since both durations are
+   fixed at author time, not runtime-variable.
 
 **Contract Traceability**
 
 - Commitment 3 → the logomark-icon presence transition.
-- Contributes to Commitment 4 → transitions whatever indicator-value
-  change Section Navigation's own anatomy exposes.
+- Contributes to Commitment 4 → the font-weight swap's synchronized
+  timing.
 - Contributes to Commitment 16 → reduced-motion handling via native media
   query.
+
+### Nav Active Indicator Transition Island
+
+**Purpose**
+
+Realize the merged indicator's active-screen transition (Contract
+Commitment 4) as the three-phase flatten/travel/sprout motion (Feature
+UI, Merged indicator (active-screen)) — a concept requiring sequenced,
+distinctly-eased phases beyond what CSS transitions alone express,
+hence a separate JavaScript-driven component from Nav Transition Styles
+above.
+
+**Responsibilities**
+
+- Hydrate as its own, separately-rendered client-side island — not
+  composed inside Section Navigation's component tree, mirroring Nav
+  Progress Overlay's own precedent — rendering its own copy of the
+  crest asset, positioned via Styling System's shared layout tokens to
+  match Section Navigation's static crest position at rest.
+- Read Shared Scroll Progress Store's active-nav-section value and,
+  whenever it changes, drive the flatten (phase 1) → travel (phase 2) →
+  sprout (phase 3) sequence via the Motion Layer, in that order, never
+  overlapping (~30%/~40%/~30% split of a 250–350ms total, per Feature
+  UI — exact figures tuned here).
+- Read the reduced-motion platform signal directly; when active, render
+  directly in the target position and scale with no animated phases —
+  Section Navigation's own static crest remains the correct
+  pre-hydration and no-JS fallback underneath in every case.
+
+**Owned Concepts**
+
+- The three-phase sequence's own timing split, easing curves (clean
+  ease-out for phase 1, linear or matching for phase 2, overshoot/bounce
+  for phase 3), and total duration (Implementation-level, per Feature
+  UI's qualitative description).
+
+**Collaborations**
+
+- Shared Scroll Progress Store (internal to this Feature) — reads the
+  active-nav-section value.
+- Styling System (external, Project Architecture) — supplies the layout
+  tokens this component uses to align itself with Section Navigation's
+  own static crest position, without reading its component internals.
+- Motion Layer (external) — drives the three-phase sequence.
+- Reduced-motion platform signal (external).
+
+**Dependencies**
+
+- Shared Scroll Progress Store — internal.
+- Styling System — external.
+- Motion Layer — external.
+
+**Constraints**
+
+- Must not import, reference, or otherwise depend on Section
+  Navigation's own component code — visual alignment is achieved only
+  through shared Styling System tokens, the same mechanism Nav Progress
+  Overlay already uses.
+- Must hydrate as a client-side island — the active-nav-section value is
+  a runtime-only concern.
+- The three phases must remain strictly sequential, never overlapping,
+  per Feature UI's own anatomy.
+- Must resolve directly to the target position/scale, no animated
+  phases, under `prefers-reduced-motion: reduce` (Commitment 16).
+
+**Design Decisions**
+
+1. A separate island rendering its own copy of the crest asset, rather
+   than reaching into and animating Section Navigation's existing
+   rendered element. Rationale: mirrors Nav Progress Overlay's own
+   established pattern for exactly the same reason — this Feature's
+   components achieve visual coherence with Section Navigation only
+   through shared Styling System tokens, never by mutating its DOM from
+   outside, which would be a materially weaker coupling boundary than
+   anything else in this Feature does.
+2. Reads its active-section value from Shared Scroll Progress Store
+   rather than attaching its own IntersectionObserver. Rationale: the
+   user's own stated goal (avoiding a redundant scroll-observation
+   mechanism, Context Problem 14) is best met by extending the single
+   already-observed source rather than adding a second one; the
+   resulting possible disagreement with Section Navigation's own
+   `aria-current` detection at extreme section-length ratios is an
+   accepted, explicitly chosen tradeoff (see that store's own Design
+   Decision 2), not an oversight.
+
+**Contract Traceability**
+
+- Commitment 4 → the active-screen transition's own flatten/travel/
+  sprout motion.
+- Contributes to Commitment 16 → reduced-motion handling (direct
+  end-state, no animated phases).
 
 ### Nav Progress Overlay
 
@@ -976,6 +1113,17 @@ outside, with zero code dependency on Language Override's own component.
 - Nav Progress Overlay → Styling System (external): aligns itself with
   each of Section Navigation's two divider segments via shared tokens
   only; no dependency on Section Navigation's component.
+- Nav Active Indicator Transition Island → Shared Scroll Progress Store
+  (internal): reads the active-nav-section value.
+- Nav Active Indicator Transition Island → Styling System (external):
+  aligns its own rendered crest copy with Section Navigation's static
+  crest position via shared tokens only; no dependency on Section
+  Navigation's component.
+- Nav Transition Styles' own font-weight-swap timing and Nav Active
+  Indicator Transition Island's own phase-1 duration share no code but
+  must stay numerically consistent by hand (both components' own
+  Owned Concepts) — the one deliberate Implementation-level
+  coordination point between two otherwise-independent components.
 - Nav Divider Segment Transition → Section Navigation Composition's
   exposed segmentation-state class/attribute (external): targets it from
   outside; Section Navigation's own component has no dependency back,
@@ -1022,8 +1170,9 @@ continuous state) is a relationship between those two Features'
 Technical Designs, established independently of this Feature. Shared
 Scroll Progress Store is internal-only, with no outward dependency on
 any collaborator — it exists purely to give Hero Entrance & Ambient
-Motion Island and Nav Progress Overlay one consistent scroll source, not
-to coordinate with anything external. Nav Divider Segment Transition
+Motion Island, Nav Progress Overlay, and now Nav Active Indicator
+Transition Island one consistent scroll source, not to coordinate with
+anything external. Nav Divider Segment Transition
 consumes only Section Navigation's resulting
 public state, introducing no new edge into that relationship.
 
