@@ -138,69 +138,75 @@ $mobile-nav-height: 3rem;
 	list-style: none;
 }
 
-// Active Screen Indicator (T-040, Commitment 5) — a small rounded blob
-// emerging from whichever of "about"/"contact" is currently active's own
-// bottom edge (ui.md, Component Anatomy and Variants — revised from an
-// earlier background-pill treatment that read as an unintentional
-// "smudge" in live rendering), keyed off the plain `aria-current="page"`
-// attribute the component exposes (technical-design.md, Design Decision
-// 8) rather than a second, independently-toggled CSS-Module class.
-// `position: relative` gives the pseudo-element a positioning context
-// without affecting the link's own in-flow box; the pseudo-element's
-// negative `z-index` (within that new local stacking context) keeps it
-// behind the link's own text, painted after it in source order — moot
-// for text overlap now (the blob sits below the box, never behind the
-// glyphs themselves), but still correct so it never sits above other
-// nav content painted after it. Static/non-animated by design — the
-// task-catalog-scoped, animated layer on top of this same attribute is
-// `motion-interaction`'s own separate Nav Transition Styles task.
-%active-screen-indicator {
-	position: relative;
-
-	&[aria-current='page']::before {
-		content: '';
-		position: absolute;
-		z-index: -1;
-		// Narrower than the link's own text (ui.md: "roughly 60-70%"),
-		// centered horizontally; `top: 100%` starts it flush with the
-		// link's own bottom edge — attached to it, not floating below
-		// with a visible gap (developer visual review: a detached dot
-		// read as a separate floating element, not something "emerging
-		// from the bottom edge" as ui.md intends) — and extends downward
-		// from there. The box's own bottom edge already sits below the
-		// font's actual descent ink (same font-metrics reserve measured
-		// for the earlier pill fix), so anchoring exactly there is a
-		// safe, word-independent lower bound that never reaches the
-		// visible ink even for a word with true descenders (e.g. "about"/
-		// "contact" have none, but this doesn't rely on that).
-		left: 50%;
-		top: 100%;
-		width: 60%;
-		height: 0.4em;
-		transform: translateX(-50%);
-		// A flatter top (attached to the edge it emerges from) and a
-		// rounder bottom (the liquid bulge) rather than a uniform ellipse
-		// — reads as dripping from the border rather than a separate
-		// floating dot (ui.md, Component Anatomy and Variants: "a small
-		// rounded blob emerging from the link's own bottom edge").
-		border-radius: 20% 20% 50% 50% / 15% 15% 60% 60%;
-		// Solid fill, full opacity (ui.md, Colour Application — revised
-		// from an earlier radial-gradient treatment: its soft-edged fade
-		// read as diffuse rather than a cohesive liquid drop, developer
-		// visual review). Reuses the site's own flat accent tone, already
-		// established for interactive/focus states, rather than the
-		// gradient family reserved for the Ornamental Mark/Logo.
-		background-color: tokens.$color-accent;
-	}
-}
-
 .link {
-	@extend %active-screen-indicator;
 	font-family: tokens.$font-family-body;
 	font-size: tokens.$font-size-label;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
 	text-transform: lowercase;
+}
+
+// Active Screen Indicator, desktop (T-040, Commitment 5) — replaces an
+// earlier series of per-link pill/blob treatments (ui.md, Component
+// Anatomy and Variants) with a separate crest element fused with the
+// nav's own divider line, positioned above whichever of "about"/
+// "contact" is active. Distinct from, and in addition to, the compact
+// logomark's own fixed presence in the divider's center gap above —
+// that mechanism is untouched. `left` is set inline from JS (SectionNav
+// component), measured from the active link's own DOM node, since
+// neither link has a fixed pixel position (fluid text, locale-dependent
+// width).
+//
+// The provided `nav-active-crest.svg` (viewBox 0 0 1342 784) is a
+// single symmetric crest — a central spike with flanking thorns — with
+// long thin tapering tails extending to both edges, meant to blend into
+// a plain continuing line. Rather than stretch the whole asset (which
+// would render its meaningful detail illegibly small relative to its
+// long tails), this crops to just the crest cluster and lets the real
+// divider line provide the continuation on either side instead.
+// Crop window (developer measurement via canvas pixel-scan): x 340-1000
+// (width 660) holds the full symmetric detail; y 103-702 is the asset's
+// own ink bounds. `mask-image` (not `background-image`) so the fill
+// comes from this element's own `background` below rather than
+// whatever colour happens to be baked into the source file.
+$crest-crop-w: 660; // 1000 - 340
+$crest-crop-h: 599; // 702 - 103
+$crest-scale: calc(60 / $crest-crop-w); // unitless; 60 is $crest-w's raw px number below
+// Halved from an initial 120px — at that size the crest's own rise
+// reached up into the active link's own text (developer visual review:
+// the spike visibly cut through the "b" in "about"), rather than
+// sitting clear above it as in the reference image.
+$crest-w: 60px;
+// The element's own box is the CROP window's scaled size (what's
+// actually visible) — distinct from `mask-size` below, which scales the
+// full 1342x784 source image the crop is a window into.
+$crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
+
+.activeCrest {
+	position: absolute;
+	z-index: 0;
+	// Aligns the asset's own spine (the thin horizontal line running
+	// through the crest, measured at y=439 in the source) with the nav's
+	// own divider line at this element's `bottom: 0` reference — negative
+	// because the spine sits below the crop's own top edge by more than
+	// half its height, per the source measurement (crop bottom 702 minus
+	// spine 439, scaled).
+	bottom: calc(-263px * #{$crest-scale});
+	width: $crest-w;
+	height: $crest-h;
+	transform: translateX(-50%);
+	pointer-events: none;
+	mask-image: url('/nav-active-crest.svg');
+	mask-repeat: no-repeat;
+	mask-size: calc(1342px * #{$crest-scale}) calc(784px * #{$crest-scale});
+	mask-position: calc(-340px * #{$crest-scale}) calc(-103px * #{$crest-scale});
+	// A small internal gradient, per the reference image: bright at the
+	// crest's own center fading to the divider line's own colour
+	// (`$color-nav-divider`) at its edge, so the shape reads as a hot
+	// core plus a match to the line it's fused with, rather than one
+	// flat tint.
+	background: radial-gradient(closest-side at center, tokens.$color-base-fg, tokens.$color-nav-divider);
+	filter: drop-shadow(0 0 6px rgba(tokens.$color-nav-divider, 0.7));
 }
 
 // Language Override hosting slot, desktop bar (Commitment 7, AC1). Exact
@@ -352,15 +358,35 @@ $mobile-nav-height: 3rem;
 
 // Same tier as the desktop links — measured identical (46) in both
 // contexts; no size reduction once the overlay opens (ui.md, Typography
-// Application). Shares the desktop links' Active Screen Indicator blob
-// (ui.md: "Applies identically inside the mobile overlay's link list").
+// Application).
 .overlayLink {
-	@extend %active-screen-indicator;
+	position: relative;
 	font-family: tokens.$font-family-body;
 	font-size: tokens.$font-size-label;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
 	text-transform: lowercase;
+
+	// Active Screen Indicator, mobile overlay (T-040, Commitment 5) — a
+	// vertical line to the left of whichever link is active, since the
+	// overlay stacks links vertically rather than along a divider line
+	// (ui.md, Component Anatomy and Variants: distinct per-device
+	// realization, confirmed by the user). `top`/`bottom` insets reuse
+	// the exact ratio measured earlier against this same font/tier
+	// (Canvas TextMetrics on "about"/"contact" at this font-size: 0.32em
+	// of the box's own top is unused ascent space, 0.13em of the bottom
+	// is unused descent space) so the line matches the visible ink's own
+	// height, not the font's full box.
+	&[aria-current='page']::before {
+		content: '';
+		position: absolute;
+		left: calc(-1 * #{tokens.$space-sm});
+		top: 0.32em;
+		bottom: 0.13em;
+		width: 3px;
+		border-radius: 999px;
+		background-color: tokens.$color-accent;
+	}
 }
 
 .overlayLanguageSlot {

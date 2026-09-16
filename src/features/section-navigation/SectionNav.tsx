@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dialog, VisuallyHidden } from 'radix-ui';
 import LanguageSwitcher from '../language-override/LanguageSwitcher';
 import styles from './SectionNav.module.scss';
@@ -43,9 +43,18 @@ import styles from './SectionNav.module.scss';
 // class — a stable, semantic, externally-observable signal that
 // `motion-interaction`'s Nav Transition Styles component can target
 // with zero code coupling, with no separate mirroring mechanism needed
-// alongside it. The static (non-animated) background-pill styling this
-// drives lives entirely in SectionNav.module.scss, keyed off the same
-// attribute.
+// alongside it. On desktop this drives a separate crest element (styles
+// below) positioned above whichever link is active — distinct from,
+// and in addition to, the compact logomark's own fixed presence in the
+// divider's center gap (ui.md, Component Anatomy and Variants), which
+// this doesn't touch. Since "about"/"contact" have no fixed pixel
+// position (fluid text width, locale-dependent), that position is
+// measured at runtime from the active link's own DOM node rather than
+// assumed — an Owned Concept this component didn't have before,
+// analogous to the existing active-section/divider state above. Static
+// (non-animated) positioning only — the task-catalog-scoped, animated
+// sliding layer on top of this same measured position is
+// `motion-interaction`'s own separate Nav Transition Styles task.
 //
 // The mobile overlay is built on the Accessible Primitives Layer
 // (Radix UI's Dialog), per the Technical Design's own Constraint —
@@ -89,6 +98,39 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 	// mark is trivially visible — mirrors Design Decision 5's pre-
 	// hydration baseline assumption (Introduction active on load).
 	const [heroMarkVisible, setHeroMarkVisible] = useState(true);
+
+	// Active Screen Indicator crest (T-040) — the active link's own
+	// horizontal center, measured at runtime since neither link has a
+	// fixed pixel position. `null` while on Introduction (no indicator)
+	// or before the first measurement resolves.
+	const navRef = useRef<HTMLElement>(null);
+	const aboutLinkRef = useRef<HTMLAnchorElement>(null);
+	const contactLinkRef = useRef<HTMLAnchorElement>(null);
+	const [crestLeft, setCrestLeft] = useState<number | null>(null);
+
+	useEffect(() => {
+		const activeLink =
+			activeSection === 'personal-narrative'
+				? aboutLinkRef.current
+				: activeSection === 'connection'
+					? contactLinkRef.current
+					: null;
+		if (!activeLink || !navRef.current) {
+			setCrestLeft(null);
+			return;
+		}
+
+		// Re-measures on resize too: fluid typography and viewport width
+		// both change the link's own rendered position/width.
+		const measure = () => {
+			const navRect = navRef.current!.getBoundingClientRect();
+			const linkRect = activeLink.getBoundingClientRect();
+			setCrestLeft(linkRect.left + linkRect.width / 2 - navRect.left);
+		};
+		measure();
+		window.addEventListener('resize', measure);
+		return () => window.removeEventListener('resize', measure);
+	}, [activeSection]);
 
 	useEffect(() => {
 		const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
@@ -154,7 +196,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 
 	return (
 		<>
-			<nav className={styles.nav} aria-label="Primary">
+			<nav ref={navRef} className={styles.nav} aria-label="Primary">
 				<div className={styles.navBackdrop} data-divider-state={dividerState} data-testid="nav-divider">
 					<span className={styles.navPlateLeft} />
 					<span className={styles.navPlateRight} />
@@ -167,10 +209,19 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 						<img src="/ornamental-logo.svg" alt="" aria-hidden="true" />
 					</a>
 				)}
+				{crestLeft !== null && (
+					<span
+						className={styles.activeCrest}
+						style={{ left: `${crestLeft}px` }}
+						aria-hidden="true"
+						data-testid="active-crest"
+					/>
+				)}
 				<div className={styles.navEnd}>
 					<ul className={styles.links}>
 						<li>
 							<a
+								ref={aboutLinkRef}
 								href="#personal-narrative"
 								className={styles.link}
 								aria-current={activeSection === 'personal-narrative' ? 'page' : undefined}
@@ -180,6 +231,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 						</li>
 						<li>
 							<a
+								ref={contactLinkRef}
 								href="#connection"
 								className={styles.link}
 								aria-current={activeSection === 'connection' ? 'page' : undefined}

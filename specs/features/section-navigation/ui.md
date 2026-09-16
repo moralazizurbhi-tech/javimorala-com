@@ -120,9 +120,10 @@ motion/transition treatment (`motion-interaction`).
 - **Persistent Nav Bar (desktop):** plain text wordmark + plain text
   links, no button chrome or border — consistent with the site's
   chrome-free, typography-driven aesthetic. The Active Screen Indicator
-  (below) is the one deliberate exception to this, a small rounded blob
-  emerging from the active link's own bottom edge. The connecting line
-  renders as two independent segments, not one
+  (below) is the one deliberate exception to this, a small ornamental
+  crest fused with the connecting line at the active link's own
+  position. The connecting line otherwise renders as two independent
+  segments, not one
   bar-wide element sitting behind a mark. The compact logomark
   (Ornamental Logo) is a symmetric, spiked, hourglass-shaped mini-mark
   with crown tendrils top and bottom — a small standalone mark, no
@@ -135,20 +136,28 @@ motion/transition treatment (`motion-interaction`).
 - **Mobile Navigation Overlay:** full-screen flat surface (same
   background as the rest of the site), links as plain centered text, no
   button chrome.
-- **Active Screen Indicator:** revised from an earlier background-pill
-  treatment (read as an unintentional "smudge" in live rendering,
-  developer visual review) to a small rounded blob emerging from the
-  link's own bottom edge — anchored below the text's baseline, extending
-  downward past the link's own box, rather than a surface sitting behind
-  the text on all sides. Sized narrower than the link's own text width
-  (roughly 60–70%), tall enough to read as a distinct rounded shape, not
-  a thin underline. Positioned so it never overlaps or dims the text
-  itself — legibility is unaffected by construction, not by opacity
-  tuning. Applies only to the "about"/"contact" links — the wordmark
-  never carries it, and Introduction shows no indicator at all (Hero's
-  own presence already signals it — a deliberate, confirmed
-  interpretation of Feature Contract Commitment 5 AC1, not a gap).
-  Applies identically inside the mobile overlay's link list.
+- **Active Screen Indicator, desktop:** revised from an earlier
+  series of per-link pill/blob treatments (each read as diffuse or
+  detached in live rendering, developer visual review) to a distinct
+  crest element — the divider line itself, fused into a small spiky
+  ornamental shape — positioned above whichever of "about"/"contact"
+  is currently active. Distinct from, and in addition to, the compact
+  logomark's own fixed presence in the divider's center gap (above),
+  which this doesn't touch or replace. Since neither link has a fixed
+  pixel position (fluid text width, locale-dependent), the crest's
+  horizontal position tracks the active link's own measured center at
+  runtime. Sized to sit clear of the active link's own text — it must
+  never overlap or dim it (an earlier, larger sizing did overlap;
+  legibility is unaffected by construction, not by opacity tuning).
+  Applies only to "about"/"contact"; the wordmark never carries it, and
+  Introduction shows no indicator at all (Hero's own presence already
+  signals it — a deliberate, confirmed interpretation of Feature
+  Contract Commitment 5 AC1, not a gap).
+- **Active Screen Indicator, mobile overlay:** since the overlay stacks
+  links vertically rather than along a divider line, the equivalent
+  indicator here is a vertical line positioned immediately to the left
+  of whichever link is active — a distinct per-device realization
+  confirmed by the user, not the same crest element scaled down.
 
 ## Colour Application
 
@@ -170,16 +179,20 @@ motion/transition treatment (`motion-interaction`).
   interactive/focus states.
 - No colour differentiation observed between "about" and "contact," or
   between any nav element and the shared near-black background.
-- Active-indicator colour: solid `$color-accent` (`#9b7fd4`, lilac) at
-  full opacity — revised from an earlier radial-gradient treatment
-  (developer visual review: a soft-edged fade read as diffuse, not as a
-  cohesive liquid drop). Reuses Project UX's own flat lilac tone,
-  already established there as the site's accent colour for
-  interactive/focus states, rather than the gradient family reserved
-  for the Ornamental Mark/Logo's own high-impact/receding-edge
-  treatment — a more direct trace to existing Visual Foundations than
-  the gradient extension was. Link text colour remains unchanged
-  (off-white).
+- Active-indicator colour, desktop crest: a small internal gradient —
+  bright at the crest's own center (the site's off-white foreground,
+  `#ebeaec`) fading to the divider line's own colour (`#e6bdfb`) at its
+  edge — so the shape reads as a lit-up core fused with, and colour-
+  matched to, the line it emerges from, plus a soft glow (blurred, not
+  a second gradient layer) in that same divider colour. Revised from an
+  interim flat-`$color-accent` treatment (used on an earlier, now-
+  discarded pill/blob anatomy) once the crest concept itself was
+  confirmed.
+- Active-indicator colour, mobile overlay vertical line: solid
+  `$color-accent` (`#9b7fd4`, lilac) at full opacity — reuses Project
+  UX's own flat lilac tone, already established there as the site's
+  accent colour for interactive/focus states. Link text colour remains
+  unchanged (off-white) in both realizations.
 
 ## Borders, Radii, Shadows, Surfaces
 
@@ -195,16 +208,22 @@ overlay, consistent with the site's chrome-free style.
 - Compact logomark (Ornamental Logo): the same asset already used on
   desktop, now also rendered on mobile's closed bar (Spacing and
   Layout — Mobile).
+- Active Screen Indicator crest, desktop: a distinct decorative asset
+  (`nav-active-crest.svg`) from the compact logomark — a symmetric
+  spiked crest with long thin tapering tails, cropped to just the crest
+  cluster since the real divider line already provides continuity on
+  either side.
 
 ## Visual States and Responsive Layout
 
 - Mobile Overlay Closed / Open: two concrete realizations as above
   (toggle vs. close glyph, collapsed bar vs. full-screen link list) —
   Feature UX's Mobile Overlay states.
-- Active Screen Indicator: `Inactive` (no blob) / `Active` (blob
-  emerging from the link's own bottom edge) — applies identically on
-  desktop and inside the mobile overlay's link list; never on the
-  wordmark.
+- Active Screen Indicator: `Inactive` (no indicator) / `Active` —
+  desktop's realization is the crest fused with the divider line above
+  the active link; the mobile overlay's is the vertical line beside it
+  (Component Anatomy and Variants, two distinct per-device
+  realizations, not one element resized). Never on the wordmark.
 - Desktop vs. mobile: two distinct concrete layouts, not a resize/reflow
   of one layout — matching Feature UX's device-distinct treatment.
 
