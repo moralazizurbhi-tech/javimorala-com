@@ -153,11 +153,14 @@ motion/transition treatment (`motion-interaction`).
   Introduction shows no indicator at all (Hero's own presence already
   signals it — a deliberate, confirmed interpretation of Feature
   Contract Commitment 5 AC1, not a gap).
-- **Active Screen Indicator, mobile overlay:** since the overlay stacks
-  links vertically rather than along a divider line, the equivalent
-  indicator here is a vertical line positioned immediately to the left
-  of whichever link is active — a distinct per-device realization
-  confirmed by the user, not the same crest element scaled down.
+- **Active Screen Indicator, mobile overlay:** the same crest asset as
+  desktop, rotated 90° so its own spine (drawn horizontal in the
+  source) runs vertically beside whichever link is active, since the
+  overlay stacks links vertically rather than along a divider line — a
+  distinct per-device orientation of the one asset, not a separate
+  plain line (a plain rotated bar alone read as just "a line" without
+  the mark itself, developer visual review — the asset's own embedded
+  line-plus-spike already satisfies both).
 
 ## Colour Application
 
@@ -179,20 +182,17 @@ motion/transition treatment (`motion-interaction`).
   interactive/focus states.
 - No colour differentiation observed between "about" and "contact," or
   between any nav element and the shared near-black background.
-- Active-indicator colour, desktop crest: a small internal gradient —
-  bright at the crest's own center (the site's off-white foreground,
-  `#ebeaec`) fading to the divider line's own colour (`#e6bdfb`) at its
-  edge — so the shape reads as a lit-up core fused with, and colour-
-  matched to, the line it emerges from, plus a soft glow (blurred, not
-  a second gradient layer) in that same divider colour. Revised from an
-  interim flat-`$color-accent` treatment (used on an earlier, now-
-  discarded pill/blob anatomy) once the crest concept itself was
-  confirmed.
-- Active-indicator colour, mobile overlay vertical line: solid
-  `$color-accent` (`#9b7fd4`, lilac) at full opacity — reuses Project
-  UX's own flat lilac tone, already established there as the site's
-  accent colour for interactive/focus states. Link text colour remains
-  unchanged (off-white) in both realizations.
+- Active-indicator colour, both realizations (same asset, same fill —
+  desktop crest and the mobile overlay's rotated orientation of it): a
+  small internal gradient — the site's vivid lilac accent (`$color-
+  accent`, `#9b7fd4`) at the shape's own center, fading to the divider
+  line's own colour (`#e6bdfb`) at its edge — so it reads as a lit-up
+  core fused with, and colour-matched to, the line it emerges from,
+  plus a soft glow (blurred, not a second gradient layer) in that same
+  divider colour. An off-white (`#ebeaec`) center was tried first and
+  read as too stark/white rather than "lit up" (developer visual
+  review); kept within the established lilac/purple family instead.
+  Link text colour remains unchanged (off-white).
 
 ## Borders, Radii, Shadows, Surfaces
 
@@ -208,11 +208,12 @@ overlay, consistent with the site's chrome-free style.
 - Compact logomark (Ornamental Logo): the same asset already used on
   desktop, now also rendered on mobile's closed bar (Spacing and
   Layout — Mobile).
-- Active Screen Indicator crest, desktop: a distinct decorative asset
+- Active Screen Indicator crest: a distinct decorative asset
   (`nav-active-crest.svg`) from the compact logomark — a symmetric
   spiked crest with long thin tapering tails, cropped to just the crest
   cluster since the real divider line already provides continuity on
-  either side.
+  either side (desktop), or rotated 90° for the mobile overlay's own
+  vertical arrangement.
 
 ## Visual States and Responsive Layout
 
@@ -221,9 +222,9 @@ overlay, consistent with the site's chrome-free style.
   Feature UX's Mobile Overlay states.
 - Active Screen Indicator: `Inactive` (no indicator) / `Active` —
   desktop's realization is the crest fused with the divider line above
-  the active link; the mobile overlay's is the vertical line beside it
-  (Component Anatomy and Variants, two distinct per-device
-  realizations, not one element resized). Never on the wordmark.
+  the active link; the mobile overlay's is the same asset rotated 90°
+  beside it (Component Anatomy and Variants, two distinct per-device
+  orientations of one asset). Never on the wordmark.
 - Desktop vs. mobile: two distinct concrete layouts, not a resize/reflow
   of one layout — matching Feature UX's device-distinct treatment.
 
