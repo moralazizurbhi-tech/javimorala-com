@@ -1,4 +1,10 @@
 @use 'reset';
+// Nav Transition Styles (T-021) — a CSS-only, zero-code-coupling
+// stylesheet targeting `section-navigation`'s already-public DOM
+// contract; wired in here (Root Layout level, matching where Section
+// Navigation itself composes) rather than from its own component,
+// which stays unaware of it.
+@use '../features/motion-interaction/navTransitions';
 
 // Self-hosted @font-face declarations (T-002) — fixes a pre-existing gap
 // where the font tokens named a family whose @font-face was never
