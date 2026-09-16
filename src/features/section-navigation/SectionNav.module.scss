@@ -184,22 +184,13 @@ $mobile-nav-height: 3rem;
 		// floating dot (ui.md, Component Anatomy and Variants: "a small
 		// rounded blob emerging from the link's own bottom edge").
 		border-radius: 20% 20% 50% 50% / 15% 15% 60% 60%;
-		// Radial gradient, vivid lilac at the blob's own center fading to
-		// muted purple at its edge — extends Project UX's established
-		// "vivid at the high-impact point, fading toward receding edges"
-		// gradient pattern (previously only applied to the Ornamental
-		// Mark/Logo) to this new use (ui.md, Colour Application). No
-		// longer sitting under the text, so it can run more saturated
-		// than the earlier pill (55% center / 15% edge, per ui.md) with
-		// no readability tradeoff. `ellipse closest-side` stretches
-		// independently on each axis to reach all four edges of this
-		// shape at once, rather than the default `farthest-corner` (which
-		// smears the fade too thin to see, the pill's own original defect).
-		background: radial-gradient(
-			ellipse closest-side at center,
-			rgba(tokens.$color-gradient-start, 0.55) 0%,
-			rgba(tokens.$color-gradient-end, 0.15) 100%
-		);
+		// Solid fill, full opacity (ui.md, Colour Application — revised
+		// from an earlier radial-gradient treatment: its soft-edged fade
+		// read as diffuse rather than a cohesive liquid drop, developer
+		// visual review). Reuses the site's own flat accent tone, already
+		// established for interactive/focus states, rather than the
+		// gradient family reserved for the Ornamental Mark/Logo.
+		background-color: tokens.$color-accent;
 	}
 }
 
