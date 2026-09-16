@@ -176,12 +176,12 @@ $mobile-nav-height: 3rem;
 // to be baked into the source file.
 $crest-crop-w: 805; // 1075 - 270
 $crest-crop-h: 599; // 702 - 103
-$crest-scale: calc(60 / $crest-crop-w); // unitless; 60 is $crest-w's raw px number below
-// Halved from an initial 120px — at that size the crest's own rise
-// reached up into the active link's own text (developer visual review:
-// the spike visibly cut through the "b" in "about"), rather than
-// sitting clear above it as in the reference image.
-$crest-w: 60px;
+$crest-scale: calc(75 / $crest-crop-w); // unitless; 75 is $crest-w's raw px number below
+// Halved from an initial 120px (which reached up into the active
+// link's own text) to 60px, then back up slightly to 75px once the
+// crop/position were corrected and it read as a bit small (developer
+// visual review).
+$crest-w: 75px;
 // The element's own box is the CROP window's scaled size (what's
 // actually visible) — distinct from `mask-size` below, which scales the
 // full 1342x784 source image the crop is a window into.
@@ -197,13 +197,19 @@ $crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
 	// overlapped (developer visual review). `-1` matches `.navBackdrop`'s
 	// own established pattern for the same reason.
 	z-index: -1;
-	// Aligns the asset's own spine (the thin horizontal line running
-	// through the crest, measured at y=439 in the source) with the nav's
-	// own divider line at this element's `bottom: 0` reference — negative
-	// because the spine sits below the crop's own top edge by more than
-	// half its height, per the source measurement (crop bottom 702 minus
-	// spine 439, scaled).
-	bottom: calc(-263px * #{$crest-scale});
+	// Aligns the asset's own spine with the nav's own divider line at
+	// this element's `bottom: 0` reference. Calibrated to the crop
+	// window's own LEFT/RIGHT edges (y≈452-455 there, ink-centre
+	// measurement) rather than the asset's overall widest-row y (439,
+	// used originally) — the line has a natural hand-drawn wobble, and
+	// 439 was measured nearer the tall central spike, not representative
+	// of where the tapering tail ends actually sit. Aligning to the
+	// edges instead is what makes the tail's own end points level with
+	// the real line, per developer visual review ("the left and right
+	// points" should match the border's height). Negative because the
+	// spine sits below the crop's own top edge by more than half its
+	// height (crop bottom 702 minus edge-spine ≈454, scaled).
+	bottom: calc(-248px * #{$crest-scale});
 	width: $crest-w;
 	height: $crest-h;
 	transform: translateX(-50%);
