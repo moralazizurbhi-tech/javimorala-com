@@ -181,41 +181,48 @@ start, not retrofitted here.
   2); and its whole-experience verification obligations (contrast ratios
   against Phase 0's final token values, heading/landmark structure, alt
   text, document-language sync) across everything built in Phases 1–5.
-- `motion-interaction`: 8 Technical Design components as of this Plan's
-  latest refinement (up from the original 7 — Nav Divider Segment
-  Transition is new), realized across 11 Task Catalog tasks — three
+- `motion-interaction`: 9 Technical Design components as of this Plan's
+  latest refinement (up from an original 7 — Nav Divider Segment
+  Transition, then Nav Active Indicator Transition Island, were each
+  added in turn), realized across 12 Task Catalog tasks — three original
   components (Hero Entrance & Ambient Motion Island, About Narrative
   Reveal Island, CTA Interaction Motion) are each split into two tasks
-  by separately-verifiable Commitment, per the Task Catalog's own
-  splitting rationale (Hero Entrance & Ambient Motion Island; Hero
-  Scroll-Linked Content Exit & Mark Transformation; About Narrative
-  Reveal Island; About Narrative Photo Tilt; Nav Transition Styles; Nav
-  Progress Overlay; Nav Divider Segment Transition; CTA Interaction
+  by separately-verifiable Commitment, and the indicator's own
+  value-change transition was later split out of Nav Transition Styles
+  into its own task once it grew a fundamentally different mechanism
+  (Task Catalog's own splitting rationale, both times): Hero Entrance &
+  Ambient Motion Island; Hero Scroll-Linked Content Exit & Mark
+  Transformation; About Narrative Reveal Island; About Narrative Photo
+  Tilt; Nav Transition Styles; Nav Active Indicator Transition Island;
+  Nav Progress Overlay; Nav Divider Segment Transition; CTA Interaction
   Motion; CTA Discoverability Motion; Secondary Interaction Feedback
-  Styles; Switcher Dropdown Transition). Each wraps a specific Phase 1–5
+  Styles; Switcher Dropdown Transition. Each wraps a specific Phase 1–5
   Feature's already-built static/interactive output, one directional,
   with no dependency back onto any of them (confirmed explicitly in
   every target Feature's own Technical Design). Nav Divider Segment
   Transition is unblocked now — Section Navigation's exposed
   segmentation state is already built (per Implementation Report, commit
-  `0c462b8`) — unlike Nav Transition Styles' indicator-value-change
-  portion and Nav Progress Overlay's own separate blockers, both gated
-  below.
+  `0c462b8`) — unlike Nav Active Indicator Transition Island's and Nav
+  Progress Overlay's own separate blockers, both gated below.
 
 **Resolved, tracked as a Task Catalog dependency now**: `section-navigation`'s
 Active Screen Indicator visual anatomy — previously Pending in that
 Feature's own Approved UX Specification and UI Definition — has been
-decided via a Feature Development revision (background pill behind the
-active link; a plain `aria-current="page"` attribute exposes which link
-is active, satisfying Nav Transition Styles' dependency on "Section
-Navigation's existing DOM/class contract"). Building the pill itself and
-that attribute is now Task Catalog's own T-040, a new task revising
+decided and built (through several live-rendering-driven revisions: a
+background pill, then a liquid-drip blob, then finally a crest fused
+with the divider line) as Task Catalog's own T-040, a task revising
 Section Navigation's already-Realized output without reopening it (the
-same pattern as T-033/T-034). Nav Transition Styles' indicator
-value-change transition now gates on T-040 completing (a Task Catalog
-dependency, not an open Feature-spec question) — its logomark-transition
-scope remains independently Ready now, using Section Navigation's
-existing desktop output alone.
+same pattern as T-033/T-034), now Realized. A plain `aria-current="page"`
+attribute exposes which link is active, satisfying Nav Transition
+Styles' own dependency on "Section Navigation's existing DOM/class
+contract." Nav Transition Styles (T-021) itself is now fully Ready — no
+longer blocked by T-040 — since a later `motion-interaction` Feature
+Development revision moved the indicator's own value-change transition
+(now a three-phase flatten/travel/sprout sequence, not a simple CSS
+transition) into its own new task, T-041, which depends on both T-040
+(Realized) and T-035 (Ready, not yet built) — T-041 also extends Shared
+Scroll Progress Store with a new active-nav-section value, widening that
+store's own previously-narrower scope.
 
 Nav Progress Overlay has two separate blockers of its own, unrelated to
 the above: its desktop scope needs Hero — Scroll-Linked Content Exit &
@@ -223,7 +230,7 @@ Mark Transformation (Task Catalog) to establish the Shared Scroll
 Progress Store first, and its mobile treatment remains Pending in
 `motion-interaction/ui.md`'s own UI refinement (not `section-navigation`).
 
-The other 9 `motion-interaction` Task Catalog tasks and all of
+The other 8 `motion-interaction` Task Catalog tasks and all of
 `accessibility`'s work in this phase are unaffected and may proceed
 independently of both of the above.
 
@@ -341,14 +348,15 @@ These are not resolved by this Plan. They are surfaced here because they
 affect readiness of specific phases' work; Implementation must not invent
 these decisions silently.
 
-1. **Section Navigation's Active Screen Indicator visual anatomy remains
-   Pending** in that Feature's own Approved UX Specification and UI
-   Definition — no colour/underline/weight treatment was ever decided.
-   `motion-interaction`'s Nav Transition Styles and Nav Progress Overlay
-   depend on it. Per your confirmed decision, this gates those two Phase
-   6 tasks specifically until resolved via a return trip to
-   `section-navigation`'s own UX/UI refinement. Owning artifact:
-   `section-navigation/ux.md`, `section-navigation/ui.md`.
+1. **RESOLVED — Section Navigation's Active Screen Indicator visual
+   anatomy** was Pending in that Feature's own Approved UX Specification
+   and UI Definition when this issue was first raised; it has since been
+   decided and built (T-040, now Realized — a crest fused with the
+   divider line, after several live-rendering-driven revisions), and
+   `motion-interaction`'s own indicator-transition Technical Design
+   revised in turn (see the `motion-interaction` summary above, and
+   T-021/T-041). Kept here, marked resolved, so this numbered list's
+   other cross-references stay stable.
 2. **Content, copy, and asset Pending items** across nearly every
    Feature's UX/UI Definition — Hero's and About's Spanish/Euskera
    translations, About's final photo assets, Direct Contact's CTA/

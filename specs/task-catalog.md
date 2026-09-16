@@ -480,18 +480,18 @@ Rationale).
 - id: T-021
   name: Nav Transition Styles
   type: implementation
-  objective: Add a smooth transition to the compact-logomark presence change and to the Active Screen Indicator's value-change, targeting Section Navigation's existing DOM/class contract with zero code coupling.
+  objective: Add a smooth transition to the compact-logomark presence change, and synchronize the "about"/"contact" font-weight swap's timing (via `transition-delay`) to the separately-built indicator transition's own phase 2, targeting Section Navigation's existing DOM/class contract with zero code coupling.
   references: motion-interaction/technical-design.md (Nav Transition Styles); motion-interaction/contract.md (Commitment 3; contributes 4, 16)
-  dependencies: T-002, T-011, T-040
+  dependencies: T-002, T-011
   inputs: Section Navigation's public DOM/class contract (read-only)
   outputs: SCSS transition partial
   acceptanceCriteria:
     - On desktop, the compact-logomark presence change transitions smoothly in both directions, on free scroll or nav-link jump (Commitment 3) — deliverable and verifiable now, using T-011's existing output alone.
-    - The Active Screen Indicator's value-change (T-040's pill moving between links) transitions smoothly rather than snapping.
-    - Under `prefers-reduced-motion: reduce`, both transitions resolve to an instant value change.
+    - The "about"/"contact" font-weight swap (bold active / normal inactive) is delayed via `transition-delay` to start at T-041's own phase-2 onset (~30% into its total duration) — a fixed, hand-kept-in-sync constant shared with T-041, not a runtime coordination between the two.
+    - Under `prefers-reduced-motion: reduce`, both the logomark transition and the font-weight swap resolve to an instant value change.
     - Never requires Section Navigation's own component code to import or reference this stylesheet.
   realizesCommitments: motion-interaction Commitment 3; contributes to 16
-  readiness: Ready once T-040 completes — needs the pill's base styling to exist before a transition can be added to it. The logomark-transition scope (Commitment 3) is independently buildable now, using T-011's existing desktop output alone.
+  readiness: Ready — both remaining acceptance criteria are buildable now using T-011's existing output alone; no longer blocked by T-040 now that the indicator's own value-change transition has moved to T-041.
 
 - id: T-035
   name: Hero — Scroll-Linked Content Exit & Mark Transformation
@@ -526,6 +526,22 @@ Rationale).
     - Never imports or reads Section Navigation's own component internals — alignment via shared Styling System tokens only.
   realizesCommitments: motion-interaction Commitment 4 (progress component only); contributes to 14, 16
   readiness: Partially Pending. Desktop scope is Ready once T-035 establishes Shared Scroll Progress Store. Mobile treatment is Pending — owning artifact `motion-interaction/ui.md` (not `section-navigation`) — resolvable within this Feature's own UI refinement.
+
+- id: T-041
+  name: Nav Active Indicator Transition Island
+  type: implementation
+  objective: Build the merged indicator's active-screen transition as a three-phase flatten/travel/sprout sequence via the Motion Layer, as a separate island rendering its own copy of the crest asset, extending Shared Scroll Progress Store with a new active-nav-section value.
+  references: motion-interaction/technical-design.md (Nav Active Indicator Transition Island; Shared Scroll Progress Store); motion-interaction/contract.md (Commitment 4; contributes 16)
+  dependencies: T-002, T-035, T-040
+  inputs: Styling System layout tokens (to align with Section Navigation's static crest position, established at T-040); Shared Scroll Progress Store (established at T-035, extended here)
+  outputs: Nav Active Indicator Transition Island; Shared Scroll Progress Store's active-nav-section value (extends the store established at T-035)
+  acceptanceCriteria:
+    - On nav-link activation or free-scroll section-boundary crossing, the indicator transitions via three sequential, non-overlapping phases — flatten (scaleY 1→~0.05-0.1, transform-origin center, clean ease-out, no overshoot), travel (translateX while flattened), sprout (scaleY back to 1 with a small overshoot/bounce) — approximately 30%/40%/30% of a 250–350ms total duration.
+    - The active-nav-section value is derived from each section's top edge crossing a fixed ~30%-from-top viewport point, read from Shared Scroll Progress Store — no separate IntersectionObserver.
+    - Renders as its own separate island, not composed inside Section Navigation's component tree, positioned via Styling System tokens to match Section Navigation's static crest position at rest.
+    - Under reduced-motion, renders directly in the target position/scale with no animated phases.
+  realizesCommitments: motion-interaction Commitment 4 (active-screen component); contributes to 16
+  readiness: Ready once T-035 and T-040 complete. T-040 is already Realized; T-035 is Ready but not yet built.
 
 - id: T-023
   name: CTA Interaction Motion
