@@ -170,18 +170,16 @@ motion/transition treatment (`motion-interaction`).
   interactive/focus states.
 - No colour differentiation observed between "about" and "contact," or
   between any nav element and the shared near-black background.
-- Active-indicator colour: the blob is a radial gradient —
-  `$color-gradient-start` (`#9b7fd4`, lilac) at the blob's own center,
-  fading to `$color-gradient-end` (`#4b2178`, muted purple) at its edge
-  — the same gradient family Project UX establishes as "vivid at the
-  high-impact point, fading toward receding edges" (previously only
-  applied to the Ornamental Mark/Logo), extended here as a Feature-
-  specific extension since Visual Foundations doesn't define a preset
-  radial application. Since the blob no longer sits under the text
-  (Component Anatomy and Variants), it can run more saturated than the
-  earlier pill treatment without any readability tradeoff: ~55% opacity
-  at the center, fading to ~15% at the edge. Link text colour remains
-  unchanged (off-white).
+- Active-indicator colour: solid `$color-accent` (`#9b7fd4`, lilac) at
+  full opacity — revised from an earlier radial-gradient treatment
+  (developer visual review: a soft-edged fade read as diffuse, not as a
+  cohesive liquid drop). Reuses Project UX's own flat lilac tone,
+  already established there as the site's accent colour for
+  interactive/focus states, rather than the gradient family reserved
+  for the Ornamental Mark/Logo's own high-impact/receding-edge
+  treatment — a more direct trace to existing Visual Foundations than
+  the gradient extension was. Link text colour remains unchanged
+  (off-white).
 
 ## Borders, Radii, Shadows, Surfaces
 
