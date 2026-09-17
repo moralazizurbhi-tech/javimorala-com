@@ -2,6 +2,97 @@
 
 ## Progress Summary
 
+**T-019 (Hero Entrance & Ambient Motion Island) and T-020 (About
+Narrative Reveal Island) are both complete**, on this same branch.
+T-019's initial build (`7f82cde`) went through three post-implementation
+fixes: `b5f88b4` (Framer Motion doesn't support an unprefixed
+`translate` keyframe — switched to its own `y` keyframe), `9b432f4`
+(gated entrance-settlement on real animation completion rather than a
+fixed timeout), `48a3fa3` (eliminated a flash of fully-visible content
+before the entrance plays, via `BaseLayout`/`RootLayout` changes). T-020
+(`a94999f`) landed in one pass: progressive scroll-triggered reveal,
+immediate full reveal on direct-navigation arrival, reduced-motion
+resolving directly.
+
+**T-040 (Section Navigation — Active-Indicator Pill & Mobile Logomark)
+is complete**, reached through an extended live-rendering-driven visual
+iteration rather than a single pass: background pill (`91915d0`,
+`c8e7e7f`) → radial-gradient pill (`5f3285b`, `521e7d2`) → solid flat
+colour (`7ddbf0d`, `1898112`) → liquid-drip blob (`af88a9f`, `d07c46d`)
+→ final divider-fused crest (`f36c3a6`, `7f92881`, `c43aaa3`), each
+revision paired with its own `section-navigation/ui.md` update recording
+the just-approved direction change. Also added: `aria-current="page"`
+on the active nav link, and the mobile closed bar's unconditional
+compact logomark. A cluster of small Feature-artifact refinements
+(`556cde7`, `e91ab0d`, `f4c2834`, `fe518a4`) resolved the anatomy
+decision and the Technical Design's own device-split logomark rules
+along the way.
+
+**This session — T-021 (Nav Transition Styles) is complete** (`12f6a21`).
+Adds a CSS-only stylesheet, `src/features/motion-interaction/
+navTransitions.scss`, wired in from `styles/global.scss` (Root Layout
+level) with zero code coupling to Section Navigation. Key finding during
+implementation: the compact-logomark anchor is fully mounted/unmounted
+by React, not toggled via a class/attribute on a persisting node as the
+Technical Design's own phrasing assumed — a plain CSS `transition` can
+only ever animate its entrance. Resolved as an Implementation Detail
+using `:has()`: a decorative `::after` on the persistent `<nav>`
+element, generated purely by whether it currently has that child,
+transitions in both directions via `@starting-style` +
+`transition-behavior: allow-discrete`. Verified live in Chrome
+(`getAnimations()`, computed-style snapshots across simulated DOM
+mutations) that both the enter and exit `CSSTransition`s actually run.
+Also delivers the "about"/"contact" font-weight swap, delayed via
+`transition-delay` to land at T-041's future phase-2 onset (a
+hand-synced constant: 300ms total, 90ms delay).
+
+**This session — a real, previously-unreported defect in T-011's
+already-Realized active-section logic was found and fixed** (`885ed56`),
+reported directly by the user ("the contact does not set its state as
+active"), not from a planned Task. Root cause: Personal Narrative and
+Connection share the exact same boundary (no gap), so the page's own
+maximum scroll position can land with Personal Narrative's trailing edge
+still marginally inside the observed activation band; the prior
+earliest-in-document-order tie-break then kept Personal Narrative active
+indefinitely, since Connection's own entry never won. Fixed by replacing
+the tie-break with an explicit priority list (`introduction`,
+`connection`, `personal-narrative`), symmetrically guaranteeing both
+boundary sections against the middle one — mirroring the existing,
+deliberate guarantee that already protected Introduction. Reproduced
+first with a new regression test (simulating Connection entering without
+Personal Narrative reporting its exit), confirmed it failed against the
+prior code, then fixed and reconfirmed. This fix has no corresponding
+Task Catalog entry — see Known Issues.
+
+**Several plan/catalog-only refinement commits landed alongside the
+above, none touching source**: `0f418ec` (fixed T-022's forward
+dependency on T-035), `7ccdd4e` (added T-040 to the catalog), `f1ae3c2`
+(replaced the indicator's transition concept with the three-phase
+flatten/travel/sprout choreography in `motion-interaction`'s Technical
+Design/UI/UX), `8b1411f` (split T-021 to add T-041 for the indicator's
+own transition, narrowing T-021 to the logomark + font-weight-timing
+scope reported above).
+
+**A tooling limitation was discovered this session, analogous to the
+prior report's headless-Chrome viewport-clamp finding**: this background
+job's Claude-in-Chrome tab reports `document.visibilityState: "hidden"`
+even after being driven directly (clicks, navigation) — a real,
+unfixable constraint of this specific automation environment (no real
+display), not something end users experience. This freezes CSS animation
+timelines and pauses `IntersectionObserver` entirely, so scroll-driven
+behavior (T-021's transitions, the Connection tie-break bug) could not
+be watched play out in real time here; verification instead relied on
+`getAnimations()` state snapshots, computed-style diffs across simulated
+DOM mutations, and a component-test regression case.
+
+**Still unmerged**: this branch (`worktree-motion-interaction-refinement`)
+is now 27 commits ahead of `main`, 0 behind — includes T-033, T-034,
+T-019, T-020, T-040, T-021, and the tie-break fix. Merging remains a
+developer decision.
+
+*Everything below this point is preserved unchanged from the prior
+report for continuity; only the paragraphs above are new this round.*
+
 **T-033 (Section Navigation — Enlarge Compact Logomark) and T-034
 (Direct Contact — CTA Discoverability Affordance Icon) are both
 complete**, on branch `worktree-motion-interaction-refinement` (5
@@ -198,15 +289,42 @@ using a ≥500px proxy width for automated checks from that point on.
 | content-localization | Yes (T-006, T-007 done; T-029 real-content exercise still pending) | Provisional — unchanged; full real-content coverage still deferred to later Features' own phases |
 | language-override | Yes (T-005, T-008 done) | Realized and merged — unchanged. Still carries the pre-existing Implementation Placeholder (`"EN"`/`"ES"`/`"EU"` labels) |
 | hero-presentation | Yes — T-009, T-010, and now T-018 (Commitment 5) all done, all 5 Commitments realized | Provisional — Commitment 5's own mechanism is now Realized (Presence Links correctly included/subordinate/omittable); Feature-level status stays Provisional only because Spanish/Euskera copy remains AI-drafted, still pending native-speaker review (unchanged, pre-existing) |
-| section-navigation | Task Catalog's T-011 entry predates Commitment 8 and still lists only Commitments 1–5. **This branch only**: T-033 revises the compact logomark's size/position (117x216 → 211x389, growth direction corrected) | Realized on `main` in its pre-T-033 form — unchanged there. This branch carries an unmerged revision, verified via computed geometry + live screenshot confirmation (Claude-in-Chrome). **Known inconsistency carried forward:** the Task Catalog's own T-011 entry was written before Commitment 8 existed |
+| section-navigation | Task Catalog's T-011 entry predates Commitment 8 and still lists only Commitments 1–5. **This branch only**: T-033 revises the compact logomark's size/position (117x216 → 211x389, growth direction corrected); T-040 adds the Active Screen Indicator's final visual anatomy (crest) + mobile logomark + `aria-current` on top of that | Realized on `main` in its pre-T-033 form — unchanged there. This branch now carries T-033 and T-040 (both Realized), verified via computed geometry, live screenshot confirmation (Claude-in-Chrome), and 20/20 passing tests. **Known inconsistency carried forward:** the Task Catalog's own T-011 entry was written before Commitment 8 (or T-040) existed |
 | **about-narrative** | **Yes — T-013, T-014 done.** Contract Commitment 5 (Ornamental Logo decorative presence) is also realized in code, though it isn't listed under either task's `realizesCommitments` in the Task Catalog (see Known Issues) | **Provisional.** Real narrative text (en/es/eu) and real developer-supplied photos now render — no longer placeholders. Provisional because: (1) `ux.md` itself flags the Euskera narrative as a "lower-confidence draft" pending native-speaker review (pre-existing, not introduced this session); (2) the two supplied photos are both portrait-oriented, not literally satisfying `ux.md`'s "contrasting orientations" content note; (3) the section kicker ("get to know me.") is new copy authored directly in conversation, not yet reconciled into `ux.md`'s own Content and Assets |
 | direct-contact | Yes — T-015, T-016 done (Commitments 1–6 all realized). **This branch only**: T-034 adds Commitment 7 (CTA Discoverability Affordance) | Realized on `main` in its pre-T-034 form — unchanged there. This branch carries an unmerged addition (CTA affordance icon), verified via build/dev-server HTML inspection and explicit user visual confirmation ("nows perfect"). Known issue carried in code comments: `ux.md`/`ui.md` name the background asset "Ornamental Logo" but the actual asset used is Hero's own "Ornamental Mark" — a spec/evidence naming contradiction, not resolved here |
 | presence-links | Yes — T-017, T-018 done (Commitments 1–4 all realized) | Realized, after this session's two corrections (colour, URLs — see Progress Summary). Known issue: `ui.md`'s Colour Application text still describes a gradient, no longer matching the plain-text implementation |
-| motion-interaction | Pending (no task started) | — |
+| motion-interaction | Partially started: T-019, T-020, T-021 done (3 of 12 Task Catalog tasks); T-035, T-022, T-041, T-023–T-025, T-036–T-038 not yet started | Provisional/in progress — Commitments 1 (About Narrative reveal) and 2 (Hero entrance) fully realized; Commitment 3 (logomark presence + font-weight timing) realized via T-021; Commitment 4 (progress overlay + indicator transition) and the rest remain pending |
 | accessibility | Pending (no task started) | — |
 
 ## Completed Work
 
+- **T-019 — Hero Entrance & Ambient Motion Island** (`7f82cde`,
+  `b5f88b4`, `9b432f4`, `48a3fa3`). Mark-bloom → headline-cascade →
+  scroll-cue sequence, once per visit via the new shared
+  `motionPlaybackStore`; post-entrance ambient gradient drift;
+  reduced-motion resolves directly to end-state. Three
+  post-implementation fixes: an unsupported Framer Motion keyframe,
+  entrance-completion gating, and a pre-hydration flash of fully-visible
+  content.
+- **T-020 — About Narrative Reveal Island** (`a94999f`). Progressive
+  scroll-triggered reveal of not-yet-revealed pieces; immediate full
+  reveal on direct-navigation arrival; reduced-motion resolves directly.
+- **T-040 — Section Navigation: Active-Indicator Pill & Mobile
+  Logomark** (`91915d0` through `c43aaa3`, 10 commits). `aria-current="page"`
+  exposure; mobile closed-bar's unconditional compact logomark; the
+  Active Screen Indicator's final visual anatomy, reached through
+  several live-rendering-driven revisions (pill → gradient → flat
+  colour → liquid blob → divider-fused crest, `public/nav-active-crest.svg`),
+  each paired with a `section-navigation/ui.md` update.
+- **T-021 — Nav Transition Styles** (`12f6a21`, this session). CSS-only
+  `navTransitions.scss`; `:has()` + `@starting-style` + `allow-discrete`
+  bidirectional logomark transition (see Progress Summary for the
+  underlying technical finding); delayed font-weight swap on
+  `[aria-current='page']`; reduced-motion overrides.
+- **Post-implementation defect fix, untracked by any Task ID**
+  (`885ed56`, this session): Connection active-section tie-break,
+  described in Progress Summary. New regression test added to
+  `SectionNav.test.tsx`.
 - **T-033 — Section Navigation: Enlarge Compact Logomark** (`3c3f56c`,
   `b60a8ab`, branch `worktree-motion-interaction-refinement`).
   `.compactMark` resized from 117x216 to 211x389 (1.8x uniform scale),
@@ -360,17 +478,28 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Pending Work
 
-- **Refreshed against the resynced Task Catalog (`e11037c`)**:
-  T-019–T-032, T-035–T-039 (21 tasks) — no source code implemented yet
-  for any of `motion-interaction` (T-019–T-025, T-035–T-038),
+- **New — resolved and removed**: the prior entry "T-011's Active Screen
+  Indicator visual anatomy — unchanged, still gates `motion-interaction`'s
+  T-021/T-022" is superseded by T-040 (Realized) and the T-021/T-041
+  split; T-021 is now done, T-022 depends on T-035 instead.
+- **New**: T-041 (Nav Active Indicator Transition Island) — not yet
+  started; depends on T-035 (also not yet started) and T-040 (done).
+- **New**: no Task Catalog entry exists for the Connection tie-break fix
+  (this session) — it revises T-011's already-Realized output the same
+  way T-033/T-034/T-040 do, but wasn't itself planned. Flagged for
+  Planning if a retroactive catalog entry is wanted; not required for the
+  fix to stand.
+- **Refreshed against the current Task Catalog**: T-022, T-023–T-032,
+  T-035–T-039, T-041 (18 tasks, down from the prior report's 21 now that
+  T-019/T-020/T-021 are done) — no source code implemented yet for the
+  rest of `motion-interaction` (T-022–T-025, T-035–T-038, T-041),
   `accessibility` (T-026–T-028), or the remaining
   `content-localization`/integration/verification tasks (T-029–T-032,
-  T-039), despite `motion-interaction`'s own spec now being
-  substantially more detailed than the prior report reflected (three
-  spec-refinement commits, `a990cda`/`c6bb351`/`f3cf100`/`4c726aa`, not
-  yet translated into code).
-- **New**: this session's T-033/T-034 work is committed and pushed to
-  `worktree-motion-interaction-refinement` but not merged into `main` —
+  T-039).
+- **New**: this session's T-033/T-034 work, and everything since
+  (T-019/T-020/T-040/T-021 and the Connection tie-break fix), is
+  committed and pushed to `worktree-motion-interaction-refinement` but
+  not merged into `main` (27 commits ahead, 0 behind as of `885ed56`) —
   merging is a developer decision, not done automatically by any Skill.
 - **New**: `presence-links/ui.md`'s Colour Application section needs
   revising to match the plain-text implementation (owned by Planning, if
@@ -412,6 +541,27 @@ unchanged from the prior report — preserved for continuity:**
   remain unreconciled — not re-investigated this session.
 
 ## Generated Artifacts
+
+*(new since the prior report, T-019/T-020/T-040/T-021 + the tie-break
+fix, branch `worktree-motion-interaction-refinement`)*
+
+- `src/features/motion-interaction/HeroEntranceIsland.tsx` + `.test.tsx`,
+  `src/features/motion-interaction/motionPlaybackStore.ts` + `.test.ts`
+  (T-019, new).
+- `src/features/motion-interaction/AboutNarrativeRevealIsland.tsx` +
+  `.test.tsx` (T-020, new).
+- `src/features/section-navigation/SectionNav.module.scss`,
+  `SectionNav.tsx`, `SectionNav.test.tsx` (T-040 revisions across 10
+  commits; also carries the Connection tie-break fix + its regression
+  test, this session); `public/nav-active-crest.svg` (new asset, T-040).
+- `src/features/motion-interaction/navTransitions.scss` (new, T-021,
+  this session); `src/styles/global.scss` (+6 lines, wiring only, this
+  session).
+- `specs/features/motion-interaction/technical-design.md`, `ui.md`,
+  `ux.md`; `specs/features/section-navigation/ui.md`,
+  `technical-design.md`, `contract.md`, `solution.md`;
+  `specs/implementation-plan.md`, `specs/task-catalog.md` — spec-only
+  refinement commits accompanying the above (see Progress Summary).
 
 *(new this session, T-033/T-034, branch
 `worktree-motion-interaction-refinement`)*
@@ -465,7 +615,32 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Implementation Decisions
 
-*(new this session, T-033/T-034)*
+*(new this session, T-021 + the Connection tie-break fix)*
+
+- T-021's `:has()` + `@starting-style` + `allow-discrete` mechanism (see
+  Progress Summary) — an Implementation Detail resolving how to achieve
+  a spec-required bidirectional transition against an already-approved
+  DOM contract that doesn't literally support it via a plain CSS
+  transition.
+- T-021's font-weight swap implemented as a zero-duration, delay-only
+  transition rather than a gradually-interpolated one, matching `ui.md`'s
+  own stated "instant swap" baseline and avoiding the swap still visibly
+  animating once T-041's phase 3 makes the indicator prominent again.
+- The Connection tie-break fix uses an explicit priority list rather
+  than reversing the general tie-break rule, specifically to avoid
+  reintroducing the opposite regression at the Introduction/Personal-
+  Narrative boundary (verified against the existing regression test
+  written for that case).
+
+*(T-040, recorded for continuity — full rationale in `ui.md`'s own
+revision history)*
+
+- T-040's final indicator anatomy (crest fused with the divider line)
+  was reached through direct, iterative live-rendering feedback rather
+  than decided upfront across five visual iterations (pill → gradient →
+  flat colour → liquid blob → crest) — not re-litigated here.
+
+*(prior session, T-033/T-034)*
 
 - T-033's icon scale computed via the exact multiplier applied to the
   existing row-height formula, rather than the spec's own rounded
@@ -559,6 +734,18 @@ own message)*
 
 ## Known Issues
 
+- **New — tooling limitation** (this session; see Progress Summary):
+  this background job's Chrome automation tab never reports
+  `visibilityState: "visible"`, freezing animation timelines and
+  `IntersectionObserver` entirely — a constraint of this specific
+  automation environment, not something end users experience.
+  Scroll-driven behavior verification here relied on static/simulated
+  checks (`getAnimations()` snapshots, computed-style diffs, a component
+  regression test) rather than real-time playback.
+- **New — untracked fix** (this session): the Connection tie-break fix
+  (see Progress Summary, Pending Work) has no Task Catalog entry.
+- **Resolved this session**: "T-011's Active Screen Indicator visual
+  anatomy still Pending" is superseded by T-040 (Realized).
 - **New — dev-environment gap** (T-033 discovery; see Progress
   Summary): a freshly created worktree with no local `npm install`
   breaks Vite dev-server font loading and all React hydration via
@@ -622,15 +809,35 @@ own message)*
   Grotesque system — a deliberate, developer-confirmed correction, but
   the spec text itself still needs its own reconciliation pass. Owning
   artifact: `project-ux.md`.
-- Carried forward unchanged: T-011's Active Screen Indicator visual
-  anatomy still Pending; AI-drafted ES/EU copy still needs native review
-  (now also applying to About Narrative's Euskera); `motion-interaction`'s
-  Nav Progress Overlay still outdated per Commitment 8; decorative
-  Mark/Logo `aria-hidden` commitment still missing as a formal
-  requirement; several other long-unmerged worktree branches from
-  earlier reports remain unreconciled (not re-investigated here).
+- Carried forward unchanged: AI-drafted ES/EU copy still needs native
+  review (now also applying to About Narrative's Euskera);
+  `motion-interaction`'s Nav Progress Overlay still outdated per
+  Commitment 8; decorative Mark/Logo `aria-hidden` commitment still
+  missing as a formal requirement; several other long-unmerged worktree
+  branches from earlier reports remain unreconciled (not re-investigated
+  here).
 
 ## Execution Evidence
+
+*(new since the prior report, T-019/T-020/T-040/T-021 + the tie-break
+fix)*
+
+- `npm test` at current HEAD (`885ed56`) — **71/71 passing (11 test
+  files)**, up from 44/44 in the prior report; per-area:
+  `SectionNav.test.tsx` 20/20 (was 15), `motion-interaction` 22/22
+  across 3 files (new).
+- `npm run build` — clean, run multiple times across T-021 and the
+  tie-break fix.
+- T-021: live Chrome verification via `getAnimations()`/computed-style
+  snapshots (detailed in Progress Summary); compiled-CSS rule presence
+  checks (`:has()`, `@starting-style`, font-weight rules all parsed and
+  present).
+- Tie-break fix: new regression test (`SectionNav.test.tsx`) reproduced
+  the defect against the pre-fix code (confirmed failing), then
+  confirmed passing post-fix, alongside all 19 pre-existing `SectionNav`
+  tests.
+- `git log --oneline main..HEAD` — 27 commits ahead, 0 behind,
+  confirming the branch's continued unmerged state.
 
 *(new this session, T-033/T-034)*
 
@@ -728,4 +935,4 @@ own message)*
 ---
 
 *Created: 2026-09-09. Refined: 2026-09-11, 2026-09-12, 2026-09-13,
-2026-09-15.*
+2026-09-15, 2026-09-17.*
