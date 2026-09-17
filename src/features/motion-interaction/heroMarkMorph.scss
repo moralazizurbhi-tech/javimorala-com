@@ -33,7 +33,8 @@
 $nav-height: 4.5rem;
 
 .hero-mark-natural-probe,
-.hero-mark-target-probe {
+.hero-mark-target-probe,
+.hero-mark-morph {
 	display: none;
 }
 
@@ -59,5 +60,52 @@ $nav-height: 4.5rem;
 		top: tokens.$space-xs;
 		width: calc(#{$nav-height} * 1.8 * 117 / 216);
 		height: calc(#{$nav-height} * 1.8);
+	}
+
+	// Hero Mark → compact-logo morph (Commitment 12 AC1) — this
+	// island's own inline SVG, positioned identically to how
+	// `.hero__mark` itself used to be (`position: fixed`, horizontally
+	// centered): `top`/`width`/`height`/`opacity` and its own
+	// `viewBox`/path `d` attributes are all set imperatively per scroll
+	// frame (HeroEntranceIsland.tsx). `z-index` is static here, not
+	// per-frame, since — unlike `.hero__mark` itself — this element is
+	// this island's own child (a sibling of `.hero`, never inside it),
+	// so it was never trapped by `.hero`'s own `isolation: isolate`
+	// stacking context to begin with; raising it above the nav bar's
+	// own `z-index: 10` here is enough (still needed: for most of the
+	// window this element is wider than the nav's own divider gap, and
+	// should visually overlap the bar rather than be hidden by it — the
+	// overflow ui.md's own Component Anatomy already describes).
+	.hero-mark-morph {
+		display: block;
+		position: fixed;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 11;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	// Holds Section Navigation's own wide ("hero-mark", 52%) divider gap
+	// open for the entire Hero scroll (developer direction), rather than
+	// letting Section Navigation's own `data-divider-state` fall through
+	// to its base rule's 0% ("continuous", solid bar) once its own
+	// `#hero-mark-boundary` sentinel clears (~70-75% of Hero height) —
+	// well before this Feature's own mark-transformation/hide window
+	// ends. That solid bar's own `border-bottom` was cutting across the
+	// still-visible, still-transforming mark (a real defect a developer
+	// caught live).
+	//
+	// Targets Section Navigation's own stable `data-testid="nav-divider"`
+	// hook (never its CSS-Modules-hashed class name) — the same
+	// zero-code-coupling pattern `navTransitions.scss` already uses for
+	// this exact Feature boundary. `HeroEntranceIsland.tsx` toggles
+	// `[data-hero-scroll-active]` on `<html>` for as long as its own
+	// mark stays visible; specificity here (one type + two attribute
+	// selectors) already beats every one of `.navBackdrop`'s own rules
+	// (a bare class, or a class plus one attribute), so this wins
+	// regardless of source order, with no `!important` needed.
+	html[data-hero-scroll-active] [data-testid='nav-divider'] {
+		--divider-gap: 52%;
 	}
 }

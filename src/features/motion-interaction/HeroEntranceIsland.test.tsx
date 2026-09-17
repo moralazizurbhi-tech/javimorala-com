@@ -1,8 +1,49 @@
 // @vitest-environment jsdom
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import HeroEntranceIsland from './HeroEntranceIsland';
 import * as motionPlaybackStore from './motionPlaybackStore';
+import { loadHeroMarkMorphData, tokenizePathD, type MorphData } from './heroMarkMorphData';
+
+// The morph itself (parsing/interpolating real SVG paths) is already
+// thoroughly covered by heroMarkMorphData.test.ts in isolation; here,
+// `loadHeroMarkMorphData` is mocked to a small canned fixture so these
+// tests exercise only this component's own wiring (which element gets
+// which attribute, when) without needing to fetch/parse real assets in
+// jsdom.
+vi.mock('./heroMarkMorphData', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./heroMarkMorphData')>();
+  return { ...actual, loadHeroMarkMorphData: vi.fn() };
+});
+
+// Mirrors the real assets' own 9-path layout: indices 0/1/2 and 4/5/6
+// are orphans (developer-confirmed two fade groups), 3/7/8 are the real
+// morph trio — matching `HeroEntranceIsland`'s own
+// `MARK_FADE_GROUP_1_INDICES`/`MARK_FADE_GROUP_2_INDICES` constants, so
+// these tests exercise the same index positions the component hardcodes.
+function morphFixture(): MorphData {
+  const template = tokenizePathD('M0,0 L100,100')!;
+  const orphan = (fill: string) =>
+    ({ template, fromNumbers: [0, 0, 100, 100], toNumbers: [50, 50, 50, 50], fill, isReal: false }) as const;
+  const real = (fill: string) =>
+    ({ template, fromNumbers: [0, 0, 100, 100], toNumbers: [10, 10, 20, 20], fill, isReal: true }) as const;
+  return {
+    paths: [
+      orphan('url(#o0)'),
+      orphan('url(#o1)'),
+      orphan('url(#o2)'),
+      real('url(#r3)'),
+      orphan('url(#o4)'),
+      orphan('url(#o5)'),
+      orphan('url(#o6)'),
+      real('url(#r7)'),
+      real('url(#r8)'),
+    ],
+    gradientDefsMarkup: '<linearGradient id="g"><stop offset="0" stop-color="#fff"/></linearGradient>',
+    fromViewBox: [0, 0, 1216, 780],
+    toViewBox: [400, 100, 200, 300],
+  };
+}
 
 const animateCalls: Array<{ target: Element; keyframes: Record<string, unknown>; options: Record<string, unknown> }> = [];
 const stoppedControls: Element[] = [];
@@ -69,10 +110,11 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
     stoppedControls.length = 0;
     vi.useFakeTimers();
     vi.stubGlobal('sessionStorage', undefined);
-    // jsdom has no built-in IntersectionObserver; heroStaticMarkup()'s
-    // `#hero-mark-boundary` sentinel (T-035) needs one to exist so this
-    // component's own read-only observer of it doesn't throw.
-    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+    // Unrelated to this describe block's own entrance-sequence focus —
+    // just a safe default so the separate morph-data-loading effect
+    // (T-035) doesn't throw calling `.then()` on `vi.mock`'s own
+    // default (parameterless `vi.fn()`, which returns `undefined`).
+    vi.mocked(loadHeroMarkMorphData).mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -212,24 +254,6 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
   });
 });
 
-let markBoundaryObserverInstances: MockIntersectionObserver[] = [];
-
-class MockIntersectionObserver {
-  callback: IntersectionObserverCallback;
-  constructor(callback: IntersectionObserverCallback) {
-    this.callback = callback;
-    markBoundaryObserverInstances.push(this);
-  }
-  observe() {}
-  disconnect() {}
-  unobserve() {}
-}
-
-function fireMarkBoundary(isIntersecting: boolean) {
-  const observer = markBoundaryObserverInstances[markBoundaryObserverInstances.length - 1];
-  observer.callback([{ isIntersecting } as unknown as IntersectionObserverEntry], {} as IntersectionObserver);
-}
-
 function mockRect(container: HTMLElement, selector: string, rect: Partial<DOMRect>) {
   const el = container.querySelector<HTMLElement>(selector);
   if (!el) throw new Error(`missing ${selector}`);
@@ -252,9 +276,7 @@ describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transfor
   beforeEach(() => {
     animateCalls.length = 0;
     stoppedControls.length = 0;
-    markBoundaryObserverInstances = [];
     vi.stubGlobal('sessionStorage', undefined);
-    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
     // Runs the store's rAF-scheduled notification synchronously so each
     // test can assert immediately after dispatching a scroll event,
     // without depending on jsdom's own asynchronous rAF timing.
@@ -262,6 +284,7 @@ describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transfor
       cb(0);
       return 0;
     });
+    vi.mocked(loadHeroMarkMorphData).mockResolvedValue(morphFixture());
   });
 
   afterEach(() => {
@@ -326,66 +349,150 @@ describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transfor
     expect(primary.style.opacity).toBe('0');
   });
 
-  it('desktop: continuously morphs `.hero__mark` — the same element, fixed-positioned — between the natural and nav-target rects across the 25%-70% window (Commitment 12 AC1, AC3)', () => {
+  it('desktop: hides the plain `.hero__mark` `<img>` and morphs this island\'s own inline SVG — position/size between the natural and nav-target rects, viewBox and the *real* path\'s own `d` between the mark and logo geometry — across the 0%-35% window (Commitment 12 AC1, AC3)', async () => {
     const { container } = renderReducedMotion(true);
+    await waitFor(() => expect(container.querySelector('.hero-mark-morph')).not.toBeNull());
     const mark = container.querySelector<HTMLElement>('.hero__mark')!;
+    const morphSvg = container.querySelector<SVGSVGElement>('.hero-mark-morph')!;
+    // Index 3 is one of the fixture's "real" (morphing) paths — see
+    // `morphFixture`'s own layout comment.
+    const realPath = morphSvg.querySelectorAll('path')[3];
 
-    // Before the window starts, `top` tracks the natural probe's own
-    // live (scroll-drifting) rect directly — this is the regression a
-    // live-Chrome check caught: an earlier version pre-applied the
-    // window-start freeze even here, snapping the mark to a shifted
-    // position the instant this effect mounted, before any scrolling.
-    setHeroProgress(container, 0.1);
-    expect(mark.style.top).toBe('170px');
+    // The window starts at 0 (not some later fraction) — post-
+    // implementation developer direction, load-bearing reason: before
+    // this effect's `position: fixed` takeover engages, `.hero__mark`
+    // is still `position: absolute` (document-flow) and scrolls off the
+    // top edge like any other in-flow content would. A live Chrome
+    // check confirmed exactly that with a nonzero start fraction (the
+    // mark visibly clipped against the top edge for scroll positions
+    // before the threshold) — starting at 0 means the takeover, and the
+    // guarantee `top` never goes negative, begins at the very first
+    // pixel of scroll.
+    setHeroProgress(container, 0);
+    expect(mark.style.visibility).toBe('hidden');
+    expect(morphSvg.style.top).toBe('270px');
+    expect(morphSvg.style.width).toBe('700px');
+    expect(morphSvg.style.height).toBe('700px');
+    expect(morphSvg.getAttribute('viewBox')).toBe('0 0 1216 780');
+    expect(realPath.getAttribute('d')).toBe('M 0 0 L 100 100');
 
-    setHeroProgress(container, 0.25);
-    expect(mark.style.position).toBe('fixed');
-    expect(mark.style.top).toBe('20px');
-    expect(mark.style.width).toBe('700px');
-    expect(mark.style.height).toBe('700px');
+    // Position/size track scroll continuously across the whole window,
+    // but the real geometry and viewBox only morph in the *final* third
+    // (markT 2/3→1) — developer direction: both fade groups must fully
+    // disappear before the morph itself starts (see the two fade-group
+    // tests below).
+    setHeroProgress(container, 0.35 / 2);
+    expect(parseFloat(morphSvg.style.top)).toBeCloseTo(139);
+    expect(parseFloat(morphSvg.style.width)).toBeCloseTo(415);
+    expect(parseFloat(morphSvg.style.height)).toBeCloseTo(470);
+    expect(morphSvg.getAttribute('viewBox')).toBe('0 0 1216 780');
+    expect(realPath.getAttribute('d')).toBe('M 0 0 L 100 100');
 
-    setHeroProgress(container, (0.25 + 0.7) / 2);
-    expect(mark.style.top).toBe('14px');
-    expect(mark.style.width).toBe('415px');
-    expect(mark.style.height).toBe('470px');
-
-    setHeroProgress(container, 0.7);
-    expect(mark.style.top).toBe('8px');
-    expect(mark.style.width).toBe('130px');
-    expect(mark.style.height).toBe('240px');
+    setHeroProgress(container, 0.35);
+    expect(morphSvg.style.top).toBe('8px');
+    // Morphing means finishing at the same box the real compact logo
+    // itself occupies (the target probe), not some approximated size.
+    expect(morphSvg.style.width).toBe('130px');
+    expect(morphSvg.style.height).toBe('240px');
+    expect(morphSvg.getAttribute('viewBox')).toBe('400 100 200 300');
+    expect(realPath.getAttribute('d')).toBe('M 10 10 L 20 20');
 
     // Reversible: scrolling back to the window's start restores the
-    // natural rect exactly (Commitment 12 AC3).
-    setHeroProgress(container, 0.25);
-    expect(mark.style.top).toBe('20px');
+    // natural rect and the mark's own original geometry exactly
+    // (Commitment 12 AC3).
+    setHeroProgress(container, 0);
+    expect(morphSvg.style.top).toBe('270px');
+    expect(realPath.getAttribute('d')).toBe('M 0 0 L 100 100');
   });
 
-  it('desktop: hides the docked mark once Hero\'s own mark-visibility sentinel clears the viewport, handing the visual role back to Section Navigation\'s own compact-logo mechanism (regression: the two otherwise double up at the same position)', () => {
+  it('desktop: fades the orphan (non-real) paths out in place, in two sequential groups that each fully finish before the next phase starts — developer direction, avoiding both a "shrinks to a vanishing dot" look and a busy all-at-once dissolve', async () => {
+    const { container } = renderReducedMotion(true);
+    await waitFor(() => expect(container.querySelector('.hero-mark-morph')).not.toBeNull());
+    const morphSvg = container.querySelector<SVGSVGElement>('.hero-mark-morph')!;
+    const paths = morphSvg.querySelectorAll('path');
+    const group1Path = paths[0]; // MARK_FADE_GROUP_1_INDICES
+    const group2Path = paths[4]; // MARK_FADE_GROUP_2_INDICES
+    const realPath = paths[3]; // morph trio — untouched until both groups are gone
+
+    setHeroProgress(container, 0);
+    expect(group1Path.style.opacity).toBe('1');
+    expect(group2Path.style.opacity).toBe('1');
+
+    // First third: group 1 fades all the way out; group 2 hasn't started.
+    setHeroProgress(container, 0.35 / 6); // markT = 1/6 → mid group-1 fade
+    expect(group1Path.getAttribute('d')).toBe('M 0 0 L 100 100'); // `d` never changes — only opacity fades
+    expect(group1Path.style.opacity).toBe('0.5');
+    expect(group2Path.style.opacity).toBe('1');
+    expect(realPath.getAttribute('d')).toBe('M 0 0 L 100 100');
+
+    setHeroProgress(container, 0.35 / 3); // markT = 1/3 → group 1 fully gone
+    expect(group1Path.style.opacity).toBe('0');
+    expect(group2Path.style.opacity).toBe('1');
+    expect(realPath.getAttribute('d')).toBe('M 0 0 L 100 100');
+
+    // Second third: group 1 stays gone; group 2 fades out; the morph trio
+    // still hasn't moved.
+    setHeroProgress(container, 0.35 / 2); // markT = 1/2 → mid group-2 fade
+    expect(group1Path.style.opacity).toBe('0');
+    expect(group2Path.style.opacity).toBe('0.5');
+    expect(realPath.getAttribute('d')).toBe('M 0 0 L 100 100');
+
+    setHeroProgress(container, (0.35 * 2) / 3); // markT = 2/3 → group 2 fully gone
+    expect(group1Path.style.opacity).toBe('0');
+    expect(group2Path.style.opacity).toBe('0');
+    expect(realPath.getAttribute('d')).toBe('M 0 0 L 100 100');
+
+    // Final third: both groups already gone — only now does the morph trio move.
+    setHeroProgress(container, 0.35 * (5 / 6)); // markT = 5/6 → mid morph
+    expect(realPath.getAttribute('d')).toBe('M 5 5 L 60 60');
+
+    setHeroProgress(container, 0.35);
+    expect(realPath.getAttribute('d')).toBe('M 10 10 L 20 20');
+
+    // Reversible, same as the real path.
+    setHeroProgress(container, 0);
+    expect(group1Path.style.opacity).toBe('1');
+    expect(group2Path.style.opacity).toBe('1');
+  });
+
+  it('desktop: hides the morph SVG (not the already-hidden `.hero__mark`) once heroProgress reaches 1 (a full Hero height scrolled), handing the visual role back to Section Navigation\'s own compact-logo mechanism (regression: the two otherwise double up at the same position)', async () => {
+    const { container } = renderReducedMotion(true);
+    await waitFor(() => expect(container.querySelector('.hero-mark-morph')).not.toBeNull());
+    const mark = container.querySelector<HTMLElement>('.hero__mark')!;
+    const morphSvg = container.querySelector<SVGSVGElement>('.hero-mark-morph')!;
+
+    setHeroProgress(container, 0.9);
+    expect(mark.style.visibility).toBe('hidden');
+    expect(morphSvg.style.opacity).toBe('1');
+
+    setHeroProgress(container, 1);
+    expect(morphSvg.style.opacity).toBe('0');
+
+    // Reversible: scrolling back up restores it.
+    setHeroProgress(container, 0.9);
+    expect(morphSvg.style.opacity).toBe('1');
+  });
+
+  it('desktop: falls back to the plain, untransformed `.hero__mark` while morph data hasn\'t loaded yet (or failed to)', () => {
+    vi.mocked(loadHeroMarkMorphData).mockReturnValue(new Promise(() => {})); // never resolves
     const { container } = renderReducedMotion(true);
     const mark = container.querySelector<HTMLElement>('.hero__mark')!;
-    setHeroProgress(container, 0.7);
-    expect(mark.style.opacity).toBe('1');
 
-    fireMarkBoundary(false);
-    setHeroProgress(container, 0.9);
-    expect(mark.style.opacity).toBe('0');
+    setHeroProgress(container, 0.2);
 
-    // Scrolling back up restores it, symmetric with the sentinel
-    // re-intersecting.
-    fireMarkBoundary(true);
-    setHeroProgress(container, 0.7);
-    expect(mark.style.opacity).toBe('1');
+    expect(mark.style.visibility).toBe('');
+    expect(container.querySelector('.hero-mark-morph')).toBeNull();
   });
 
   it('mobile: dissolves `.hero__mark` via a reverse trace of its own entrance stroke (clip-path), never overriding its position (Commitment 12 AC2)', () => {
     const { container } = renderReducedMotion(false);
     const mark = container.querySelector<HTMLElement>('.hero__mark')!;
 
-    setHeroProgress(container, 0.25);
+    setHeroProgress(container, 0);
     expect(mark.style.clipPath).toBe('inset(0 0% 0 0%)');
     expect(mark.style.position).toBe('');
 
-    setHeroProgress(container, 0.7);
+    setHeroProgress(container, 0.35);
     expect(mark.style.clipPath).toBe('inset(0 50% 0 50%)');
     expect(mark.style.position).toBe('');
   });
