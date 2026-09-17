@@ -143,6 +143,23 @@ describe('SectionNav (section-navigation/contract.md Commitments 1-5)', () => {
     expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBeNull();
   });
 
+  it('Commitment 5 AC1/AC3: Connection wins even when Personal Narrative has not yet reported exiting', () => {
+    // Regression for a real defect found in manual verification: "contact"
+    // never went active, because the page's own maximum scroll position
+    // can land with Personal Narrative's trailing edge still marginally
+    // within the band — its exit and Connection's entry share the exact
+    // same boundary (no gap between sections), unlike Introduction/
+    // Personal Narrative's own case. Personal Narrative never reports
+    // exiting here — exactly that scrolled-to-the-bottom case, where both
+    // are simultaneously within the band and neither has left it yet.
+    renderNav();
+    triggerIntersectionChange(['personal-narrative'], ['introduction']);
+    triggerIntersectionChange(['connection']);
+
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBeNull();
+    expect(screen.getByRole('link', { name: 'contact' }).getAttribute('aria-current')).toBe('page');
+  });
+
   it('Commitment 4 AC1: returning to Introduction removes the desktop compact logomark again', () => {
     renderNav();
     triggerIntersectionChange(['personal-narrative'], ['introduction']);

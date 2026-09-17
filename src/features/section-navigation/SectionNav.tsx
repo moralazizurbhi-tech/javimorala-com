@@ -144,17 +144,30 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 		// taller one) — tracked here as a running set, not just the latest
 		// callback batch, since IntersectionObserver only reports entries
 		// whose state changed, not the full current set every time. Among
-		// current candidates, the earliest (topmost, in document order) one
-		// wins. This is what makes Commitment 5 AC1 ("Introduction active on
-		// initial load") hold structurally rather than incidentally: at
-		// scroll position 0, Introduction is always among the candidates —
-		// it's the very first section — so it always wins the tie,
-		// regardless of how tall it or its neighbour are. A viewport-centre
-		// or bare "last entry wins" approach can instead hand the win to a
-		// short Introduction's much taller neighbour. Otherwise keeps
-		// exactly one section active at a time (AC4), updates on free
-		// scroll (AC3), and settles on the target section once a nav-link
-		// jump lands (AC2).
+		// current candidates, a boundary section (Introduction or
+		// Connection) wins over the middle one, Personal Narrative — never
+		// the reverse. This is what makes Commitment 5 AC1 ("Introduction
+		// active on initial load") hold structurally rather than
+		// incidentally: at scroll position 0, Introduction is always among
+		// the candidates — it's the very first section — so it always wins,
+		// regardless of how tall it or its neighbour are. The same
+		// structural guarantee applies symmetrically at the opposite end:
+		// Connection is the last section, and the page's own maximum
+		// scroll position can land with Personal Narrative's trailing edge
+		// still marginally within the band (its exit and Connection's
+		// entry share the exact same boundary, unlike Introduction/Personal
+		// Narrative's own gap) — a real defect found in manual verification
+		// where "contact" never went active because Personal Narrative,
+		// earlier in document order, kept winning the tie. A plain
+		// earliest-in-document-order tie-break (or a viewport-centre / bare
+		// "last entry wins" approach) can hand the win to whichever
+		// disadvantages either boundary section depending on content
+		// proportions; ordering the tie-break by this priority list instead
+		// keeps both boundaries structurally guaranteed regardless of
+		// section heights. Otherwise keeps exactly one section active at a
+		// time (AC4), updates on free scroll (AC3), and settles on the
+		// target section once a nav-link jump lands (AC2).
+		const ACTIVE_SECTION_PRIORITY: readonly SectionId[] = ['introduction', 'connection', 'personal-narrative'];
 		const withinBand = new Set<SectionId>(['introduction']);
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -166,7 +179,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 						withinBand.delete(id);
 					}
 				}
-				setActiveSection(SECTION_IDS.find((id) => withinBand.has(id)) ?? 'introduction');
+				setActiveSection(ACTIVE_SECTION_PRIORITY.find((id) => withinBand.has(id)) ?? 'introduction');
 			},
 			{ rootMargin: '0px 0px -80% 0px', threshold: 0 },
 		);
