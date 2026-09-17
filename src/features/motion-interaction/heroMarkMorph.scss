@@ -1,0 +1,63 @@
+@use '../../styles/tokens' as tokens;
+@use '../../styles/mixins' as mixins;
+
+// Hero Mark Transformation measurement probes (T-035,
+// motion-interaction/technical-design.md — Hero Entrance & Ambient
+// Motion Island; Commitment 12 AC1). HeroEntranceIsland.tsx measures
+// these two invisible elements' own `getBoundingClientRect()` on every
+// scroll update instead of duplicating Styling System's fluid
+// `clamp()`-based token math in JS a second time ($space-md/$space-xs
+// both resolve through `fluid-size()`, a viewport-width-dependent
+// formula) — the browser already resolves that formula correctly for
+// any element that actually uses the token; reading it back via a real
+// (if invisible) element can't drift out of sync with the token's own
+// definition the way a hand-copied formula could.
+//
+// `.hero-mark-natural-probe` mirrors `.hero__mark`'s own desktop-up
+// position/size exactly (HeroComposition.astro) — same containing
+// block, since both are rendered as children of `#introduction`'s own
+// content flow (HeroEntranceIsland's wrapper uses `display: contents`).
+// Its live rect always equals wherever `.hero__mark` itself would sit
+// if left unmodified, at the current scroll position — duplicated by
+// hand rather than shared via a class, since `.hero__mark` needs its
+// own rect overridden by JS once the transformation starts and can no
+// longer answer "where would I naturally be right now?" once that
+// happens.
+//
+// `.hero-mark-target-probe` mirrors SectionNav.module.scss's own
+// `.compactMark` sizing/position formula ($nav-height 4.5rem, T-033's
+// confirmed 1.8x scale of the 117:216 aspect ratio) — the same figures
+// `navTransitions.scss` already duplicates for its own decorative
+// `::after`; kept in sync by hand across all three, per that file's own
+// precedent.
+$nav-height: 4.5rem;
+
+.hero-mark-natural-probe,
+.hero-mark-target-probe {
+	display: none;
+}
+
+@include mixins.desktop-up {
+	.hero-mark-natural-probe,
+	.hero-mark-target-probe {
+		display: block;
+		left: 50%;
+		transform: translateX(-50%);
+		visibility: hidden;
+		pointer-events: none;
+	}
+
+	.hero-mark-natural-probe {
+		position: absolute;
+		top: tokens.$space-md;
+		width: 70vw;
+		height: 70vh;
+	}
+
+	.hero-mark-target-probe {
+		position: fixed;
+		top: tokens.$space-xs;
+		width: calc(#{$nav-height} * 1.8 * 117 / 216);
+		height: calc(#{$nav-height} * 1.8);
+	}
+}

@@ -43,6 +43,7 @@ function heroStaticMarkup() {
       <div className="hero">
         <div className="hero__display">
           <img className="hero__mark" src="/ornamental-mark.svg" alt="" />
+          <span id="hero-mark-boundary" className="hero__mark-boundary" />
           <h1 className="hero__headline">
             <span className="hero__headline-primary">Building</span>
             <span className="hero__headline-secondary-group">
@@ -68,6 +69,10 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
     stoppedControls.length = 0;
     vi.useFakeTimers();
     vi.stubGlobal('sessionStorage', undefined);
+    // jsdom has no built-in IntersectionObserver; heroStaticMarkup()'s
+    // `#hero-mark-boundary` sentinel (T-035) needs one to exist so this
+    // component's own read-only observer of it doesn't throw.
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
   });
 
   afterEach(() => {
@@ -204,5 +209,184 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
       expect(call.keyframes.translate).toBeUndefined();
       expect(call.keyframes.y).toEqual([12, 0]);
     }
+  });
+});
+
+let markBoundaryObserverInstances: MockIntersectionObserver[] = [];
+
+class MockIntersectionObserver {
+  callback: IntersectionObserverCallback;
+  constructor(callback: IntersectionObserverCallback) {
+    this.callback = callback;
+    markBoundaryObserverInstances.push(this);
+  }
+  observe() {}
+  disconnect() {}
+  unobserve() {}
+}
+
+function fireMarkBoundary(isIntersecting: boolean) {
+  const observer = markBoundaryObserverInstances[markBoundaryObserverInstances.length - 1];
+  observer.callback([{ isIntersecting } as unknown as IntersectionObserverEntry], {} as IntersectionObserver);
+}
+
+function mockRect(container: HTMLElement, selector: string, rect: Partial<DOMRect>) {
+  const el = container.querySelector<HTMLElement>(selector);
+  if (!el) throw new Error(`missing ${selector}`);
+  vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    toJSON: () => ({}),
+    ...rect,
+  } as DOMRect);
+  return el;
+}
+
+describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transformation (T-035, motion-interaction/contract.md Commitment 11, 12, 16 AC9)', () => {
+  beforeEach(() => {
+    animateCalls.length = 0;
+    stoppedControls.length = 0;
+    markBoundaryObserverInstances = [];
+    vi.stubGlobal('sessionStorage', undefined);
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+    // Runs the store's rAF-scheduled notification synchronously so each
+    // test can assert immediately after dispatching a scroll event,
+    // without depending on jsdom's own asynchronous rAF timing.
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      cb(0);
+      return 0;
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    document.documentElement.classList.remove('js-hero-entrance-pending');
+  });
+
+  // Reduced motion (Commitment 16 AC1) resolves the entrance synchronously,
+  // so the scroll-linked subscription attaches immediately — the simplest
+  // path to exercise it without waiting on the async entrance sequence,
+  // and doubles as Commitment 16 AC9's own regression guard (stays active
+  // under reduced motion, unlike the entrance/ambient-drift logic above).
+  function renderReducedMotion(desktopMatches: boolean) {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('prefers-reduced-motion') ? true : desktopMatches,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    return render(<HeroEntranceIsland>{heroStaticMarkup()}</HeroEntranceIsland>);
+  }
+
+  function setHeroProgress(container: HTMLElement, fraction: number) {
+    // heroProgress = -rect.top / rect.height; a 1000px-tall Hero makes
+    // `fraction` read directly as -top/1000. Also mocks the natural
+    // probe drifting by the same `scrollY` (it's `position: absolute`,
+    // document-flow, exactly like `.hero__mark` itself pre-transform)
+    // and the target probe staying put (it's `position: fixed`) — a
+    // physically coherent scroll scenario, needed to exercise the
+    // document-space freeze fix below (a live-Chrome-caught regression:
+    // blending directly against the natural probe's own live,
+    // still-drifting rect mid-transformation made the mark race
+    // off-screen before snapping back near the target).
+    const scrollY = 1000 * fraction;
+    vi.stubGlobal('scrollY', scrollY);
+    mockRect(container, '.hero', { top: -scrollY, height: 1000 });
+    mockRect(container, '.hero-mark-natural-probe', { top: 270 - scrollY, width: 700, height: 700 });
+    mockRect(container, '.hero-mark-target-probe', { top: 8, width: 130, height: 240 });
+    window.dispatchEvent(new Event('scroll'));
+  }
+
+  it('fades headline/scroll-cue/Presence Links continuously (opacity 1→0) over the first 35% of Hero height, reversibly (Commitment 11)', () => {
+    const { container } = renderReducedMotion(false);
+    setHeroProgress(container, 0.35 / 2);
+
+    const primary = container.querySelector<HTMLElement>('.hero__headline-primary')!;
+    const secondary1 = container.querySelector<HTMLElement>('.hero__headline-secondary--1')!;
+    const cue = container.querySelector<HTMLElement>('.hero__scroll-cue')!;
+    const presence = container.querySelector<HTMLElement>('.introduction__presence-links')!;
+    expect(primary.style.opacity).toBe('0.5');
+    expect(secondary1.style.opacity).toBe('0.5');
+    expect(cue.style.opacity).toBe('0.5');
+    expect(presence.style.opacity).toBe('0.5');
+
+    // Reversible 1:1 with scroll position, not a one-way dismissal.
+    setHeroProgress(container, 0);
+    expect(primary.style.opacity).toBe('1');
+
+    setHeroProgress(container, 1);
+    expect(primary.style.opacity).toBe('0');
+  });
+
+  it('desktop: continuously morphs `.hero__mark` — the same element, fixed-positioned — between the natural and nav-target rects across the 25%-70% window (Commitment 12 AC1, AC3)', () => {
+    const { container } = renderReducedMotion(true);
+    const mark = container.querySelector<HTMLElement>('.hero__mark')!;
+
+    // Before the window starts, `top` tracks the natural probe's own
+    // live (scroll-drifting) rect directly — this is the regression a
+    // live-Chrome check caught: an earlier version pre-applied the
+    // window-start freeze even here, snapping the mark to a shifted
+    // position the instant this effect mounted, before any scrolling.
+    setHeroProgress(container, 0.1);
+    expect(mark.style.top).toBe('170px');
+
+    setHeroProgress(container, 0.25);
+    expect(mark.style.position).toBe('fixed');
+    expect(mark.style.top).toBe('20px');
+    expect(mark.style.width).toBe('700px');
+    expect(mark.style.height).toBe('700px');
+
+    setHeroProgress(container, (0.25 + 0.7) / 2);
+    expect(mark.style.top).toBe('14px');
+    expect(mark.style.width).toBe('415px');
+    expect(mark.style.height).toBe('470px');
+
+    setHeroProgress(container, 0.7);
+    expect(mark.style.top).toBe('8px');
+    expect(mark.style.width).toBe('130px');
+    expect(mark.style.height).toBe('240px');
+
+    // Reversible: scrolling back to the window's start restores the
+    // natural rect exactly (Commitment 12 AC3).
+    setHeroProgress(container, 0.25);
+    expect(mark.style.top).toBe('20px');
+  });
+
+  it('desktop: hides the docked mark once Hero\'s own mark-visibility sentinel clears the viewport, handing the visual role back to Section Navigation\'s own compact-logo mechanism (regression: the two otherwise double up at the same position)', () => {
+    const { container } = renderReducedMotion(true);
+    const mark = container.querySelector<HTMLElement>('.hero__mark')!;
+    setHeroProgress(container, 0.7);
+    expect(mark.style.opacity).toBe('1');
+
+    fireMarkBoundary(false);
+    setHeroProgress(container, 0.9);
+    expect(mark.style.opacity).toBe('0');
+
+    // Scrolling back up restores it, symmetric with the sentinel
+    // re-intersecting.
+    fireMarkBoundary(true);
+    setHeroProgress(container, 0.7);
+    expect(mark.style.opacity).toBe('1');
+  });
+
+  it('mobile: dissolves `.hero__mark` via a reverse trace of its own entrance stroke (clip-path), never overriding its position (Commitment 12 AC2)', () => {
+    const { container } = renderReducedMotion(false);
+    const mark = container.querySelector<HTMLElement>('.hero__mark')!;
+
+    setHeroProgress(container, 0.25);
+    expect(mark.style.clipPath).toBe('inset(0 0% 0 0%)');
+    expect(mark.style.position).toBe('');
+
+    setHeroProgress(container, 0.7);
+    expect(mark.style.clipPath).toBe('inset(0 50% 0 50%)');
+    expect(mark.style.position).toBe('');
   });
 });

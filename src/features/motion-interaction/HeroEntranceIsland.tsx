@@ -1,6 +1,7 @@
 import { useLayoutEffect, useEffect, useRef, type ReactNode } from 'react';
 import { animate, type AnimationPlaybackControlsWithThen } from 'framer-motion';
 import { isHeroEntrancePlayed, markHeroEntrancePlayed } from './motionPlaybackStore';
+import { subscribeScrollProgress, type ScrollProgress } from './scrollProgressStore';
 
 // Hero Entrance & Ambient Motion Island (T-019) —
 // motion-interaction/technical-design.md, "Hero Entrance & Ambient
@@ -98,6 +99,32 @@ const ENTRANCE_Y_OFFSET = 12; // px
 const AMBIENT_DRIFT_DURATION = 18;
 const AMBIENT_HUE_SHIFT_DEG = 10;
 
+// Hero Scroll-Linked Content Exit & Mark Transformation (T-035,
+// motion-interaction/technical-design.md; Commitments 11, 12) — both
+// windows are fractions of Shared Scroll Progress Store's Hero-relative
+// progress value (ui.md, Interaction Choreography: content exit ~0-35%
+// of Hero height; mark transformation ~25-70%, overlapping it). Unlike
+// the entrance sequence above, this is driven directly and continuously
+// by scroll position, not a timed animation — Commitment 16 AC9: stays
+// fully active under reduced motion.
+const CONTENT_EXIT_END = 0.35;
+const MARK_TRANSFORM_START = 0.25;
+const MARK_TRANSFORM_END = 0.7;
+
+// Mirrors `styles/tokens/_breakpoints.scss`'s own `$breakpoint-desktop`
+// — that file's own comment already treats this exact value as an
+// Implementation Detail with no Technical Design authority fixing it;
+// duplicated here since JS has no access to Sass tokens at runtime.
+const DESKTOP_QUERY = '(min-width: 768px)';
+
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value));
+}
+
+function lerp(from: number, to: number, t: number): number {
+  return from + (to - from) * t;
+}
+
 interface Props {
   children: ReactNode;
 }
@@ -135,9 +162,134 @@ export default function HeroEntranceIsland({ children }: Props) {
       container.querySelector<HTMLElement>('.hero__scroll-cue'),
       container.querySelector<HTMLElement>('.introduction__presence-links'),
     ].filter(isElement);
+    const contentExitEls = [headlinePrimary, ...secondaryHeadlineEls, ...finalBeatEls].filter(isElement);
+    const hero = container.querySelector<HTMLElement>('.hero');
+    const naturalProbe = container.querySelector<HTMLElement>('.hero-mark-natural-probe');
+    const targetProbe = container.querySelector<HTMLElement>('.hero-mark-target-probe');
+    const markBoundarySentinel = container.querySelector<HTMLElement>('#hero-mark-boundary');
+
+    // Once Hero's own mark-visibility sentinel clears the viewport,
+    // Section Navigation's own divider (Commitment 8) already stops
+    // treating Hero's mark as occupying the nav's center gap — read-only
+    // observation of that same, already-public sentinel (this
+    // component depends outward on it, same as Section Navigation does;
+    // never the reverse). Without this, the docked mark (desktop) stays
+    // permanently visible for the rest of the page, and once Section
+    // Navigation's own compact-logo mechanism later activates
+    // (`navTransitions.scss`'s `::after`, a separate, already-approved
+    // element), the two visibly double up at the identical position — a
+    // real defect a live Chrome check caught, not something either
+    // Feature's own contract anticipates. Hiding this element once the
+    // sentinel clears hands the visual role back to Section
+    // Navigation's own pre-existing mechanism cleanly, at the same
+    // threshold its own divider already uses for "Hero's mark is gone" —
+    // consistent with, not a new addition to, that existing behavior.
+    let heroMarkBoundaryVisible = true;
+    let markBoundaryObserver: IntersectionObserver | undefined;
+    if (markBoundarySentinel) {
+      markBoundaryObserver = new IntersectionObserver(
+        ([entry]) => {
+          heroMarkBoundaryVisible = entry.isIntersecting;
+        },
+        { threshold: 0 },
+      );
+      markBoundaryObserver.observe(markBoundarySentinel);
+    }
+
+    // Hero Scroll-Linked Content Exit & Mark Transformation (Commitments
+    // 11, 12) — reads Shared Scroll Progress Store's Hero-relative value
+    // directly and continuously; Commitment 16 AC9 requires this to stay
+    // active under reduced motion, unlike the entrance/ambient-drift
+    // logic below, so it is wired up independently of every branch's own
+    // reduced-motion/already-played decision (see the three call sites
+    // below), never gated on `prefersReducedMotion()`.
+    function applyScrollLinkedMotion(progress: ScrollProgress) {
+      const exitT = clamp01(progress.heroProgress / CONTENT_EXIT_END);
+      const exitOpacity = 1 - exitT;
+      contentExitEls.forEach((el) => {
+        el.style.opacity = String(exitOpacity);
+      });
+
+      if (!mark) return;
+      const markT = clamp01(
+        (progress.heroProgress - MARK_TRANSFORM_START) / (MARK_TRANSFORM_END - MARK_TRANSFORM_START),
+      );
+
+      if (window.matchMedia(DESKTOP_QUERY).matches && hero && naturalProbe && targetProbe) {
+        // Desktop/tablet-with-space (Commitment 12 AC1): continuously
+        // morphs the same element — never crossfades with a second one
+        // — toward the nav's compact-logo position/form. `.hero__mark`
+        // is an `<img>`, not inline SVG (see this file's own top-of-file
+        // note re: T-019's identical constraint), so literal SVG shape
+        // interpolation is unreachable; realized instead as a continuous
+        // position/size morph between the two probes' own live rects
+        // (heroMarkMorph.scss) — same "continuously transforms toward
+        // the nav logo's position/form" observable outcome, without
+        // requiring DOM access this element doesn't expose.
+        //
+        // `top` needs one extra step width/height don't: the natural
+        // probe is `position: absolute` (document-flow, scroll-
+        // following), so its *live* rect keeps drifting upward for as
+        // long as the visitor keeps scrolling — blending directly
+        // against that live, still-moving value made the mark appear to
+        // race off-screen mid-transformation before snapping back near
+        // the target at markT≈1 (live Chrome verification caught this;
+        // no unit test did, since those mock the probes' rects as
+        // static). Converting to document-space (`+ window.scrollY`)
+        // and evaluating it at the *fixed* scroll position where this
+        // window itself starts (`MARK_TRANSFORM_START`) — not the
+        // current, later scroll position — gives a stable interpolation
+        // source: correct at markT=0 by construction, and never drifts
+        // for the rest of the window.
+        const heroRect = hero.getBoundingClientRect();
+        const heroDocTop = heroRect.top + window.scrollY;
+        const naturalRect = naturalProbe.getBoundingClientRect();
+        const naturalDocTop = naturalRect.top + window.scrollY;
+        // Before the window starts (heroProgress <= MARK_TRANSFORM_START,
+        // markT already clamped to 0), the frozen value below isn't used
+        // at all yet — the live natural top tracks scroll normally, same
+        // as this element's own un-overridden CSS would. The two are
+        // identical exactly at the boundary (by construction), so
+        // switching source there is seamless.
+        const naturalTopAtWindowStart =
+          heroRect.height > 0
+            ? naturalDocTop - heroDocTop - MARK_TRANSFORM_START * heroRect.height
+            : naturalRect.top;
+        const naturalTopSource = progress.heroProgress <= MARK_TRANSFORM_START ? naturalRect.top : naturalTopAtWindowStart;
+        const target = targetProbe.getBoundingClientRect();
+        mark.style.clipPath = '';
+        mark.style.position = 'fixed';
+        mark.style.left = '50%';
+        mark.style.right = 'auto';
+        mark.style.transform = 'translateX(-50%)';
+        mark.style.top = `${lerp(naturalTopSource, target.top, markT)}px`;
+        mark.style.width = `${lerp(naturalRect.width, target.width, markT)}px`;
+        mark.style.height = `${lerp(naturalRect.height, target.height, markT)}px`;
+        mark.style.opacity = heroMarkBoundaryVisible ? '1' : '0';
+      } else {
+        // Mobile (Commitment 12 AC2): no logomark destination exists —
+        // dissolves via a reverse trace of its own entrance stroke.
+        // `.hero__mark` isn't inline SVG (see above), so realized as the
+        // exact reverse of the entrance's own center-out `clip-path`
+        // reveal (MARK_CLIP_HIDDEN/MARK_CLIP_VISIBLE above), same "drawn
+        // off" character. Clears any desktop-branch overrides first, in
+        // case the viewport crossed the breakpoint mid-transformation.
+        mark.style.position = '';
+        mark.style.left = '';
+        mark.style.right = '';
+        mark.style.top = '';
+        mark.style.width = '';
+        mark.style.height = '';
+        mark.style.transform = '';
+        mark.style.opacity = '';
+        const inset = 50 * markT;
+        mark.style.clipPath = `inset(0 ${inset}% 0 ${inset}%)`;
+      }
+    }
 
     let cancelled = false;
     let ambientControls: AnimationPlaybackControlsWithThen | undefined;
+    let unsubscribeScroll: (() => void) | undefined;
     const activeControls: AnimationPlaybackControlsWithThen[] = [];
 
     function track(controls: AnimationPlaybackControlsWithThen): AnimationPlaybackControlsWithThen {
@@ -167,8 +319,11 @@ export default function HeroEntranceIsland({ children }: Props) {
     // played flag since it applies regardless of whether this is the
     // visit's first arrival.
     if (prefersReducedMotion()) {
+      unsubscribeScroll = subscribeScrollProgress(applyScrollLinkedMotion);
       return () => {
         ambientControls?.stop();
+        unsubscribeScroll?.();
+        markBoundaryObserver?.disconnect();
       };
     }
 
@@ -176,8 +331,11 @@ export default function HeroEntranceIsland({ children }: Props) {
     // the sequence) renders final state directly, no replay.
     if (isHeroEntrancePlayed()) {
       startAmbientDrift();
+      unsubscribeScroll = subscribeScrollProgress(applyScrollLinkedMotion);
       return () => {
         ambientControls?.stop();
+        unsubscribeScroll?.();
+        markBoundaryObserver?.disconnect();
       };
     }
 
@@ -270,6 +428,7 @@ export default function HeroEntranceIsland({ children }: Props) {
 
       markHeroEntrancePlayed();
       startAmbientDrift();
+      unsubscribeScroll = subscribeScrollProgress(applyScrollLinkedMotion);
     }
 
     playEntrance();
@@ -278,6 +437,8 @@ export default function HeroEntranceIsland({ children }: Props) {
       cancelled = true;
       activeControls.forEach((controls) => controls.stop());
       ambientControls?.stop();
+      unsubscribeScroll?.();
+      markBoundaryObserver?.disconnect();
     };
   }, []);
 
@@ -289,6 +450,14 @@ export default function HeroEntranceIsland({ children }: Props) {
   return (
     <div ref={containerRef} style={{ display: 'contents' }}>
       {children}
+      {/*
+        Hero Mark Transformation measurement probes (T-035) — invisible,
+        `aria-hidden` elements this island's own children (not Hero
+        Composition's or Section Navigation's markup); see
+        heroMarkMorph.scss's own header comment for why they exist.
+      */}
+      <div className="hero-mark-natural-probe" aria-hidden="true" />
+      <div className="hero-mark-target-probe" aria-hidden="true" />
     </div>
   );
 }
