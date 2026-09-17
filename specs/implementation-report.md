@@ -2,6 +2,38 @@
 
 ## Progress Summary
 
+**This session — T-035 (Hero Scroll-Linked Content Exit & Mark
+Transformation) went through substantial iteration and is now
+code-complete, but not yet independently verified live** (all changes
+uncommitted, on top of `9860c42`). Initial build (`9860c42`) implemented
+the mark transformation as a scale/crop approximation. Developer feedback
+then required a **real geometric SVG path morph** — explicitly ruling out
+fade/scale/crop approximations and a `flubber`-style external dependency.
+Implemented as a dependency-free solution (`heroMarkMorphData.ts`): the
+developer authored `/ornamental-mark-morph.svg` and
+`/ornamental-logo-morph.svg` as a structurally-paired 9-path pair (same
+command sequence per pair), enabling straight per-argument numeric
+interpolation. Iterated further per developer direction: (1) outer/lateral
+"orphan" paths (no real logo-side target) fade out in place instead of
+collapsing to a vanishing point; (2) the fade choreography was restructured
+from concurrent to **two fully-sequential fade groups, then the morph** —
+group 1 (indices 0,1,2) fades and fully completes, then group 2 (indices
+4,5,6) fades and fully completes, then only the 3 real paths (indices
+3,7,8) morph. A shared-asset-path conflict with Section Navigation's own
+compact-logo `<img>` was found and fixed by splitting into dedicated
+`-morph.svg` files. **A real defect was found and fixed today**:
+`heroMarkMorphData.ts`'s `isReal` classification used
+`COLLAPSED_EXTENT_EPSILON = 1`, which let thin decorative hairline/sliver
+paths (real bounding boxes as small as ~5×12 or ~16×4) pass as "real"
+instead of joining their fade group — reported by the developer directly
+("only some of them are having the opacity change"), root-caused via a
+standalone Node script parsing the actual SVG files (not the browser), and
+fixed by raising the epsilon to 20 (verified: `isReal` now resolves to
+exactly the intended 3-real/6-orphan split). Per explicit developer
+instruction this session, live-Chrome verification was **not** performed
+by this session — the developer is verifying the choreography live
+themselves.
+
 **T-019 (Hero Entrance & Ambient Motion Island) and T-020 (About
 Narrative Reveal Island) are both complete**, on this same branch.
 T-019's initial build (`7f82cde`) went through three post-implementation
@@ -293,11 +325,33 @@ using a ≥500px proxy width for automated checks from that point on.
 | **about-narrative** | **Yes — T-013, T-014 done.** Contract Commitment 5 (Ornamental Logo decorative presence) is also realized in code, though it isn't listed under either task's `realizesCommitments` in the Task Catalog (see Known Issues) | **Provisional.** Real narrative text (en/es/eu) and real developer-supplied photos now render — no longer placeholders. Provisional because: (1) `ux.md` itself flags the Euskera narrative as a "lower-confidence draft" pending native-speaker review (pre-existing, not introduced this session); (2) the two supplied photos are both portrait-oriented, not literally satisfying `ux.md`'s "contrasting orientations" content note; (3) the section kicker ("get to know me.") is new copy authored directly in conversation, not yet reconciled into `ux.md`'s own Content and Assets |
 | direct-contact | Yes — T-015, T-016 done (Commitments 1–6 all realized). **This branch only**: T-034 adds Commitment 7 (CTA Discoverability Affordance) | Realized on `main` in its pre-T-034 form — unchanged there. This branch carries an unmerged addition (CTA affordance icon), verified via build/dev-server HTML inspection and explicit user visual confirmation ("nows perfect"). Known issue carried in code comments: `ux.md`/`ui.md` name the background asset "Ornamental Logo" but the actual asset used is Hero's own "Ornamental Mark" — a spec/evidence naming contradiction, not resolved here |
 | presence-links | Yes — T-017, T-018 done (Commitments 1–4 all realized) | Realized, after this session's two corrections (colour, URLs — see Progress Summary). Known issue: `ui.md`'s Colour Application text still describes a gradient, no longer matching the plain-text implementation |
-| motion-interaction | Partially started: T-019, T-020, T-021 done (3 of 12 Task Catalog tasks); T-035, T-022, T-041, T-023–T-025, T-036–T-038 not yet started | Provisional/in progress — Commitments 1 (About Narrative reveal) and 2 (Hero entrance) fully realized; Commitment 3 (logomark presence + font-weight timing) realized via T-021; Commitment 4 (progress overlay + indicator transition) and the rest remain pending |
+| motion-interaction | Partially started: T-019, T-020, T-021, **T-035 (new)** done (4 of 12 Task Catalog tasks); T-022, T-041, T-023–T-025, T-036–T-038 not yet started | Provisional/in progress — Commitments 1 (About Narrative reveal) and 2 (Hero entrance) fully realized; Commitment 3 (logomark presence + font-weight timing) realized via T-021; **Commitment 11 (content exit) and 12 (mark morph, desktop/mobile) now technically complete via T-035 — Confirmed by 27 passing component tests + a clean build, but Realization is Provisional pending the developer's own live-scroll confirmation (not yet reported back this session)**; Commitment 4 (progress overlay + indicator transition) and the rest remain pending |
 | accessibility | Pending (no task started) | — |
 
 ## Completed Work
 
+- **T-035 — Hero Scroll-Linked Content Exit & Mark Transformation**
+  (uncommitted, on top of `9860c42`). Content exit: headline/scroll-cue/
+  Presence Links fade continuously and reversibly over the first 35% of
+  Hero height (unchanged from initial build). Mark transformation
+  (desktop): real geometric SVG path morph via `heroMarkMorphData.ts` —
+  fetches and structurally validates the dedicated
+  `/ornamental-mark-morph.svg`/`/ornamental-logo-morph.svg` pair,
+  tokenizes each path's `d` command sequence, and linearly interpolates
+  matched numeric arguments; 6 "orphan" paths (no real logo-side geometry)
+  fade out in two fully-sequential groups (indices 0,1,2 then 4,5,6)
+  before the 3 real paths (indices 3,7,8) morph their own geometry and the
+  shared viewBox crops to the real-path union bbox. Mobile: unchanged
+  reverse-stroke dissolve. Reduced-motion: unaffected, driven directly by
+  scroll position (Commitment 16 AC9), per existing regression test.
+  Position/size continuously interpolate against the natural mark rect and
+  Section Navigation's own live target-probe rect (not a hardcoded
+  158x292) across the whole window. Renders as the island's own child
+  (never inside `.hero`), sidestepping `.hero`'s `isolation: isolate`
+  stacking-context trap found live. **Fixed today**: `isReal`
+  epsilon-classification bug (see Progress Summary) — raised
+  `COLLAPSED_EXTENT_EPSILON` 1→20, added a regression test for the sliver
+  case.
 - **T-019 — Hero Entrance & Ambient Motion Island** (`7f82cde`,
   `b5f88b4`, `9b432f4`, `48a3fa3`). Mark-bloom → headline-cascade →
   scroll-cue sequence, once per visit via the new shared
@@ -478,6 +532,29 @@ unchanged from the prior report — preserved for continuity:**
 
 ## Pending Work
 
+- **New**: T-035's own acceptance criterion "a hysteresis margin prevents
+  visible flicker near the boundary" (Commitment 12, AC4) does not appear
+  implemented — the mark/morph-SVG handoff at `heroProgress === 1` uses a
+  single hard threshold (`HERO_MARK_HIDE_THRESHOLD = 1`), not a hysteresis
+  band. Not introduced this session (present since `9860c42`); not
+  verified live either way. Flagged as a gap against the Task's own
+  acceptance criteria.
+- **New**: Live-browser confirmation of the full 3-phase choreography
+  (group-1 fade → group-2 fade → morph) has not been performed by this
+  session, per explicit developer instruction — the developer is
+  verifying it themselves and hasn't yet reported the result back.
+- **New**: This session's entire T-035 diff (6 files, +564/−240) plus 4
+  new files (`heroMarkMorphData.ts`/`.test.ts`, `ornamental-mark-morph.svg`,
+  `ornamental-logo-morph.svg`) is **uncommitted**.
+  `public/ornamental-mark-original.svg`/`public/ornamental-logo-original.svg`
+  (backup copies brought in mid-session) are also uncommitted and not yet
+  confirmed for deletion by the developer.
+- **Refreshed**: T-022 (Nav Progress Overlay) and T-041 (Nav Active
+  Indicator Transition Island) both declared a dependency on T-035
+  establishing the Shared Scroll Progress Store — that store already
+  existed pre-session (established at T-035's initial `9860c42` build,
+  unchanged by this session's morph work), so both remain exactly as
+  Ready/blocked as the current Task Catalog already states.
 - **New — resolved and removed**: the prior entry "T-011's Active Screen
   Indicator visual anatomy — unchanged, still gates `motion-interaction`'s
   T-021/T-022" is superseded by T-040 (Realized) and the T-021/T-041
@@ -541,6 +618,29 @@ unchanged from the prior report — preserved for continuity:**
   remain unreconciled — not re-investigated this session.
 
 ## Generated Artifacts
+
+*(new this session, T-035 continuation, branch
+`worktree-motion-interaction-refinement`, all uncommitted)*
+
+- `src/features/motion-interaction/heroMarkMorphData.ts` + `.test.ts`
+  (new) — path tokenization/interpolation/bbox logic and asset loading,
+  15 tests.
+- `src/features/motion-interaction/HeroEntranceIsland.tsx` + `.test.tsx`
+  (modified, +322/−~ and +237/−~ lines respectively) — sequential
+  fade/morph choreography, inline morph SVG rendering.
+- `src/features/motion-interaction/heroMarkMorph.scss` (modified,
+  +50/−~) — morph-SVG positioning, divider-gap override.
+- `src/features/motion-interaction/navTransitions.scss` (modified,
+  −117/+~) — T-021's own redundant logomark-presence crossfade removed,
+  per explicit developer authorization this session.
+- `public/ornamental-mark-morph.svg`, `public/ornamental-logo-morph.svg`
+  (new) — dedicated 9-path structurally-paired morph assets.
+- `public/ornamental-mark.svg`, `public/ornamental-logo.svg` (modified) —
+  restored to their original (non-morph) content after a shared-path
+  conflict broke Section Navigation's compact logo.
+- `public/ornamental-mark-original.svg`,
+  `public/ornamental-logo-original.svg` (new, untracked backups) —
+  pending a developer decision on deletion.
 
 *(new since the prior report, T-019/T-020/T-040/T-021 + the tie-break
 fix, branch `worktree-motion-interaction-refinement`)*
@@ -614,6 +714,31 @@ fix, branch `worktree-motion-interaction-refinement`)*
   test count unchanged at 41/41
 
 ## Implementation Decisions
+
+*(new this session, T-035 continuation)*
+
+- Rejected an external path-morphing dependency (e.g. `flubber`) after
+  explicit developer instruction ("i dont want to add that library") —
+  implemented a dependency-free per-argument numeric interpolation
+  instead, made possible only because the developer authored the two SVG
+  assets with matching per-path command structure.
+- Orphan (non-real) paths fade via opacity rather than morphing their own
+  geometry to a point — developer direction, avoiding a "shrinks to a
+  vanishing dot" visual artifact.
+- The two orphan fade groups and the morph phase are sequential (each
+  fully 0→1 within its own third of the transform window), not concurrent
+  — explicit developer direction ("the rest has to disappear before doing
+  the morph").
+- `isReal` classification epsilon raised from 1 to 20 (Implementation
+  Defect fix, this session) — the generic "collapsed-to-a-point" epsilon
+  of 1 was too small to also catch the real asset's thin decorative
+  hairline/sliver paths, which have non-zero but negligible bounding
+  boxes.
+- Per explicit developer instruction this session ("do not try in chrome,
+  let me try it myself" — stated twice), live-browser verification was
+  intentionally not performed; verification relied on the corrected
+  unit-test fixture plus a standalone Node script parsing the real SVG
+  files directly.
 
 *(new this session, T-021 + the Connection tie-break fix)*
 
@@ -734,6 +859,16 @@ own message)*
 
 ## Known Issues
 
+- **New — Task acceptance criterion gap** (T-035, this session): AC4
+  (hysteresis margin preventing boundary flicker) is not evidently
+  implemented (see Pending Work). Not introduced this session; not
+  previously flagged in this report either.
+- **New — unverified live** (T-035, this session): the full sequential
+  choreography has not been confirmed by anyone watching it play in a
+  real browser yet — only via unit tests and static data analysis.
+  Flagged so this isn't mistaken for full experience Realization.
+- **New — uncommitted work** (T-035, this session): see Generated
+  Artifacts / Pending Work.
 - **New — tooling limitation** (this session; see Progress Summary):
   this background job's Chrome automation tab never reports
   `visibilityState: "visible"`, freezing animation timelines and
@@ -818,6 +953,27 @@ own message)*
   here).
 
 ## Execution Evidence
+
+*(new this session, T-035 continuation)*
+
+- `npx vitest run` — **101/101 passing (13 test files)**, up from 100
+  before today's epsilon fix (+1 regression test); `HeroEntranceIsland.
+  test.tsx` + `heroMarkMorphData.test.ts` together: 27/27.
+- `npm run build` (astro build) — clean, run twice (once after the
+  sequential-choreography edit + test updates, once after the epsilon
+  fix).
+- Root-cause verification for the `isReal` bug: a standalone Node script
+  (`jsdom` + the same `boundingBoxOfD`/epsilon logic as
+  `heroMarkMorphData.ts`) parsed the actual
+  `ornamental-mark-morph.svg`/`ornamental-logo-morph.svg` files
+  directly — confirmed epsilon=1 produced `isReal =
+  [true,true,false,true,false,true,false,true,true]` (bug reproduced),
+  epsilon=20 produced `[false,false,false,true,false,false,false,true,
+  true]` (matches the intended 3-real/6-orphan structure). Script deleted
+  after use (scratch only, not committed).
+- Live-browser verification: **not performed this session** (developer's
+  own explicit instruction) — no claim of live-visual confirmation is
+  made here.
 
 *(new since the prior report, T-019/T-020/T-040/T-021 + the tie-break
 fix)*
