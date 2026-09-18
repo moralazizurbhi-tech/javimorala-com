@@ -1,0 +1,125 @@
+@use '../../styles/tokens' as tokens;
+
+// CTA Interaction Motion (T-023, motion-interaction/technical-design.md,
+// "CTA Interaction Motion" — Contract Commitments 5, 6; contributes 16)
+// — targets Direct Contact's already-public `.contact__cta` class from
+// outside (zero code/import coupling, the same "target public DOM from
+// outside" pattern navTransitions.scss/navActiveIndicator.scss already
+// use), `@use`d from `styles/global.scss` (Root Layout level) rather
+// than from Direct Contact's own component, which stays unaware of this
+// file entirely.
+//
+// CtaInteractionMotionIsland.tsx (the actual island, composed around
+// Direct Contact Composition's static output — see that file's own
+// header comment) toggles the three state classes below on hover/tap;
+// this stylesheet owns the actual gradient-fill/sweep visual itself. A
+// plain CSS `@keyframes` animation is used for the sweep rather than a
+// JS-interpolated `background-position` (e.g. Framer Motion's `animate`)
+// — `background-position` is a normal CSS-animatable property with no
+// need for runtime interpolation, and a CSS animation is trivially
+// start/stopped by toggling a class, exactly what distinguishing
+// sustained-hover (looping) from momentary-tap (single pass) needs
+// (technical-design.md, Design Decisions: "CTA Interaction Motion needs
+// JS because its sweep must not sustain indefinitely on a touch 'sticky
+// hover'" — the JS is for the trigger logic, not the animation itself).
+//
+// Colour: reuses the existing accent gradient tokens only (lilac
+// `$color-gradient-start` / deep purple `$color-gradient-end`) — no new
+// colour token introduced (ui.md, Colour Application).
+
+// Sized wider than the text and slid across via `background-position` —
+// a light/dark/light band so the lilac stop reads as a moving highlight
+// "passing over the letters" (ui.md) rather than a flat two-colour fill.
+@mixin sweep-gradient {
+	background-image: linear-gradient(
+		90deg,
+		tokens.$color-gradient-end 0%,
+		tokens.$color-gradient-end 35%,
+		tokens.$color-gradient-start 50%,
+		tokens.$color-gradient-end 65%,
+		tokens.$color-gradient-end 100%
+	);
+	background-size: 300% 100%;
+	background-clip: text;
+	-webkit-background-clip: text;
+	color: transparent;
+}
+
+// Sustained sweep, applied for the duration of a hover-capable pointer's
+// hover (Commitment 5 AC1; T-023 AC1) — loops for as long as the class
+// is present; CtaInteractionMotionIsland.tsx removes it on pointer-leave.
+// Leisurely/deliberate pacing (ui.md, Relative Entrance Pacing: "more
+// leisurely... than the scroll-tied motions... a discrete hover moment,
+// not a continuous one, so it can take its time") — an Implementation
+// Detail duration, not one Technical Design fixes numerically.
+//
+// `.contact__cta.contact__cta--sweep` (two classes, not one): live Chrome
+// verification (post-implementation correction) caught `color:
+// transparent` losing the cascade to DirectContactComposition.astro's own
+// `.contact__cta { color: ... }` rule — both single-class selectors tie
+// on specificity, and that rule's own stylesheet happened to compile
+// after this one, so it won the tie and silently kept the text opaque,
+// masking the gradient entirely (background-clip: text painted under an
+// opaque `color`, invisible). The compound selector's higher specificity
+// wins regardless of source order, without needing `!important`.
+.contact__cta.contact__cta--sweep {
+	@include sweep-gradient;
+	animation: cta-sweep 2.2s linear infinite;
+}
+
+// Momentary sweep, applied once around a touch tap (Commitment 6 AC1;
+// T-023 AC1's touch-equivalent) — a single pass, not a loop; duration
+// hand-synced with CtaInteractionMotionIsland.tsx's own SWEEP_ONCE_MS.
+.contact__cta.contact__cta--sweep-once {
+	@include sweep-gradient;
+	animation: cta-sweep 0.7s linear 1;
+}
+
+@keyframes cta-sweep {
+	from {
+		background-position: 200% 0%;
+	}
+	to {
+		background-position: -100% 0%;
+	}
+}
+
+// Commitment 16 AC5 / T-023 AC3: under reduced motion, hover/tap still
+// registers interaction via a discrete, non-animated visual change
+// instead of the sweep — a flat gradient fill, no `animation`/
+// `transition` at all (CtaInteractionMotionIsland.tsx picks this class
+// instead of the two above once `prefers-reduced-motion: reduce` is
+// active, so the two never combine).
+.contact__cta.contact__cta--static-active {
+	@include sweep-gradient;
+	animation: none;
+}
+
+// The affordance icon (T-034, `.contact__cta-icon`) inherits its stroke
+// colour from `.contact__cta`'s own `color` via `currentColor`
+// (DirectContactComposition.astro's own header comment). Left
+// unoverridden, the states above's `color: transparent` would make the
+// icon vanish along with the text during every sweep/static-active
+// state — a defect no part of this Feature's own spec asks for (the
+// icon's own motion, the tap flourish, is Commitment 15/T-038's separate
+// scope; nothing here says the icon should disappear on hover). Pinned
+// to the CTA's own resting foreground colour regardless of the parent's
+// state, so the icon stays visible and unaffected throughout.
+.contact__cta--sweep .contact__cta-icon,
+.contact__cta--sweep-once .contact__cta-icon,
+.contact__cta--static-active .contact__cta-icon {
+	color: tokens.$color-base-fg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	// Belt-and-braces alongside CtaInteractionMotionIsland.tsx's own
+	// reduced-motion branch (which never applies the `--sweep`/
+	// `--sweep-once` classes at all under reduced motion): if either
+	// were ever applied regardless, the animation itself still wouldn't
+	// run, so the fill would resolve to a discrete, non-animated change
+	// (Commitment 16 AC5) rather than an animated sweep either way.
+	.contact__cta.contact__cta--sweep,
+	.contact__cta.contact__cta--sweep-once {
+		animation: none;
+	}
+}

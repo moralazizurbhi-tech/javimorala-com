@@ -5,6 +5,7 @@ import PresenceLinkGroup from '../features/presence-links/PresenceLinkGroup.astr
 import HeroEntranceIsland from '../features/motion-interaction/HeroEntranceIsland';
 import AboutNarrativeRevealIsland from '../features/motion-interaction/AboutNarrativeRevealIsland';
 import NavActiveIndicatorIsland from '../features/motion-interaction/NavActiveIndicatorIsland';
+import CtaInteractionMotionIsland from '../features/motion-interaction/CtaInteractionMotionIsland';
 import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
@@ -74,7 +75,22 @@ const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = A
 			</AboutNarrativeRevealIsland>
 		</section>
 		<section id="connection">
-			<slot name="connection" />
+			<!--
+				CTA Interaction Motion Island (T-023;
+				motion-interaction/technical-design.md) — hydrates around Direct
+				Contact Composition's already-rendered static markup
+				(static-children-in-island pattern), targeting its CTA anchor
+				(`.contact__cta`) by class from inside. Wraps the whole connection
+				slot (matching Hero's/About Narrative's own wrapping granularity,
+				which likewise wrap their full domain-section slot rather than a
+				single element), but only ever queries/mutates the CTA anchor
+				itself — the heading, farewell lines, and Presence Links sharing
+				this subtree are never touched. Never alters
+				DirectContactComposition.astro's own file.
+			-->
+			<CtaInteractionMotionIsland client:load>
+				<slot name="connection" />
+			</CtaInteractionMotionIsland>
 		</section>
 	</main>
 </BaseLayout>
