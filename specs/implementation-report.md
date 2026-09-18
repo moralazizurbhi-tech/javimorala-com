@@ -2,6 +2,69 @@
 
 ## Progress Summary
 
+**This session — T-041 (Nav Active Indicator Transition Island) is
+done**, closing `motion-interaction`'s indicator-transition scope.
+Built the three-phase flatten(90ms)/travel(120ms)/sprout(90ms) sequence
+via Framer Motion as a separate island (`NavActiveIndicatorIsland.tsx`),
+extended Shared Scroll Progress Store with a new `activeNavSection`
+value (plain scrollspy walk against a fixed ~30%-viewport threshold, no
+separate `IntersectionObserver`, per Constraint), and wired it into
+`RootLayout.astro` as Section Navigation's sibling — initial commit
+`b34ec86`.
+
+**Two post-implementation corrections followed, both from the
+developer's own live testing** (explicit instruction not to use Chrome
+for verification from this point on):
+
+1. **Double-crest defect** (`f6fea80`): Section Navigation's own static
+   T-040 crest snaps instantly to its new position on its own,
+   separately-thresholded scrollspy, while T-041's island crest is
+   still travelling from the old one — a real, visible two-crest
+   artifact during every transition. Fixed by having the island mark
+   `<html class="js-nav-active-indicator-mounted">` once mounted,
+   hiding the static crest via CSS only then (mirrors the existing
+   `js-hero-entrance-pending` pre-hydration-guard pattern), targeting
+   Section Navigation's stable `[data-testid='active-crest']` attribute
+   — zero code coupling, no-JS fallback untouched.
+2. **Pre-existing, unrelated asset defect found and fixed** (`572d673`):
+   the developer additionally reported the Hero mark showing only an
+   outline on first load and the compact nav logo not showing at all —
+   persisting across reloads. Root-caused (not T-041's own code):
+   `public/ornamental-mark.svg` and `public/ornamental-logo.svg` were
+   holding the **morph-compatible source variant**
+   (`heroMarkMorphData.ts`'s own 9-path interpolation input — literally
+   commented `"morph-compatible state"` inside the file), not the
+   finished display artwork, despite the prior report already recording
+   the intent to restore original content. Restored both from their
+   already-present `-original.svg` backups. Dates to T-035 (already
+   merged to `main` before this session started) — out of T-041's own
+   declared scope, fixed at the user's explicit request since it was
+   blocking live verification of T-041 itself. **Not yet re-confirmed
+   visually by the user as of this report.**
+
+**Merge-state note**: local `main` (this developer's own primary
+checkout) was fast-forward-merged to `b34ec86` (T-041's initial commit
+only) by the developer directly, outside this session's own git actions
+— confirmed via `git reflog show main`. The two follow-up fix commits
+(`f6fea80`, `572d673`) exist only on `worktree-t-041-nav-active-indicator`,
+pushed to `origin`, **not yet merged into `main`**. Local `main` itself
+is 5 commits ahead of `origin/main` (unpushed) — unchanged/pre-existing,
+not from this session.
+
+**Tooling limitations recurred, consistent with prior reports**: the
+same Chrome-automation `visibilityState: "hidden"` constraint (freezing
+`IntersectionObserver`/rAF) was hit again, confirmed here to also
+affect Section Navigation's own already-shipped, unmodified
+`aria-current` logic identically — verification for the scroll-triggered
+activation relied on 19 passing component tests instead. Also recurred:
+a fresh worktree's own empty `node_modules` breaking Vite's dev-server
+hydration (same class of issue as T-033's own finding) — worked around
+this time via a symlink to the main checkout's `node_modules` (lighter
+than a full `npm install`), confirmed lockfile-identical first.
+
+*Everything below this point is preserved unchanged from the prior
+report for continuity; only the paragraphs above are new this round.*
+
 **This session — T-035 (Hero Scroll-Linked Content Exit & Mark
 Transformation) went through substantial iteration and is now
 code-complete, but not yet independently verified live** (all changes
@@ -325,11 +388,24 @@ using a ≥500px proxy width for automated checks from that point on.
 | **about-narrative** | **Yes — T-013, T-014 done.** Contract Commitment 5 (Ornamental Logo decorative presence) is also realized in code, though it isn't listed under either task's `realizesCommitments` in the Task Catalog (see Known Issues) | **Provisional.** Real narrative text (en/es/eu) and real developer-supplied photos now render — no longer placeholders. Provisional because: (1) `ux.md` itself flags the Euskera narrative as a "lower-confidence draft" pending native-speaker review (pre-existing, not introduced this session); (2) the two supplied photos are both portrait-oriented, not literally satisfying `ux.md`'s "contrasting orientations" content note; (3) the section kicker ("get to know me.") is new copy authored directly in conversation, not yet reconciled into `ux.md`'s own Content and Assets |
 | direct-contact | Yes — T-015, T-016 done (Commitments 1–6 all realized). **This branch only**: T-034 adds Commitment 7 (CTA Discoverability Affordance) | Realized on `main` in its pre-T-034 form — unchanged there. This branch carries an unmerged addition (CTA affordance icon), verified via build/dev-server HTML inspection and explicit user visual confirmation ("nows perfect"). Known issue carried in code comments: `ux.md`/`ui.md` name the background asset "Ornamental Logo" but the actual asset used is Hero's own "Ornamental Mark" — a spec/evidence naming contradiction, not resolved here |
 | presence-links | Yes — T-017, T-018 done (Commitments 1–4 all realized) | Realized, after this session's two corrections (colour, URLs — see Progress Summary). Known issue: `ui.md`'s Colour Application text still describes a gradient, no longer matching the plain-text implementation |
-| motion-interaction | Partially started: T-019, T-020, T-021, **T-035 (new)** done (4 of 12 Task Catalog tasks); T-022, T-041, T-023–T-025, T-036–T-038 not yet started | Provisional/in progress — Commitments 1 (About Narrative reveal) and 2 (Hero entrance) fully realized; Commitment 3 (logomark presence + font-weight timing) realized via T-021; **Commitment 11 (content exit) and 12 (mark morph, desktop/mobile) now technically complete via T-035 — Confirmed by 27 passing component tests + a clean build, but Realization is Provisional pending the developer's own live-scroll confirmation (not yet reported back this session)**; Commitment 4 (progress overlay + indicator transition) and the rest remain pending |
+| motion-interaction | Partially started: T-019, T-020, T-021, T-035, **T-041 (new)** done (5 of 12 Task Catalog tasks); T-022 (deferred by developer decision), T-023–T-025, T-036–T-038 not yet started | Provisional/in progress — Commitments 1 (About Narrative reveal) and 2 (Hero entrance) fully realized; Commitment 3 (logomark presence + font-weight timing) realized via T-021; Commitment 11 (content exit) and 12 (mark morph, desktop/mobile) technically complete via T-035, still Provisional pending the developer's own live-scroll confirmation (unchanged, not yet reported back); **Commitment 4's active-screen sub-part now Realized via T-041 — three-phase flatten/travel/sprout transition, verified via 19 passing component tests plus live Chrome DOM/CSS-geometry confirmation during this session's initial build; a post-implementation correction (double-crest defect) was found live and fixed (see Progress Summary)**; Commitment 4's progress-fill sub-part (T-022) remains Deferred by developer decision; remaining Commitments (5–10, 13, 15) still pending |
 | accessibility | Pending (no task started) | — |
 
 ## Completed Work
 
+- **T-041 — Nav Active Indicator Transition Island** (`b34ec86`,
+  `f6fea80`, `572d673`; branch `worktree-t-041-nav-active-indicator`,
+  pushed). Three-phase flatten/travel/sprout indicator transition, own
+  separate island (not composed inside Section Navigation), reading the
+  new `activeNavSection` value from Shared Scroll Progress Store;
+  reduced-motion resolves directly. Positioned via hand-synced local
+  geometry constants matching T-040's crest, with the horizontal target
+  read from a public `href`-based DOM selector (Implementation Detail —
+  see Implementation Decisions). Post-implementation correction hides
+  Section Navigation's own static T-040 crest once mounted, avoiding a
+  double-crest during transitions. `b34ec86` merged to local `main` by
+  the developer directly; `f6fea80`/`572d673` remain on the feature
+  branch only (see Progress Summary).
 - **T-035 — Hero Scroll-Linked Content Exit & Mark Transformation**
   (uncommitted, on top of `9860c42`). Content exit: headline/scroll-cue/
   Presence Links fade continuously and reversibly over the first 35% of
@@ -546,9 +622,15 @@ unchanged from the prior report — preserved for continuity:**
 - **New**: This session's entire T-035 diff (6 files, +564/−240) plus 4
   new files (`heroMarkMorphData.ts`/`.test.ts`, `ornamental-mark-morph.svg`,
   `ornamental-logo-morph.svg`) is **uncommitted**.
+- **Resolved and revised (T-041 session)**: the prior entry above about
   `public/ornamental-mark-original.svg`/`public/ornamental-logo-original.svg`
-  (backup copies brought in mid-session) are also uncommitted and not yet
-  confirmed for deletion by the developer.
+  being "uncommitted and not yet confirmed for deletion" is stale — both
+  were in fact committed at `27b3243`, and turned out to be load-bearing:
+  T-041's own session used them to restore `ornamental-mark.svg`/
+  `ornamental-logo.svg`, which had been holding the wrong (morph-source)
+  content since T-035 (see Progress Summary). **Should not be deleted** —
+  they're the only known-correct copy of the original artwork outside
+  git history.
 - **Refreshed**: T-022 (Nav Progress Overlay) and T-041 (Nav Active
   Indicator Transition Island) both declared a dependency on T-035
   establishing the Shared Scroll Progress Store — that store already
@@ -559,17 +641,28 @@ unchanged from the prior report — preserved for continuity:**
   Indicator visual anatomy — unchanged, still gates `motion-interaction`'s
   T-021/T-022" is superseded by T-040 (Realized) and the T-021/T-041
   split; T-021 is now done, T-022 depends on T-035 instead.
-- **New**: T-041 (Nav Active Indicator Transition Island) — not yet
-  started; depends on T-035 (also not yet started) and T-040 (done).
+- **Resolved this session**: the prior entry "T-041 (Nav Active
+  Indicator Transition Island) — not yet started; depends on T-035
+  (also not yet started) and T-040 (done)" is superseded — T-041 is now
+  done (see Completed Work).
+- **New**: T-041's own two follow-up fix commits (`f6fea80`, `572d673`)
+  are pushed to `worktree-t-041-nav-active-indicator` but **not merged
+  into `main`** — merging is a developer decision, not done
+  automatically by any Skill.
+- **New**: the ornamental-mark/logo SVG restoration (`572d673`) has not
+  yet been visually re-confirmed by the user.
+- **New**: Nav Progress Overlay (T-022) remains the only unrealized
+  half of Commitment 4 — unchanged, still Deferred by developer
+  decision, independent of T-041 now being done.
 - **New**: no Task Catalog entry exists for the Connection tie-break fix
   (this session) — it revises T-011's already-Realized output the same
   way T-033/T-034/T-040 do, but wasn't itself planned. Flagged for
   Planning if a retroactive catalog entry is wanted; not required for the
   fix to stand.
-- **Refreshed against the current Task Catalog**: T-022, T-023–T-032,
-  T-035–T-039, T-041 (18 tasks, down from the prior report's 21 now that
-  T-019/T-020/T-021 are done) — no source code implemented yet for the
-  rest of `motion-interaction` (T-022–T-025, T-035–T-038, T-041),
+- **Refreshed against the current Task Catalog (T-041 session)**: T-022,
+  T-023–T-032, T-036–T-039 (15 tasks, down from the prior report's 18
+  now that T-035 and T-041 are both done) — no source code implemented
+  yet for the rest of `motion-interaction` (T-022–T-025, T-036–T-038),
   `accessibility` (T-026–T-028), or the remaining
   `content-localization`/integration/verification tasks (T-029–T-032,
   T-039).
@@ -618,6 +711,21 @@ unchanged from the prior report — preserved for continuity:**
   remain unreconciled — not re-investigated this session.
 
 ## Generated Artifacts
+
+*(new this session, T-041, branch `worktree-t-041-nav-active-indicator`,
+pushed)*
+
+- `src/features/motion-interaction/NavActiveIndicatorIsland.tsx` +
+  `.test.tsx` (new) — the island itself, 10 tests.
+- `src/features/motion-interaction/navActiveIndicator.scss` (new) —
+  crest geometry/colour, hand-synced with T-040's own.
+- `src/features/motion-interaction/scrollProgressStore.ts` + `.test.ts`
+  (modified) — extended with `activeNavSection`, 5 new tests.
+- `src/layouts/RootLayout.astro`, `src/styles/global.scss` (modified,
+  wiring only).
+- `public/ornamental-mark.svg`, `public/ornamental-logo.svg` (modified —
+  restored from their own `-original.svg` backups; see Progress
+  Summary).
 
 *(new this session, T-035 continuation, branch
 `worktree-motion-interaction-refinement`, all uncommitted)*
@@ -714,6 +822,35 @@ fix, branch `worktree-motion-interaction-refinement`)*
   test count unchanged at 41/41
 
 ## Implementation Decisions
+
+*(new this session, T-041)*
+
+- Horizontal target position read via a public `href`-based DOM
+  selector (`nav[aria-label='Primary'] a[href='#personal-narrative']`,
+  mirroring T-021's own already-established zero-coupling pattern)
+  rather than a literal Styling System token — that position is
+  fluid/locale-dependent, the same constraint that forced T-040's own
+  crest to measure it at runtime. Classified as an Implementation
+  Detail, not a Contradiction: the required observable behavior (visual
+  alignment with T-040's crest) is achievable, just not via the literal
+  mechanism named in Technical Design's own prose.
+- Introduction boundary (no "about"/"contact" position to travel
+  from/to) resolved as an instant show/hide rather than forcing the
+  three-phase sequence onto an undefined endpoint.
+- Desktop-only scope, matching T-021's own explicit precedent note
+  ("the mobile overlay's indicator is a static crest, nothing to
+  camouflage a swap against").
+- Section Navigation's own static T-040 crest was deliberately left
+  unhidden in the initial build (Technical Design: "remains the correct
+  pre-hydration/no-JS fallback underneath in every case") — reversed as
+  a post-implementation correction once the developer's own live
+  testing showed the transition-window overlap was a real, objectionable
+  defect, not merely a theoretical edge case.
+- The ornamental-mark/logo SVG restoration was fixed directly at the
+  developer's explicit request despite being outside T-041's own
+  declared scope, given it was blocking live verification of T-041
+  itself and the fix was mechanical (restoring already-present,
+  already-intended-to-be-restored backup files, not a new decision).
 
 *(new this session, T-035 continuation)*
 
@@ -859,6 +996,32 @@ own message)*
 
 ## Known Issues
 
+- **New — unmerged work** (T-041, this session): `f6fea80`/`572d673`
+  are pushed to `worktree-t-041-nav-active-indicator`, not yet merged
+  into `main` (T-041's own initial commit, `b34ec86`, is already
+  merged there directly by the developer — see Progress Summary).
+- **New — unverified live** (T-041, this session): the SVG asset
+  restoration (`572d673`) has not yet been visually re-confirmed by the
+  developer.
+- **New — recurring tooling limitation** (T-041, this session): this
+  session's Chrome-automation tab again reported
+  `visibilityState: "hidden"`, confirmed here to also block Section
+  Navigation's own already-shipped `aria-current` logic identically —
+  not a defect, a constraint of this specific automation environment,
+  consistent with the prior report's own finding.
+- **New — recurring dev-environment gap** (T-041, this session): a
+  freshly created worktree's own empty `node_modules` again broke Vite
+  dev-server hydration (same class of issue as T-033's own finding,
+  below) — worked around via a symlink to the main checkout's
+  `node_modules` this time (lighter than a full `npm install`; lockfile
+  confirmed identical first). Still not fixed at the repo/config level.
+- **New — pre-existing defect, now understood in full and fixed**
+  (T-041, this session): the T-035 asset-restoration step recorded in
+  the prior report ("restored to their original (non-morph) content")
+  did not actually take effect — the file on disk never matched intent
+  until this session's fix (`572d673`). Not caught by any automated
+  check (SVGs aren't type-checked or content-asserted); only surfaced
+  via the developer's own direct visual inspection.
 - **New — Task acceptance criterion gap** (T-035, this session): AC4
   (hysteresis margin preventing boundary flicker) is not evidently
   implemented (see Pending Work). Not introduced this session; not
@@ -953,6 +1116,32 @@ own message)*
   here).
 
 ## Execution Evidence
+
+*(new this session, T-041)*
+
+- `npx vitest run` — **116/116 passing (14 test files)**, up from
+  101/101 in the prior report (+15: 5 `scrollProgressStore`
+  `activeNavSection` tests, 10 `NavActiveIndicatorIsland` tests).
+- `npx astro build` — clean, run three times (after the initial build,
+  after the double-crest fix, after the SVG restoration).
+- Initial build: live Chrome verification (before the developer's "don't
+  use Chrome" instruction) — confirmed the crest's CSS geometry/mask/
+  gradient renders correctly and pixel-matches under both "about" and
+  "contact" targets via direct DOM/style inspection; confirmed the
+  flatten-phase visual (thin line fused with the divider). Full
+  end-to-end scroll-triggered activation could not be observed live (tab
+  visibility constraint, see Known Issues) — covered by unit tests
+  instead.
+- Double-crest fix and SVG restoration: root-caused via `git diff`/
+  file-content comparison (`diff public/ornamental-mark.svg
+  public/ornamental-mark-morph.svg`) rather than live rendering, per
+  explicit developer instruction; both fixes confirmed only via
+  test/build success — visual confirmation is the developer's own,
+  still pending for the SVG fix as of this report.
+- `git reflog show main`, `git log --oneline
+  origin/worktree-t-041-nav-active-indicator` — confirmed the
+  merge-state findings in Progress Summary (`b34ec86` merged to local
+  `main` directly by the developer; `f6fea80`/`572d673` not yet merged).
 
 *(new this session, T-035 continuation)*
 
@@ -1091,4 +1280,4 @@ fix)*
 ---
 
 *Created: 2026-09-09. Refined: 2026-09-11, 2026-09-12, 2026-09-13,
-2026-09-15, 2026-09-17.*
+2026-09-15, 2026-09-17, 2026-09-18.*
