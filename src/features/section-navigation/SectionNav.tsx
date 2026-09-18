@@ -75,15 +75,27 @@ import styles from './SectionNav.module.scss';
 // Hero's own mark-visibility sentinel (`#hero-mark-boundary`) the same
 // way Domain Section boundaries are already observed above — this
 // component depends outward on that marker's existence, never the
-// reverse. A plain (no rootMargin) intersection test is sufficient: the
-// sentinel sits at the mark's own bottom edge, so it stops intersecting
-// the viewport at exactly the scroll offset where the mark's full box
-// (anchored to the page's own top, same as this nav) has scrolled clear
-// of the fixed nav row — independent of the nav's own height.
+// reverse. A plain (no rootMargin) intersection test would flip exactly
+// at the scroll offset where the mark's full box (anchored to the
+// page's own top, same as this nav) has scrolled clear of the fixed nav
+// row — independent of the nav's own height. `HERO_MARK_LEAD_PX` shrinks
+// the observed root by that much from the top, so the segmented→
+// continuous flip (mark leaving) fires that much earlier while
+// scrolling down, matching Nav Divider Segment Transition's (T-037)
+// own extend/retract feel more closely instead of visibly lagging the
+// mark's own disappearance — direct developer feedback, live. The same
+// shrink leaves the reverse direction (scrolling back up, mark
+// reappearing) essentially unaffected, since the sentinel re-enters
+// from the viewport's bottom edge, far from the shrunk top boundary —
+// an incidental small hysteresis, not the goal here.
 
 export type SectionId = 'introduction' | 'personal-narrative' | 'connection';
 
 const SECTION_IDS: readonly SectionId[] = ['introduction', 'personal-narrative', 'connection'];
+
+// See the divider-line comment above — how much earlier (in scroll
+// pixels) the segmented→continuous flip fires while scrolling down.
+const HERO_MARK_LEAD_PX = 60;
 
 interface Props {
 	wordmark: string;
@@ -193,6 +205,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 		if (!sentinel) return;
 
 		const observer = new IntersectionObserver(([entry]) => setHeroMarkVisible(entry.isIntersecting), {
+			rootMargin: `-${HERO_MARK_LEAD_PX}px 0px 0px 0px`,
 			threshold: 0,
 		});
 		observer.observe(sentinel);

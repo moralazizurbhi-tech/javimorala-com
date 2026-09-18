@@ -1,0 +1,62 @@
+@use '../../styles/tokens' as tokens;
+
+// Switcher Dropdown Transition (T-025, motion-interaction/technical-
+// design.md, "Switcher Dropdown Transition" — Contract Commitment 9
+// AC1/AC2; contributes 16) — a CSS-only stylesheet targeting the
+// Language Switcher's Radix-supplied `data-state="open"/"closed"`
+// attribute from outside, zero code coupling in either direction: this
+// file is `@use`d from `styles/global.scss` (Root Layout level), never
+// imported by Language Override's own component, which stays entirely
+// unaware of it (technical-design.md, Design Decision 1 — the same
+// pattern navTransitions.scss/secondaryInteractionFeedback.scss already
+// establish).
+//
+// Targets `[role='menu']` — Radix DropdownMenu.Content's own stable,
+// semantic attribute (live-verified in Chrome against the actual
+// rendered DOM: the content element itself, not its Popper positioning
+// wrapper, carries both `role="menu"` and `data-state`), the same
+// "stable public DOM contract supplied by the Accessible Primitives
+// Layer" pattern secondaryInteractionFeedback.scss already uses for
+// this same dropdown's trigger/options. This is the only dropdown menu
+// on the page (secondaryInteractionFeedback.scss's own note), so the
+// bare attribute selector stays unambiguous without further scoping.
+//
+// Radix mounts/unmounts DropdownMenu.Content entirely on each open/
+// close (live-verified: absent from the DOM before opening, fully
+// removed after closing) rather than toggling a persisting node's
+// `display`. Radix's own Presence mechanism detects a CSS transition on
+// close and keeps the node mounted with `data-state="closed"` until it
+// completes, so a plain `transition` targeting that attribute is enough
+// for the CLOSE direction. The OPEN direction is a genuine fresh DOM
+// insertion, though — a plain `transition` can't animate an element's
+// first paint, since there's no prior frame to transition from — so the
+// entrance values come from `@starting-style`, the same mechanism
+// navTransitions.scss's own (since-removed) logomark crossfade
+// established for this codebase, live-verified there via
+// `getAnimations()`.
+
+[role='menu'] {
+	transition:
+		opacity tokens.$transition-duration-base tokens.$transition-easing,
+		transform tokens.$transition-duration-base tokens.$transition-easing;
+	opacity: 1;
+	transform: translateY(0);
+
+	@starting-style {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+
+	&[data-state='closed'] {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
+
+// Commitment 16 AC6: under reduced motion, resolves to an instant state
+// change — no animated fade/translate in either direction.
+@media (prefers-reduced-motion: reduce) {
+	[role='menu'] {
+		transition: none;
+	}
+}

@@ -2,13 +2,14 @@ import { useLayoutEffect, useEffect, useRef, type ReactNode } from 'react';
 import { animate, type AnimationPlaybackControlsWithThen } from 'framer-motion';
 import { getRevealedPieceIds, markPiecesRevealed } from './motionPlaybackStore';
 
-// About Narrative Reveal Island (T-020) —
-// motion-interaction/technical-design.md, "About Narrative Reveal
-// Island" (progressive-reveal + direct-navigation-arrival
-// responsibilities only, Commitment 1; the same component's photo-tilt
-// responsibility, Commitment 13, is T-036's own separate scope, per the
-// Task Catalog's explicit split). Composed around About Narrative
-// Composition's (about-narrative/AboutNarrativeComposition.astro)
+// About Narrative Reveal Island (T-020 progressive-reveal +
+// direct-navigation-arrival, Commitment 1; T-036 photo tilt, Commitment
+// 13 — the Task Catalog's own explicit split of one Technical Design
+// component, "About Narrative Reveal Island," across two Tasks; both
+// land in this one file per that component's own Design Decision 3:
+// "realized within the same island already wrapping About Narrative's
+// photos, rather than a separate component"). Composed around About
+// Narrative Composition's (about-narrative/AboutNarrativeComposition.astro)
 // already-rendered static markup via the same static-children-in-island
 // pattern as HeroEntranceIsland — targets it by class after mount,
 // never alters its own file.
@@ -82,6 +83,127 @@ const PHOTO_BLUR_DURATION = 0.5;
 const PHOTO_TINT_RGB = '75, 33, 120';
 const PHOTO_TINT_ALPHA = 0.75;
 const PHOTO_TINT_DURATION = 0.7; // longer than the blur, so it clears a touch after it
+
+// Photo Tilt (T-036, motion-interaction/technical-design.md, "About
+// Narrative Reveal Island" — tilt responsibilities; Commitment 13) —
+// additive to each photo's own static base rotation
+// (about-narrative/AboutNarrativeComposition.astro's own
+// `rotate(...) translateX(...)`, e.g. `.narrative__photo--portrait`/
+// `--landscape`). Read live via `getComputedStyle` rather than
+// duplicating those numbers here, so this applies correctly "whether
+// the base is 0° or something else" (this Task's own Constraints) and
+// never needs hand-syncing if about-narrative's own values change —
+// unlike navTransitions.scss's/NavActiveIndicatorIsland's own
+// deliberately-hand-synced constants, there's no reason to accept that
+// drift risk here when the live DOM already carries the exact answer.
+// Desktop vs mobile is decided once at mount via `(hover: hover) and
+// (pointer: fine)` — the same media feature
+// secondaryInteractionFeedback.scss already uses for this codebase's
+// hover/touch split — consistent with this island's own established
+// pattern of not reacting to breakpoint changes at runtime.
+
+const MAX_TILT_DEG = 4; // Commitment 13 AC1's own stated ceiling.
+// Mobile has no prescribed numeric formula (Commitment 13 AC3 only
+// names "scroll direction/velocity") — Implementation Detail, tuned so
+// a brisk scroll (~1px/ms) reads as a clearly visible, not extreme,
+// tilt.
+const SCROLL_TILT_SENSITIVITY = 1.5; // deg per (px/ms) of scroll velocity.
+// Once scrolling stops producing new `scroll` events, the tilt target
+// returns to rest after this idle window (Implementation Detail — no
+// numeric mobile formula is prescribed either way).
+const SCROLL_IDLE_MS = 150;
+// Fraction of the remaining distance-to-target closed per animation
+// frame (~60fps) by the follower below — post-implementation
+// correction: applying the target degree directly on every
+// pointermove (the original implementation) produced a visible "flash"
+// jump whenever the cursor entered the photo already away from its
+// center, since the very first frame had no previous position to ease
+// from. AC2 already requires the leave-to-rest transition to ease
+// rather than snap; this follower applies that same "eases, never
+// snaps" quality to entry and continuous tracking too, not only exit,
+// by always chasing a live target through exponential smoothing
+// instead of ever assigning the degree outright.
+const TILT_FOLLOW_RATE = 0.2;
+const TILT_SETTLE_EPSILON = 0.02; // deg — close enough to stop the loop.
+
+interface BaseTransform {
+  rotateDeg: number;
+  xPx: number;
+}
+
+const IDENTITY_BASE: BaseTransform = { rotateDeg: 0, xPx: 0 };
+
+// Decomposes a `matrix(a, b, c, d, e, f)` produced by
+// `rotate(θ) translateX(tx)` back into (θ, tx): for that specific
+// function pair, a = cosθ, b = sinθ, e = cosθ·tx — exact (not an
+// approximation) for any rotate+translateX combination, which is the
+// only shape About Narrative Composition's own photo transforms use.
+function readBaseTransform(el: HTMLElement): BaseTransform {
+  const computed = window.getComputedStyle(el).transform;
+  if (!computed || computed === 'none') return IDENTITY_BASE;
+  const match = /^matrix\(([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)\)$/.exec(computed.replace(/\s+/g, ''));
+  if (!match) return IDENTITY_BASE;
+  const a = Number(match[1]);
+  const b = Number(match[2]);
+  const e = Number(match[5]);
+  const rotateRad = Math.atan2(b, a);
+  const cos = Math.cos(rotateRad);
+  const xPx = Math.abs(cos) > 1e-4 ? e / cos : e;
+  return { rotateDeg: (rotateRad * 180) / Math.PI, xPx };
+}
+
+function clampTilt(deg: number): number {
+  return Math.max(-MAX_TILT_DEG, Math.min(MAX_TILT_DEG, deg));
+}
+
+function applyTiltTransform(el: HTMLElement, base: BaseTransform, tiltDeg: number): void {
+  el.style.transform = `translateX(${base.xPx}px) rotate(${base.rotateDeg + tiltDeg}deg)`;
+}
+
+interface TiltFollower {
+  /** Retargets the eased value; the follower keeps chasing it every frame until settled. */
+  setTarget(deg: number): void;
+  stop(): void;
+}
+
+// Drives one photo's applied tilt toward a live target via exponential
+// smoothing (a fraction of the remaining distance closed each frame),
+// rather than ever assigning the target degree outright — the fix for
+// the entry "flash" described in this file's own header comment above.
+// `setTarget` is safe to call repeatedly (every pointermove/scroll
+// tick); the loop self-stops once settled and restarts lazily on the
+// next retarget.
+function createTiltFollower(el: HTMLElement, base: BaseTransform): TiltFollower {
+  let targetDeg = 0;
+  let smoothedDeg = 0;
+  let frame: number | undefined;
+
+  function tick(): void {
+    smoothedDeg += (targetDeg - smoothedDeg) * TILT_FOLLOW_RATE;
+    if (Math.abs(targetDeg - smoothedDeg) < TILT_SETTLE_EPSILON) smoothedDeg = targetDeg;
+    applyTiltTransform(el, base, smoothedDeg);
+    frame = smoothedDeg !== targetDeg ? window.requestAnimationFrame(tick) : undefined;
+  }
+
+  return {
+    setTarget(deg: number): void {
+      targetDeg = deg;
+      if (frame === undefined) frame = window.requestAnimationFrame(tick);
+    },
+    stop(): void {
+      if (frame !== undefined) window.cancelAnimationFrame(frame);
+      frame = undefined;
+    },
+  };
+}
+
+function prefersFinePointerHover(): boolean {
+  try {
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  } catch {
+    return false;
+  }
+}
 
 type PieceKind = 'paragraph' | 'opening' | 'photo';
 
@@ -242,10 +364,95 @@ export default function AboutNarrativeRevealIsland({ children }: Props) {
     }
     window.addEventListener('hashchange', onHashChange);
 
+    // T-036 (Commitment 13): photo tilt, gated per-photo on that
+    // photo's own Revealed state via `revealedIds` — the same Set the
+    // reveal logic above already maintains, so a `Hidden` photo simply
+    // never receives a non-zero tilt (AC: "a Hidden photo doesn't
+    // tilt"), with no separate tracking needed.
+    const photoPieces = pieces.filter((piece) => piece.kind === 'photo');
+    const baseTransforms = new Map<HTMLElement, BaseTransform>(
+      photoPieces.map((piece) => [piece.el, readBaseTransform(piece.el)]),
+    );
+    const tiltCleanups: Array<() => void> = [];
+
+    if (prefersFinePointerHover()) {
+      // Desktop (AC1/AC2): cursor position relative to the photo
+      // retargets the follower, which eases toward it every frame —
+      // continuous while hovered, and never an instant jump on entry
+      // either (see the follower's own header comment). Leaving
+      // retargets to 0, the same mechanism, satisfying "eases back to
+      // rest rather than snapping."
+      for (const piece of photoPieces) {
+        const el = piece.el;
+        const base = baseTransforms.get(el) ?? IDENTITY_BASE;
+        const follower = createTiltFollower(el, base);
+
+        function onPointerMove(event: PointerEvent): void {
+          if (!revealedIds.has(piece.id)) return;
+          const rect = el.getBoundingClientRect();
+          const nx = rect.width > 0 ? ((event.clientX - rect.left) / rect.width) * 2 - 1 : 0;
+          follower.setTarget(clampTilt(nx * MAX_TILT_DEG));
+        }
+
+        function onPointerLeave(): void {
+          follower.setTarget(0);
+        }
+
+        el.addEventListener('pointermove', onPointerMove);
+        el.addEventListener('pointerleave', onPointerLeave);
+        tiltCleanups.push(() => {
+          el.removeEventListener('pointermove', onPointerMove);
+          el.removeEventListener('pointerleave', onPointerLeave);
+          follower.stop();
+        });
+      }
+    } else if (photoPieces.length > 0) {
+      // Mobile (AC3): one follower per photo, all retargeted
+      // identically from a single shared scroll-velocity reading —
+      // no device orientation/motion permission requested or
+      // required. Once scrolling stops producing new `scroll` events
+      // for `SCROLL_IDLE_MS`, every follower retargets to 0 and eases
+      // back to rest, rather than sticking at the last value.
+      const followers = new Map(
+        photoPieces.map((piece) => [piece.el, createTiltFollower(piece.el, baseTransforms.get(piece.el) ?? IDENTITY_BASE)]),
+      );
+      let lastY = window.scrollY;
+      let lastTime = performance.now();
+      let idleTimer: ReturnType<typeof setTimeout> | undefined;
+
+      function setAllTargets(deg: number): void {
+        for (const piece of photoPieces) {
+          if (!revealedIds.has(piece.id)) continue;
+          followers.get(piece.el)?.setTarget(deg);
+        }
+      }
+
+      function onScroll(): void {
+        const now = performance.now();
+        const dt = Math.max(now - lastTime, 1);
+        const dy = window.scrollY - lastY;
+        lastY = window.scrollY;
+        lastTime = now;
+
+        setAllTargets(clampTilt((dy / dt) * SCROLL_TILT_SENSITIVITY));
+
+        if (idleTimer !== undefined) clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => setAllTargets(0), SCROLL_IDLE_MS);
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      tiltCleanups.push(() => {
+        window.removeEventListener('scroll', onScroll);
+        if (idleTimer !== undefined) clearTimeout(idleTimer);
+        followers.forEach((follower) => follower.stop());
+      });
+    }
+
     return () => {
       window.removeEventListener('hashchange', onHashChange);
       observer?.disconnect();
       activeControls.forEach((controls) => controls.stop());
+      tiltCleanups.forEach((cleanup) => cleanup());
     };
   }, []);
 

@@ -455,7 +455,7 @@ describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transfor
     expect(group2Path.style.opacity).toBe('1');
   });
 
-  it('desktop: hides the morph SVG (not the already-hidden `.hero__mark`) once heroProgress reaches 1 (a full Hero height scrolled), handing the visual role back to Section Navigation\'s own compact-logo mechanism (regression: the two otherwise double up at the same position)', async () => {
+  it('desktop: hides the morph SVG (not the already-hidden `.hero__mark`) once heroProgress reaches HERO_MARK_HIDE_THRESHOLD (1, a full Hero height scrolled), handing the visual role back to Section Navigation\'s own compact-logo mechanism (regression: the two otherwise double up at the same position)', async () => {
     const { container } = renderReducedMotion(true);
     await waitFor(() => expect(container.querySelector('.hero-mark-morph')).not.toBeNull());
     const mark = container.querySelector<HTMLElement>('.hero__mark')!;
@@ -471,6 +471,29 @@ describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transfor
     // Reversible: scrolling back up restores it.
     setHeroProgress(container, 0.9);
     expect(morphSvg.style.opacity).toBe('1');
+  });
+
+  it('desktop: closes Section Navigation\'s divider gap continuously from half of Hero\'s height to a full Hero height (About reached), tracking scroll 1:1 rather than snapping, landing on the same aperture as Section Navigation\'s own \'logo\' state (not fully closed) before handing control back to its own CSS', async () => {
+    const navDivider = document.createElement('div');
+    navDivider.setAttribute('data-testid', 'nav-divider');
+    document.body.appendChild(navDivider);
+    try {
+      const { container } = renderReducedMotion(true);
+      await waitFor(() => expect(container.querySelector('.hero-mark-morph')).not.toBeNull());
+
+      setHeroProgress(container, 0.25);
+      expect(navDivider.style.getPropertyValue('--divider-gap')).toBe('52%');
+      expect(navDivider.style.transition).toBe('none');
+
+      setHeroProgress(container, 0.75);
+      expect(navDivider.style.getPropertyValue('--divider-gap')).toBe('35.5%');
+
+      setHeroProgress(container, 1);
+      expect(navDivider.style.getPropertyValue('--divider-gap')).toBe('');
+      expect(navDivider.style.transition).toBe('');
+    } finally {
+      navDivider.remove();
+    }
   });
 
   it('desktop: falls back to the plain, untransformed `.hero__mark` while morph data hasn\'t loaded yet (or failed to)', () => {

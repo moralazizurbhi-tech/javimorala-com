@@ -230,32 +230,60 @@ export default function HeroEntranceIsland({ children }: Props) {
     const hero = container.querySelector<HTMLElement>('.hero');
     const naturalProbe = container.querySelector<HTMLElement>('.hero-mark-natural-probe');
     const targetProbe = container.querySelector<HTMLElement>('.hero-mark-target-probe');
+    // Section Navigation's own public `data-testid` hook (never its
+    // CSS-Modules-hashed class) — the same zero-code-coupling pattern
+    // heroMarkMorph.scss's own (now-removed) CSS override used, and
+    // `navTransitions.scss` also uses for this same Feature boundary.
+    // Queried globally, not via `container`: the nav lives outside this
+    // island's own subtree.
+    const navDivider = document.querySelector<HTMLElement>('[data-testid="nav-divider"]');
 
-    // Once fully docked (heroProgress reaches 1 — scrolled a full Hero
-    // height), Section Navigation's own compact-logo mechanism
-    // (`navTransitions.scss`'s `::after`, a separate, already-approved
-    // element realizing a different task) is expected to take over the
-    // same visual role; without hiding this element then, the two
-    // otherwise double up at the identical position — a real defect a
-    // live Chrome check caught. `heroProgress` alone is used, not a
-    // separate sentinel observation, because Section Navigation's own
-    // `isIntroduction` flip is itself driven by `#introduction`'s own
-    // bottom edge leaving the viewport — the same physical event
-    // `heroProgress` reaching 1 already tracks (`#introduction` and
-    // `.hero` share the same box height), keeping the two thresholds as
-    // close as this Feature's own zero-code-dependency constraint
-    // allows. Post-implementation developer direction: an earlier
-    // version hid at `#hero-mark-boundary` clearing instead (~70-75% of
-    // Hero height) — a different, narrower-purpose sentinel (Section
-    // Navigation's own divider-fill state, Commitment 8) that cleared
-    // well before Section Navigation's own compact-logo actually
-    // appears, leaving a visible gap where neither showed. This doesn't
-    // guarantee zero gap either (the two are still independently
-    // computed, per Shared Scroll Progress Store's own Constraints —
-    // consistency with Section Navigation "by construction," not a
-    // shared value), but narrows it to whatever slack remains between
-    // the two components' own scroll-position observations.
+    // This mark's own opacity fade-out point: stays fully visible for
+    // the entire Hero scroll, handing off to Section Navigation's own
+    // compact-logo mechanism (`navTransitions.scss`'s `::after`) only
+    // once `isIntroduction` itself flips — driven by `#introduction`'s
+    // bottom edge leaving the viewport, the same physical event
+    // `heroProgress` reaching 1 tracks (`#introduction`/`.hero` share
+    // the same box height). Per direct developer feedback ("keep the
+    // morphed mark till the about also").
     const HERO_MARK_HIDE_THRESHOLD = 1;
+
+    // Nav Divider gap (Section Navigation's own Commitment 8 state,
+    // read/written here only through its public `data-testid` hook —
+    // Design Decision, this file's own header note on the morph SVG
+    // applies equally here: this component targets public DOM, never
+    // Section Navigation's own code). Per direct developer feedback
+    // ("close it slowly till reaches the about"): held fully open
+    // (`DIVIDER_HERO_MARK_GAP_PERCENT`, matching SectionNav.module.
+    // scss's own 'hero-mark' state) until half of Hero's height, then
+    // closes continuously, tracking scroll 1:1, down to
+    // `DIVIDER_LOGO_GAP_PERCENT` by the time Hero's full height is
+    // scrolled (About reached) — set as an inline style rather than via
+    // a class/attribute + CSS transition, for the same reason every
+    // other value `applyScrollLinkedMotion` sets is: a CSS transition
+    // would fight a per-frame scroll-driven value, lagging behind the
+    // true scroll position instead of tracking it directly (Commitment
+    // 16 AC9's own "driven directly by scroll position, not timed
+    // animation" applies here too, even though this value isn't itself
+    // a Contract commitment of this Feature's own).
+    // Ends at `DIVIDER_LOGO_GAP_PERCENT` (SectionNav.module.scss's own
+    // 'logo' state value), not fully closed (0%): per direct developer
+    // feedback ("do not close it completly, finish the transition on
+    // the same aperture as the about size"). Landing on the exact value
+    // Section Navigation's own 'logo' state already uses means clearing
+    // this override at `DIVIDER_CLOSE_END` (below) is visually
+    // seamless — the divider is already sitting at the width Section
+    // Navigation's own CSS would give it once `isIntroduction` flips,
+    // so there's nothing left to animate at that hand-off.
+    const DIVIDER_HERO_MARK_GAP_PERCENT = 52; // SectionNav.module.scss's own 'hero-mark' value — hand-synced.
+    const DIVIDER_LOGO_GAP_PERCENT = 19; // SectionNav.module.scss's own 'logo' value — hand-synced.
+    const DIVIDER_CLOSE_START = 0.5;
+    const DIVIDER_CLOSE_END = 1;
+
+    function clearDividerOverride() {
+      navDivider?.style.removeProperty('--divider-gap');
+      navDivider?.style.removeProperty('transition');
+    }
 
     // Hero Scroll-Linked Content Exit & Mark Transformation (Commitments
     // 11, 12) — reads Shared Scroll Progress Store's Hero-relative value
@@ -265,16 +293,25 @@ export default function HeroEntranceIsland({ children }: Props) {
     // reduced-motion/already-played decision (see the three call sites
     // below), never gated on `prefersReducedMotion()`.
     function applyScrollLinkedMotion(progress: ScrollProgress) {
-      // Holds Section Navigation's own wide divider gap open for the
-      // entire Hero scroll — see heroMarkMorph.scss's own comment on
-      // this exact attribute/selector for why (a real defect a
-      // developer caught live: the nav's own solid-bar border-bottom,
-      // shown once Section Navigation's *own* mark-visibility sentinel
-      // clears, cut across this component's own still-visible mark).
-      document.documentElement.toggleAttribute(
-        'data-hero-scroll-active',
-        progress.heroProgress < HERO_MARK_HIDE_THRESHOLD,
-      );
+      if (navDivider) {
+        if (progress.heroProgress < DIVIDER_CLOSE_END) {
+          const closeT = clamp01(
+            (progress.heroProgress - DIVIDER_CLOSE_START) / (DIVIDER_CLOSE_END - DIVIDER_CLOSE_START),
+          );
+          navDivider.style.setProperty(
+            '--divider-gap',
+            `${lerp(DIVIDER_HERO_MARK_GAP_PERCENT, DIVIDER_LOGO_GAP_PERCENT, closeT)}%`,
+          );
+          navDivider.style.setProperty('transition', 'none');
+        } else {
+          // About reached — hand control back to Section Navigation's
+          // own CSS (including its own 250ms transition, now free to
+          // animate the subsequent 0%→19% 'logo' handoff, since
+          // Introduction itself has just been left).
+          clearDividerOverride();
+        }
+      }
+
       const exitT = clamp01(progress.heroProgress / CONTENT_EXIT_END);
       const exitOpacity = 1 - exitT;
       contentExitEls.forEach((el) => {
@@ -447,7 +484,7 @@ export default function HeroEntranceIsland({ children }: Props) {
       return () => {
         ambientControls?.stop();
         unsubscribeScroll?.();
-        document.documentElement.removeAttribute('data-hero-scroll-active');
+        clearDividerOverride();
       };
     }
 
@@ -459,7 +496,7 @@ export default function HeroEntranceIsland({ children }: Props) {
       return () => {
         ambientControls?.stop();
         unsubscribeScroll?.();
-        document.documentElement.removeAttribute('data-hero-scroll-active');
+        clearDividerOverride();
       };
     }
 
@@ -562,7 +599,7 @@ export default function HeroEntranceIsland({ children }: Props) {
       activeControls.forEach((controls) => controls.stop());
       ambientControls?.stop();
       unsubscribeScroll?.();
-      document.documentElement.removeAttribute('data-hero-scroll-active');
+      clearDividerOverride();
     };
   }, []);
 

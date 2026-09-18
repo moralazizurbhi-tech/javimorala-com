@@ -12,6 +12,23 @@
 // NavActiveIndicatorIsland.tsx's own crest; see that file's and this
 // partial's own header comments.
 @use '../features/motion-interaction/navActiveIndicator';
+// Nav Divider Segment Transition (T-037) — smooth extend/retract for
+// Section Navigation's segmented/continuous divider; see this
+// partial's own header comment.
+@use '../features/motion-interaction/navDividerSegmentTransition';
+// CTA Interaction Motion (T-023) — gradient-sweep visual for
+// CtaInteractionMotionIsland.tsx's own hover/tap-triggered classes; see
+// that file's and this partial's own header comments.
+@use '../features/motion-interaction/ctaInteractionMotion';
+// Secondary Interaction Feedback Styles (T-024) — shared hover/focus/
+// touch gradient-fill treatment for Section Navigation's nav links,
+// Presence Links, and the Language Switcher; see this partial's own
+// header comment.
+@use '../features/motion-interaction/secondaryInteractionFeedback';
+// Switcher Dropdown Transition (T-025) — fade + slight vertical
+// translation for the Language Switcher's Radix dropdown open/close;
+// see this partial's own header comment.
+@use '../features/motion-interaction/switcherDropdownTransition';
 
 // Self-hosted @font-face declarations (T-002) — fixes a pre-existing gap
 // where the font tokens named a family whose @font-face was never

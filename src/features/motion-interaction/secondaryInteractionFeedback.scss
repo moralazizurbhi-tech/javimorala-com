@@ -1,0 +1,132 @@
+@use 'sass:list';
+@use 'sass:string';
+@use '../../styles/tokens' as tokens;
+
+// Secondary Interaction Feedback Styles (T-024,
+// motion-interaction/technical-design.md, "Secondary Interaction
+// Feedback Styles" — Contract Commitments 7, 8; contributes 9, 16) — a
+// CSS-only stylesheet targeting three different Features' already-public
+// DOM from outside, zero code coupling in any direction (`@use`d from
+// `styles/global.scss` at Root Layout level; none of the three target
+// components import or become aware of this file — the same pattern
+// navTransitions.scss/navActiveIndicator.scss already establish).
+//
+// Targets:
+// - Section Navigation's "about"/"contact" links, by `href` (the same
+//   stable public contract navTransitions.scss already targets) — both
+//   rendering surfaces (the desktop bar's `nav[aria-label='Primary']`
+//   and the mobile overlay's `Dialog.Content`) carry the identical two
+//   hrefs, so one unscoped selector naturally covers both without
+//   distinguishing them as separate variants (this task's own
+//   Constraint: "one ruleset, not per-instance variants"). Unlike
+//   navTransitions.scss's own desktop-only indicator-timing swap (a
+//   different, unrelated treatment gated on T-041's own indicator only
+//   existing on desktop), there's no such reason to exclude the mobile
+//   overlay here — the overlay is exactly where touch/coarse-pointer
+//   visitors (this task's own AC3) actually reach these same links.
+// - Presence Links' own stable `.presence-links__link` class — one
+//   shared component instantiated identically at both placements
+//   (Introduction, Connection), so the same class already covers both
+//   with no separate selector needed.
+// - The Language Switcher's trigger/options — SectionNav.module.scss and
+//   LanguageSwitcher.module.scss's own classes are compiled, hashed CSS
+//   Modules with no stable public name (unlike Direct Contact's/Presence
+//   Links' own deliberately-exposed plain classes), and
+//   DropdownMenu.Portal renders the options outside any nav-landmark
+//   ancestor entirely, so a `nav[aria-label='Primary'] ...`-scoped
+//   selector couldn't reach them regardless. Targeted instead via Radix's
+//   own stable, semantic attributes (live-verified in Chrome against the
+//   actual rendered DOM): the trigger's `aria-haspopup='menu'`, each
+//   option's `role='menuitem'` — the same "stable public DOM contract"
+//   pattern as Section Navigation's own `[aria-current='page']`, just
+//   supplied by the Accessible Primitives Layer (Radix) rather than this
+//   codebase's own markup. This is the only dropdown menu on the page,
+//   so neither attribute needs any further scoping to stay unambiguous.
+
+$hover-focus-active-targets:
+	"a[href='#personal-narrative']", "a[href='#connection']", '.presence-links__link',
+	"button[aria-haspopup='menu']", "[role='menuitem']";
+
+// `:not(.__specificity-boost__)` — live Chrome verification (post-
+// implementation correction) caught Presence Links' rule losing the
+// cascade to PresenceLinkGroup.astro's own scoped `.presence-links__link
+// { color: ... }` style: Astro compiles a scoped style's selector with
+// an added `[data-astro-cid-...]` attribute, which ties this stylesheet's
+// own `.presence-links__link:focus-visible` (class + pseudo-class, same
+// specificity tier as class + attribute) — and that tie's source-order
+// outcome silently kept the plain colour, never showing the gradient
+// fill at all. `:not()` takes the specificity of its own argument; a
+// class selector that matches no real element (`__specificity-boost__`)
+// adds exactly one class-equivalent specificity point without changing
+// which elements match (`:not()` of an always-absent class is always
+// true) — applied uniformly to every target here, not hand-verified
+// per-target against each owning component's own, otherwise-unaudited
+// scoped-style specificity.
+@function selector-list($pseudo) {
+	$result: ();
+	@each $target in $hover-focus-active-targets {
+		$result: list.append($result, string.unquote('#{$target}:not(.__specificity-boost__)#{$pseudo}'), comma);
+	}
+	@return $result;
+}
+
+// Static gradient-fill treatment (ui.md, Colour Application: "a static
+// colour fill... not an animated moving sweep like the CTA's") — the
+// existing text fills with the accent gradient; no new colour token
+// introduced. Declared on every target's own rest state too (not only
+// the interactive-state rules below): a CSS transition animates a
+// change only when the property is declared on the element's own
+// (new) computed style, so it must be present at rest for the swap
+// both into AND out of the fed-back state to animate, not just one
+// direction (same rationale as navTransitions.scss's own identical
+// note on its font-weight swap).
+#{selector-list('')} {
+	transition:
+		color tokens.$transition-duration-fast tokens.$transition-easing,
+		background-image tokens.$transition-duration-fast tokens.$transition-easing;
+}
+
+@mixin gradient-fill {
+	background-image: linear-gradient(90deg, tokens.$color-gradient-start, tokens.$color-gradient-end);
+	background-clip: text;
+	-webkit-background-clip: text;
+	color: transparent;
+}
+
+// AC1/Commitment 7 AC1, AC2/Commitment 8 AC1: hover gated to
+// `(hover: hover) and (pointer: fine)` (technical-design.md,
+// Responsibilities) — excludes touch/coarse-pointer input, which gets
+// the `:active` treatment below instead, satisfying the touch-
+// equivalent requirement (Commitment 6 AC1 pattern, reused here for
+// Commitment 9 AC3) without any JavaScript input-capability detection.
+@media (hover: hover) and (pointer: fine) {
+	#{selector-list(':hover')} {
+		@include gradient-fill;
+	}
+}
+
+// Keyboard focus feedback (Commitment 7 AC1, Commitment 8 AC1's
+// "focusing" branch, Commitment 9 AC3's "focusing the trigger... each
+// option") — `:focus-visible` rather than `:focus`, so a mouse click
+// that also focuses the element doesn't double up with (or diverge
+// from) the hover treatment above.
+#{selector-list(':focus-visible')} {
+	@include gradient-fill;
+}
+
+// Touch/coarse-pointer equivalent (AC3: "`:active` covers touch/
+// coarse-pointer input on all three targets") — applies on any input
+// via `:active`, not gated behind a media feature; harmless overlap
+// with the hover rule above on fine-pointer devices, since a mouse
+// press while hovering already shows the identical treatment.
+#{selector-list(':active')} {
+	@include gradient-fill;
+}
+
+// AC4/Commitment 16 AC6: under reduced motion, the fill's transition
+// duration is disabled — an instant swap, no animated crossfade.
+@media (prefers-reduced-motion: reduce) {
+	#{selector-list('')} {
+		transition: none;
+	}
+}
