@@ -256,16 +256,27 @@ export default function HeroEntranceIsland({ children }: Props) {
     // ("close it slowly till reaches the about"): held fully open
     // (`DIVIDER_HERO_MARK_GAP_PERCENT`, matching SectionNav.module.
     // scss's own 'hero-mark' state) until half of Hero's height, then
-    // closes continuously, tracking scroll 1:1, down to 0% by the time
-    // Hero's full height is scrolled (About reached) — set as an inline
-    // style rather than via a class/attribute + CSS transition, for the
-    // same reason every other value `applyScrollLinkedMotion` sets is:
-    // a CSS transition would fight a per-frame scroll-driven value,
-    // lagging behind the true scroll position instead of tracking it
-    // directly (Commitment 16 AC9's own "driven directly by scroll
-    // position, not timed animation" applies here too, even though this
-    // value isn't itself a Contract commitment of this Feature's own).
+    // closes continuously, tracking scroll 1:1, down to
+    // `DIVIDER_LOGO_GAP_PERCENT` by the time Hero's full height is
+    // scrolled (About reached) — set as an inline style rather than via
+    // a class/attribute + CSS transition, for the same reason every
+    // other value `applyScrollLinkedMotion` sets is: a CSS transition
+    // would fight a per-frame scroll-driven value, lagging behind the
+    // true scroll position instead of tracking it directly (Commitment
+    // 16 AC9's own "driven directly by scroll position, not timed
+    // animation" applies here too, even though this value isn't itself
+    // a Contract commitment of this Feature's own).
+    // Ends at `DIVIDER_LOGO_GAP_PERCENT` (SectionNav.module.scss's own
+    // 'logo' state value), not fully closed (0%): per direct developer
+    // feedback ("do not close it completly, finish the transition on
+    // the same aperture as the about size"). Landing on the exact value
+    // Section Navigation's own 'logo' state already uses means clearing
+    // this override at `DIVIDER_CLOSE_END` (below) is visually
+    // seamless — the divider is already sitting at the width Section
+    // Navigation's own CSS would give it once `isIntroduction` flips,
+    // so there's nothing left to animate at that hand-off.
     const DIVIDER_HERO_MARK_GAP_PERCENT = 52; // SectionNav.module.scss's own 'hero-mark' value — hand-synced.
+    const DIVIDER_LOGO_GAP_PERCENT = 19; // SectionNav.module.scss's own 'logo' value — hand-synced.
     const DIVIDER_CLOSE_START = 0.5;
     const DIVIDER_CLOSE_END = 1;
 
@@ -287,7 +298,10 @@ export default function HeroEntranceIsland({ children }: Props) {
           const closeT = clamp01(
             (progress.heroProgress - DIVIDER_CLOSE_START) / (DIVIDER_CLOSE_END - DIVIDER_CLOSE_START),
           );
-          navDivider.style.setProperty('--divider-gap', `${lerp(DIVIDER_HERO_MARK_GAP_PERCENT, 0, closeT)}%`);
+          navDivider.style.setProperty(
+            '--divider-gap',
+            `${lerp(DIVIDER_HERO_MARK_GAP_PERCENT, DIVIDER_LOGO_GAP_PERCENT, closeT)}%`,
+          );
           navDivider.style.setProperty('transition', 'none');
         } else {
           // About reached — hand control back to Section Navigation's

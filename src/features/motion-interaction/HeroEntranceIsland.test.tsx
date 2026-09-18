@@ -473,7 +473,7 @@ describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transfor
     expect(morphSvg.style.opacity).toBe('1');
   });
 
-  it('desktop: closes Section Navigation\'s divider gap continuously from half of Hero\'s height to a full Hero height (About reached), tracking scroll 1:1 rather than snapping, then hands control back to Section Navigation\'s own CSS', async () => {
+  it('desktop: closes Section Navigation\'s divider gap continuously from half of Hero\'s height to a full Hero height (About reached), tracking scroll 1:1 rather than snapping, landing on the same aperture as Section Navigation\'s own \'logo\' state (not fully closed) before handing control back to its own CSS', async () => {
     const navDivider = document.createElement('div');
     navDivider.setAttribute('data-testid', 'nav-divider');
     document.body.appendChild(navDivider);
@@ -486,7 +486,7 @@ describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transfor
       expect(navDivider.style.transition).toBe('none');
 
       setHeroProgress(container, 0.75);
-      expect(navDivider.style.getPropertyValue('--divider-gap')).toBe('26%');
+      expect(navDivider.style.getPropertyValue('--divider-gap')).toBe('35.5%');
 
       setHeroProgress(container, 1);
       expect(navDivider.style.getPropertyValue('--divider-gap')).toBe('');
