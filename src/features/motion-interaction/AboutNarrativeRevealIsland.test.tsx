@@ -45,6 +45,23 @@ function matchMediaMock(matches: boolean) {
   });
 }
 
+// Differentiates by query, unlike matchMediaMock above (which applies one
+// boolean to every query) — needed once a test cares about two different
+// media features at once (reduced-motion vs hover/pointer capability).
+function matchMediaMockFor(overrides: Record<string, boolean>) {
+  return (query: string) => ({
+    matches: overrides[query] ?? false,
+    media: query,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  });
+}
+
+function mockRect(el: HTMLElement, rect: Partial<DOMRect>): void {
+  el.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0, toJSON: () => {}, ...rect }) as DOMRect;
+}
+
 function narrativeStaticMarkup() {
   return (
     <div className="narrative">
@@ -178,5 +195,100 @@ describe('AboutNarrativeRevealIsland (motion-interaction/contract.md Commitment 
     }
     expect(photoCalls.some((c) => 'filter' in c.keyframes)).toBe(true);
     expect(photoCalls.some((c) => 'boxShadow' in c.keyframes)).toBe(true);
+  });
+});
+
+describe('AboutNarrativeRevealIsland — Photo Tilt (motion-interaction/contract.md Commitment 13)', () => {
+  beforeEach(() => {
+    animateCalls.length = 0;
+    observerInstances = [];
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+    vi.stubGlobal('sessionStorage', undefined);
+    window.location.hash = '';
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    window.location.hash = '';
+    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
+  });
+
+  it('AC1 (desktop): a revealed photo tilts proportionally to cursor position, clamped to the 4° ceiling', () => {
+    vi.stubGlobal('matchMedia', matchMediaMockFor({ '(hover: hover) and (pointer: fine)': true }));
+    vi.spyOn(motionPlaybackStore, 'getRevealedPieceIds').mockReturnValue(['about-photo-landscape']);
+
+    const { container } = render(<AboutNarrativeRevealIsland>{narrativeStaticMarkup()}</AboutNarrativeRevealIsland>);
+    const landscape = container.querySelector<HTMLElement>('.narrative__photo--landscape')!;
+    mockRect(landscape, { left: 0, width: 100 });
+
+    landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+    expect(landscape.style.transform).toContain('rotate(4deg)');
+
+    landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 0 }));
+    expect(landscape.style.transform).toContain('rotate(-4deg)');
+  });
+
+  it("doesn't tilt a photo that hasn't been revealed yet", () => {
+    vi.stubGlobal('matchMedia', matchMediaMockFor({ '(hover: hover) and (pointer: fine)': true }));
+    // getRevealedPieceIds defaults to [] (sessionStorage stubbed away) — landscape stays Hidden.
+
+    const { container } = render(<AboutNarrativeRevealIsland>{narrativeStaticMarkup()}</AboutNarrativeRevealIsland>);
+    const landscape = container.querySelector<HTMLElement>('.narrative__photo--landscape')!;
+    mockRect(landscape, { left: 0, width: 100 });
+
+    landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+
+    expect(landscape.style.transform).toBe('');
+  });
+
+  it('AC2 (desktop): leaving the photo schedules an eased return to rest rather than an instant snap', () => {
+    vi.stubGlobal('matchMedia', matchMediaMockFor({ '(hover: hover) and (pointer: fine)': true }));
+    vi.spyOn(motionPlaybackStore, 'getRevealedPieceIds').mockReturnValue(['about-photo-landscape']);
+
+    const { container } = render(<AboutNarrativeRevealIsland>{narrativeStaticMarkup()}</AboutNarrativeRevealIsland>);
+    const landscape = container.querySelector<HTMLElement>('.narrative__photo--landscape')!;
+    mockRect(landscape, { left: 0, width: 100 });
+
+    landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+    landscape.dispatchEvent(new PointerEvent('pointerleave'));
+
+    const resetCall = animateCalls.find((c) => typeof c.target === 'number');
+    expect(resetCall).toBeDefined();
+    expect(resetCall?.target).toBe(4);
+    expect(resetCall?.keyframes).toBe(0);
+    expect(resetCall?.options.duration).toBe(0.4);
+    expect(resetCall?.options.ease).toBe('easeOut');
+  });
+
+  it('AC3 (mobile): tilt derives from scroll velocity and applies only to already-revealed photos, with no device-motion permission involved', () => {
+    vi.stubGlobal('matchMedia', matchMediaMockFor({})); // hover/pointer-fine false -> mobile path
+    vi.spyOn(motionPlaybackStore, 'getRevealedPieceIds').mockReturnValue(['about-photo-landscape']);
+
+    const { container } = render(<AboutNarrativeRevealIsland>{narrativeStaticMarkup()}</AboutNarrativeRevealIsland>);
+    const landscape = container.querySelector<HTMLElement>('.narrative__photo--landscape')!;
+    const portrait = container.querySelector<HTMLElement>('.narrative__photo--portrait')!;
+
+    Object.defineProperty(window, 'scrollY', { value: 50, configurable: true });
+    window.dispatchEvent(new Event('scroll'));
+
+    expect(landscape.style.transform).toMatch(/rotate\((?!0deg)-?\d/);
+    expect(portrait.style.transform).toBe(''); // not yet revealed -> untouched
+  });
+
+  it('Commitment 16 AC10: under reduced motion, photo tilt is disabled entirely', () => {
+    vi.stubGlobal(
+      'matchMedia',
+      matchMediaMockFor({ '(prefers-reduced-motion: reduce)': true, '(hover: hover) and (pointer: fine)': true }),
+    );
+
+    const { container } = render(<AboutNarrativeRevealIsland>{narrativeStaticMarkup()}</AboutNarrativeRevealIsland>);
+    const landscape = container.querySelector<HTMLElement>('.narrative__photo--landscape')!;
+    mockRect(landscape, { left: 0, width: 100 });
+
+    landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+
+    expect(landscape.style.transform).toBe('');
   });
 });

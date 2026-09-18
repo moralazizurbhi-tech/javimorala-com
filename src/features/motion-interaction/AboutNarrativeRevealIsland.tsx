@@ -2,13 +2,14 @@ import { useLayoutEffect, useEffect, useRef, type ReactNode } from 'react';
 import { animate, type AnimationPlaybackControlsWithThen } from 'framer-motion';
 import { getRevealedPieceIds, markPiecesRevealed } from './motionPlaybackStore';
 
-// About Narrative Reveal Island (T-020) —
-// motion-interaction/technical-design.md, "About Narrative Reveal
-// Island" (progressive-reveal + direct-navigation-arrival
-// responsibilities only, Commitment 1; the same component's photo-tilt
-// responsibility, Commitment 13, is T-036's own separate scope, per the
-// Task Catalog's explicit split). Composed around About Narrative
-// Composition's (about-narrative/AboutNarrativeComposition.astro)
+// About Narrative Reveal Island (T-020 progressive-reveal +
+// direct-navigation-arrival, Commitment 1; T-036 photo tilt, Commitment
+// 13 — the Task Catalog's own explicit split of one Technical Design
+// component, "About Narrative Reveal Island," across two Tasks; both
+// land in this one file per that component's own Design Decision 3:
+// "realized within the same island already wrapping About Narrative's
+// photos, rather than a separate component"). Composed around About
+// Narrative Composition's (about-narrative/AboutNarrativeComposition.astro)
 // already-rendered static markup via the same static-children-in-island
 // pattern as HeroEntranceIsland — targets it by class after mount,
 // never alters its own file.
@@ -82,6 +83,75 @@ const PHOTO_BLUR_DURATION = 0.5;
 const PHOTO_TINT_RGB = '75, 33, 120';
 const PHOTO_TINT_ALPHA = 0.75;
 const PHOTO_TINT_DURATION = 0.7; // longer than the blur, so it clears a touch after it
+
+// Photo Tilt (T-036, motion-interaction/technical-design.md, "About
+// Narrative Reveal Island" — tilt responsibilities; Commitment 13) —
+// additive to each photo's own static base rotation
+// (about-narrative/AboutNarrativeComposition.astro's own
+// `rotate(...) translateX(...)`, e.g. `.narrative__photo--portrait`/
+// `--landscape`). Read live via `getComputedStyle` rather than
+// duplicating those numbers here, so this applies correctly "whether
+// the base is 0° or something else" (this Task's own Constraints) and
+// never needs hand-syncing if about-narrative's own values change —
+// unlike navTransitions.scss's/NavActiveIndicatorIsland's own
+// deliberately-hand-synced constants, there's no reason to accept that
+// drift risk here when the live DOM already carries the exact answer.
+// Desktop vs mobile is decided once at mount via `(hover: hover) and
+// (pointer: fine)` — the same media feature
+// secondaryInteractionFeedback.scss already uses for this codebase's
+// hover/touch split — consistent with this island's own established
+// pattern of not reacting to breakpoint changes at runtime.
+
+const MAX_TILT_DEG = 4; // Commitment 13 AC1's own stated ceiling.
+const TILT_RESET_DURATION = 0.4; // AC2: eases back, doesn't snap.
+// Mobile has no prescribed numeric formula (Commitment 13 AC3 only
+// names "scroll direction/velocity") — Implementation Detail, tuned so
+// a brisk scroll (~1px/ms) reads as a clearly visible, not extreme,
+// tilt, decaying back toward rest once scrolling stops.
+const SCROLL_TILT_SENSITIVITY = 1.5; // deg per (px/ms) of scroll velocity.
+const SCROLL_TILT_DECAY = 0.85; // multiplier applied per animation frame at rest.
+
+interface BaseTransform {
+  rotateDeg: number;
+  xPx: number;
+}
+
+const IDENTITY_BASE: BaseTransform = { rotateDeg: 0, xPx: 0 };
+
+// Decomposes a `matrix(a, b, c, d, e, f)` produced by
+// `rotate(θ) translateX(tx)` back into (θ, tx): for that specific
+// function pair, a = cosθ, b = sinθ, e = cosθ·tx — exact (not an
+// approximation) for any rotate+translateX combination, which is the
+// only shape About Narrative Composition's own photo transforms use.
+function readBaseTransform(el: HTMLElement): BaseTransform {
+  const computed = window.getComputedStyle(el).transform;
+  if (!computed || computed === 'none') return IDENTITY_BASE;
+  const match = /^matrix\(([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)\)$/.exec(computed.replace(/\s+/g, ''));
+  if (!match) return IDENTITY_BASE;
+  const a = Number(match[1]);
+  const b = Number(match[2]);
+  const e = Number(match[5]);
+  const rotateRad = Math.atan2(b, a);
+  const cos = Math.cos(rotateRad);
+  const xPx = Math.abs(cos) > 1e-4 ? e / cos : e;
+  return { rotateDeg: (rotateRad * 180) / Math.PI, xPx };
+}
+
+function clampTilt(deg: number): number {
+  return Math.max(-MAX_TILT_DEG, Math.min(MAX_TILT_DEG, deg));
+}
+
+function applyTiltTransform(el: HTMLElement, base: BaseTransform, tiltDeg: number): void {
+  el.style.transform = `translateX(${base.xPx}px) rotate(${base.rotateDeg + tiltDeg}deg)`;
+}
+
+function prefersFinePointerHover(): boolean {
+  try {
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  } catch {
+    return false;
+  }
+}
 
 type PieceKind = 'paragraph' | 'opening' | 'photo';
 
@@ -242,10 +312,112 @@ export default function AboutNarrativeRevealIsland({ children }: Props) {
     }
     window.addEventListener('hashchange', onHashChange);
 
+    // T-036 (Commitment 13): photo tilt, gated per-photo on that
+    // photo's own Revealed state via `revealedIds` — the same Set the
+    // reveal logic above already maintains, so a `Hidden` photo simply
+    // never receives a non-zero tilt (AC: "a Hidden photo doesn't
+    // tilt"), with no separate tracking needed.
+    const photoPieces = pieces.filter((piece) => piece.kind === 'photo');
+    const baseTransforms = new Map<HTMLElement, BaseTransform>(
+      photoPieces.map((piece) => [piece.el, readBaseTransform(piece.el)]),
+    );
+    const tiltCleanups: Array<() => void> = [];
+
+    if (prefersFinePointerHover()) {
+      // Desktop (AC1/AC2): cursor position relative to the photo drives
+      // rotation directly while hovered (continuous following, no
+      // easing mid-hover); leaving eases back to rest instead of
+      // snapping.
+      for (const piece of photoPieces) {
+        const el = piece.el;
+        const base = baseTransforms.get(el) ?? IDENTITY_BASE;
+        let currentDeg = 0;
+        let resetControls: AnimationPlaybackControlsWithThen | undefined;
+
+        function onPointerMove(event: PointerEvent): void {
+          if (!revealedIds.has(piece.id)) return;
+          resetControls?.stop();
+          const rect = el.getBoundingClientRect();
+          const nx = rect.width > 0 ? ((event.clientX - rect.left) / rect.width) * 2 - 1 : 0;
+          currentDeg = clampTilt(nx * MAX_TILT_DEG);
+          applyTiltTransform(el, base, currentDeg);
+        }
+
+        function onPointerLeave(): void {
+          resetControls?.stop();
+          resetControls = animate(currentDeg, 0, {
+            duration: TILT_RESET_DURATION,
+            ease: 'easeOut',
+            onUpdate: (deg) => {
+              currentDeg = deg;
+              applyTiltTransform(el, base, deg);
+            },
+          });
+          track([resetControls]);
+        }
+
+        el.addEventListener('pointermove', onPointerMove);
+        el.addEventListener('pointerleave', onPointerLeave);
+        tiltCleanups.push(() => {
+          el.removeEventListener('pointermove', onPointerMove);
+          el.removeEventListener('pointerleave', onPointerLeave);
+          resetControls?.stop();
+        });
+      }
+    } else if (photoPieces.length > 0) {
+      // Mobile (AC3): one shared scroll-velocity-derived tilt, applied
+      // identically to every currently-Revealed photo — no device
+      // orientation/motion permission requested or required. Decays
+      // back toward rest once scrolling stops, rather than sticking at
+      // the last value.
+      let lastY = window.scrollY;
+      let lastTime = performance.now();
+      let currentDeg = 0;
+      let decayFrame: number | undefined;
+
+      function applyToRevealed(deg: number): void {
+        for (const piece of photoPieces) {
+          if (!revealedIds.has(piece.id)) continue;
+          applyTiltTransform(piece.el, baseTransforms.get(piece.el) ?? IDENTITY_BASE, deg);
+        }
+      }
+
+      function stepDecay(): void {
+        currentDeg *= SCROLL_TILT_DECAY;
+        if (Math.abs(currentDeg) < 0.05) {
+          currentDeg = 0;
+          applyToRevealed(0);
+          decayFrame = undefined;
+          return;
+        }
+        applyToRevealed(currentDeg);
+        decayFrame = window.requestAnimationFrame(stepDecay);
+      }
+
+      function onScroll(): void {
+        const now = performance.now();
+        const dt = Math.max(now - lastTime, 1);
+        const dy = window.scrollY - lastY;
+        lastY = window.scrollY;
+        lastTime = now;
+
+        currentDeg = clampTilt((dy / dt) * SCROLL_TILT_SENSITIVITY);
+        applyToRevealed(currentDeg);
+        if (decayFrame === undefined) decayFrame = window.requestAnimationFrame(stepDecay);
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      tiltCleanups.push(() => {
+        window.removeEventListener('scroll', onScroll);
+        if (decayFrame !== undefined) window.cancelAnimationFrame(decayFrame);
+      });
+    }
+
     return () => {
       window.removeEventListener('hashchange', onHashChange);
       observer?.disconnect();
       activeControls.forEach((controls) => controls.stop());
+      tiltCleanups.forEach((cleanup) => cleanup());
     };
   }, []);
 
