@@ -1,6 +1,8 @@
-import { useLayoutEffect, useEffect, useRef, type ReactNode } from 'react';
+import { useLayoutEffect, useEffect, useRef, useState, type ReactNode } from 'react';
 import { animate, type AnimationPlaybackControlsWithThen } from 'framer-motion';
 import { isHeroEntrancePlayed, markHeroEntrancePlayed } from './motionPlaybackStore';
+import { subscribeScrollProgress, type ScrollProgress } from './scrollProgressStore';
+import { buildInterpolatedD, loadHeroMarkMorphData, type MorphData } from './heroMarkMorphData';
 
 // Hero Entrance & Ambient Motion Island (T-019) —
 // motion-interaction/technical-design.md, "Hero Entrance & Ambient
@@ -14,21 +16,34 @@ import { isHeroEntrancePlayed, markHeroEntrancePlayed } from './motionPlaybackSt
 // class after mount, and never touches HeroComposition.astro's own
 // file.
 //
-// Two elements here (`.hero__mark`'s "drawn on" bloom, and the ambient
-// gradient drift's own hue shift) are specified against SVG-level
-// mechanisms (stroke-dashoffset, gradient focal-point) that assume the
-// mark's artwork is inline SVG in the page. It isn't: HeroComposition
-// renders it as `<img src="/ornamental-mark.svg">`, an external
-// resource opaque to this page's CSS/JS — its internal <path> stroke
-// and gradient stops are unreachable, and altering that markup to
-// inline SVG is exactly what this component must not do (Constraints:
-// "must not alter Hero Composition's markup"). Classified as an
-// Implementation Detail, not a Contradiction: ui.md's own scope note
-// excludes "animation technology" from its own commitment, leaving the
-// concrete mechanism open. Realized instead via `clip-path` (bloom) and
-// a `hue-rotate` filter (drift) applied to the `<img>` from outside —
-// same observable "traced, not faded" / "hue-shifting" character ui.md
-// describes, without requiring DOM access this element doesn't expose.
+// The entrance bloom and ambient drift (below) are specified against
+// SVG-level mechanisms (stroke-dashoffset, gradient focal-point) that
+// assume the mark's artwork is inline SVG in the page. It isn't:
+// HeroComposition renders it as `<img src="/ornamental-mark.svg">`, an
+// external resource opaque to this page's CSS/JS — its internal <path>
+// stroke and gradient stops are unreachable, and altering that markup
+// to inline SVG is exactly what this component must not do
+// (Constraints: "must not alter Hero Composition's markup"). Classified
+// as an Implementation Detail, not a Contradiction: ui.md's own scope
+// note excludes "animation technology" from its own commitment, leaving
+// the concrete mechanism open. Realized instead via `clip-path` (bloom)
+// and a `hue-rotate` filter (drift) applied to the `<img>` from outside
+// — same observable "traced, not faded" / "hue-shifting" character
+// ui.md describes, without requiring DOM access this element doesn't
+// expose.
+//
+// The scroll-linked mark *transformation* (Commitment 12, further
+// below) has the identical constraint but a different resolution: this
+// component renders its own separate inline `<svg>` (`heroMarkMorphData.ts`
+// fetches and parses `/ornamental-mark-morph.svg` and
+// `/ornamental-logo-morph.svg` at runtime — dedicated assets, not the
+// same `/ornamental-mark.svg`/`/ornamental-logo.svg` HeroComposition's
+// own `<img>` and Section Navigation's own compact-logo `<img>` use,
+// since those two need a different framing than this morph's own
+// shared canvas does — never touching HeroComposition's own `<img>` or
+// file) — a real path-geometry morph needs actual DOM access to
+// `<path d>`, which only an inline SVG this component itself owns can
+// provide.
 
 // SSR-safe layout effect: Astro's React integration pre-renders this
 // component to static HTML during the build; useLayoutEffect logs a
@@ -98,12 +113,88 @@ const ENTRANCE_Y_OFFSET = 12; // px
 const AMBIENT_DRIFT_DURATION = 18;
 const AMBIENT_HUE_SHIFT_DEG = 10;
 
+// Hero Scroll-Linked Content Exit & Mark Transformation (T-035,
+// motion-interaction/technical-design.md; Commitments 11, 12) — both
+// windows are fractions of Shared Scroll Progress Store's Hero-relative
+// progress value (ui.md, Interaction Choreography: content exit ~0-35%
+// of Hero height; mark transformation "~25-70%", itself an approximate
+// figure). Unlike the entrance sequence above, this is driven directly
+// and continuously by scroll position, not a timed animation —
+// Commitment 16 AC9: stays fully active under reduced motion.
+//
+// The mark's own window starts at 0 (not some later fraction), per
+// post-implementation developer direction on two counts: reaching the
+// logo-like end state sooner, and — the more load-bearing reason — the
+// mark must never be visibly cropped by the viewport's own top edge
+// while scrolling. Before this component takes over, `.hero__mark` is
+// `position: absolute` (document-flow) and scrolls normally, same as
+// any other in-flow content — which means it *does* scroll off the top
+// edge like normal content would, for as long as any "dead zone" delays
+// this component's own `position: fixed` takeover (confirmed via a live
+// Chrome check: with a start fraction of 0.1, the mark visibly clipped
+// against the top edge for scroll positions *before* that threshold).
+// Starting the window at 0 means the takeover — and with it, the
+// guarantee the interpolated `top` never goes negative (both of its own
+// endpoints are positive by construction) — begins at the very first
+// pixel of scroll, leaving no such gap.
+const CONTENT_EXIT_END = 0.35;
+const MARK_TRANSFORM_START = 0;
+const MARK_TRANSFORM_END = 0.35;
+
+// Developer direction: the mark's own outer ornamentation (the 6 paths
+// with no logo equivalent, `!isReal` in heroMarkMorphData.ts) doesn't
+// all fade at once — it disappears in two sequential groups, fully
+// gone before the 3 real paths (`isReal`) start morphing at all,
+// rather than fading and morphing concurrently. Indices are 0-indexed
+// file-order positions, specific to this exact asset pair
+// (`/ornamental-mark-morph.svg` / `/ornamental-logo-morph.svg`)'s own
+// known 9-path structure — confirmed against the developer's own
+// color-coded reference (red/green/yellow, then orange/purple/cyan,
+// leaving blue/magenta/lime to morph) — not a general inference from
+// path geometry the way `isReal` itself is.
+const MARK_FADE_GROUP_1_INDICES = new Set([0, 1, 2]);
+const MARK_FADE_GROUP_2_INDICES = new Set([4, 5, 6]);
+
+// Mirrors `styles/tokens/_breakpoints.scss`'s own `$breakpoint-desktop`
+// — that file's own comment already treats this exact value as an
+// Implementation Detail with no Technical Design authority fixing it;
+// duplicated here since JS has no access to Sass tokens at runtime.
+const DESKTOP_QUERY = '(min-width: 768px)';
+
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value));
+}
+
+function lerp(from: number, to: number, t: number): number {
+  return from + (to - from) * t;
+}
+
 interface Props {
   children: ReactNode;
 }
 
 export default function HeroEntranceIsland({ children }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const morphSvgRef = useRef<SVGSVGElement>(null);
+  const morphPathRefs = useRef<(SVGPathElement | null)[]>([]);
+  // React state (triggers the one render that mounts the morph SVG's
+  // own `<path>` elements) and a parallel ref (read fresh, every scroll
+  // frame, by the stable — mount-once, empty-deps — layout effect
+  // below, which would otherwise close over a stale `null` forever).
+  const [morphData, setMorphData] = useState<MorphData | null>(null);
+  const morphDataRef = useRef<MorphData | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadHeroMarkMorphData().then((data) => {
+      if (cancelled) return;
+      morphDataRef.current = data;
+      setMorphData(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useIsomorphicLayoutEffect(() => {
     const container = containerRef.current;
@@ -135,9 +226,194 @@ export default function HeroEntranceIsland({ children }: Props) {
       container.querySelector<HTMLElement>('.hero__scroll-cue'),
       container.querySelector<HTMLElement>('.introduction__presence-links'),
     ].filter(isElement);
+    const contentExitEls = [headlinePrimary, ...secondaryHeadlineEls, ...finalBeatEls].filter(isElement);
+    const hero = container.querySelector<HTMLElement>('.hero');
+    const naturalProbe = container.querySelector<HTMLElement>('.hero-mark-natural-probe');
+    const targetProbe = container.querySelector<HTMLElement>('.hero-mark-target-probe');
+
+    // Once fully docked (heroProgress reaches 1 — scrolled a full Hero
+    // height), Section Navigation's own compact-logo mechanism
+    // (`navTransitions.scss`'s `::after`, a separate, already-approved
+    // element realizing a different task) is expected to take over the
+    // same visual role; without hiding this element then, the two
+    // otherwise double up at the identical position — a real defect a
+    // live Chrome check caught. `heroProgress` alone is used, not a
+    // separate sentinel observation, because Section Navigation's own
+    // `isIntroduction` flip is itself driven by `#introduction`'s own
+    // bottom edge leaving the viewport — the same physical event
+    // `heroProgress` reaching 1 already tracks (`#introduction` and
+    // `.hero` share the same box height), keeping the two thresholds as
+    // close as this Feature's own zero-code-dependency constraint
+    // allows. Post-implementation developer direction: an earlier
+    // version hid at `#hero-mark-boundary` clearing instead (~70-75% of
+    // Hero height) — a different, narrower-purpose sentinel (Section
+    // Navigation's own divider-fill state, Commitment 8) that cleared
+    // well before Section Navigation's own compact-logo actually
+    // appears, leaving a visible gap where neither showed. This doesn't
+    // guarantee zero gap either (the two are still independently
+    // computed, per Shared Scroll Progress Store's own Constraints —
+    // consistency with Section Navigation "by construction," not a
+    // shared value), but narrows it to whatever slack remains between
+    // the two components' own scroll-position observations.
+    const HERO_MARK_HIDE_THRESHOLD = 1;
+
+    // Hero Scroll-Linked Content Exit & Mark Transformation (Commitments
+    // 11, 12) — reads Shared Scroll Progress Store's Hero-relative value
+    // directly and continuously; Commitment 16 AC9 requires this to stay
+    // active under reduced motion, unlike the entrance/ambient-drift
+    // logic below, so it is wired up independently of every branch's own
+    // reduced-motion/already-played decision (see the three call sites
+    // below), never gated on `prefersReducedMotion()`.
+    function applyScrollLinkedMotion(progress: ScrollProgress) {
+      // Holds Section Navigation's own wide divider gap open for the
+      // entire Hero scroll — see heroMarkMorph.scss's own comment on
+      // this exact attribute/selector for why (a real defect a
+      // developer caught live: the nav's own solid-bar border-bottom,
+      // shown once Section Navigation's *own* mark-visibility sentinel
+      // clears, cut across this component's own still-visible mark).
+      document.documentElement.toggleAttribute(
+        'data-hero-scroll-active',
+        progress.heroProgress < HERO_MARK_HIDE_THRESHOLD,
+      );
+      const exitT = clamp01(progress.heroProgress / CONTENT_EXIT_END);
+      const exitOpacity = 1 - exitT;
+      contentExitEls.forEach((el) => {
+        el.style.opacity = String(exitOpacity);
+      });
+
+      if (!mark) return;
+      const markT = clamp01(
+        (progress.heroProgress - MARK_TRANSFORM_START) / (MARK_TRANSFORM_END - MARK_TRANSFORM_START),
+      );
+
+      const morphData = morphDataRef.current;
+      const morphSvg = morphSvgRef.current;
+
+      if (window.matchMedia(DESKTOP_QUERY).matches && hero && naturalProbe && targetProbe && morphData && morphSvg) {
+        // Desktop/tablet-with-space (Commitment 12 AC1): a real
+        // path-geometry morph of the same element into the nav's
+        // compact-logo form — never crossfades with a second one, per
+        // developer direction rejecting an earlier scale/crop
+        // approximation. `.hero__mark` itself stays a plain `<img>`
+        // (hidden below, not morphed directly — still not inline SVG,
+        // see this file's own top-of-file note); this island's own
+        // separate inline `<svg>` (populated from `heroMarkMorphData.ts`)
+        // is what actually morphs, positioned identically.
+        //
+        // `top` needs one extra step width/height don't: the natural
+        // probe is `position: absolute` (document-flow, scroll-
+        // following), so its *live* rect keeps drifting upward for as
+        // long as the visitor keeps scrolling — blending directly
+        // against that live, still-moving value made the mark appear to
+        // race off-screen mid-transformation before snapping back near
+        // the target at markT≈1 (live Chrome verification caught this;
+        // no unit test did, since those mock the probes' rects as
+        // static). Converting to document-space (`+ window.scrollY`)
+        // and evaluating it at the *fixed* scroll position where this
+        // window itself starts (`MARK_TRANSFORM_START`) — not the
+        // current, later scroll position — gives a stable interpolation
+        // source: correct at markT=0 by construction, and never drifts
+        // for the rest of the window.
+        const heroRect = hero.getBoundingClientRect();
+        const heroDocTop = heroRect.top + window.scrollY;
+        const naturalRect = naturalProbe.getBoundingClientRect();
+        const naturalDocTop = naturalRect.top + window.scrollY;
+        // Before the window starts (heroProgress <= MARK_TRANSFORM_START,
+        // markT already clamped to 0), the frozen value below isn't used
+        // at all yet — the live natural top tracks scroll normally, same
+        // as this element's own un-overridden CSS would. The two are
+        // identical exactly at the boundary (by construction), so
+        // switching source there is seamless.
+        const naturalTopAtWindowStart =
+          heroRect.height > 0
+            ? naturalDocTop - heroDocTop - MARK_TRANSFORM_START * heroRect.height
+            : naturalRect.top;
+        const naturalTopSource = progress.heroProgress <= MARK_TRANSFORM_START ? naturalRect.top : naturalTopAtWindowStart;
+        const target = targetProbe.getBoundingClientRect();
+
+        // `.hero__mark` itself is never positioned/transformed on
+        // desktop anymore — it's simply hidden. The morph SVG below is
+        // this island's own element (a sibling of `.hero`, not a
+        // descendant of it), so — unlike `.hero__mark` itself — it was
+        // never trapped by `.hero`'s own `isolation: isolate` stacking
+        // context in the first place (confirmed live: `.hero`'s own
+        // isolation traps a *descendant's* z-index against the nav
+        // bar's `z-index: 10`, regardless of that descendant's own
+        // value — the fix that mattered was never touching this
+        // element's own ancestry to begin with, not raising a number).
+        mark.style.visibility = 'hidden';
+
+        morphSvg.style.top = `${lerp(naturalTopSource, target.top, markT)}px`;
+        morphSvg.style.width = `${lerp(naturalRect.width, target.width, markT)}px`;
+        morphSvg.style.height = `${lerp(naturalRect.height, target.height, markT)}px`;
+        morphSvg.style.opacity = progress.heroProgress < HERO_MARK_HIDE_THRESHOLD ? '1' : '0';
+
+        // Developer direction: three *sequential* phases within the
+        // same markT window (not concurrent) — fade group 1, then fade
+        // group 2, then morph, each getting its own full 0→1 sub-range
+        // of markT and clamping outside it. The morph (and the
+        // viewBox crop that goes with it) only starts once both fade
+        // groups have fully disappeared.
+        const fadeGroup1T = clamp01(markT * 3);
+        const fadeGroup2T = clamp01(markT * 3 - 1);
+        const morphT = clamp01(markT * 3 - 2);
+
+        const viewBox = morphData.fromViewBox.map((from, i) => lerp(from, morphData.toViewBox[i], morphT));
+        morphSvg.setAttribute('viewBox', viewBox.join(' '));
+        morphData.paths.forEach((p, i) => {
+          const pathEl = morphPathRefs.current[i];
+          if (!pathEl) return;
+          if (p.isReal) {
+            // The 3 paths with real target geometry: the actual
+            // shape-morph, per Commitment 12 AC1.
+            pathEl.setAttribute('d', buildInterpolatedD(p.template, p.fromNumbers, p.toNumbers, morphT));
+          } else {
+            // Developer direction: the 6 outer/lateral "orphan" paths
+            // (no logo equivalent) fade out in place instead of having
+            // their own geometry interpolated down to a single point —
+            // collapsing real artwork to a vanishing dot read as a
+            // shrink, not a fade, and looked like an artifact rather
+            // than ornamentation dissolving away. `d` stays fixed at
+            // the mark's own original shape throughout; only `opacity`
+            // changes, in whichever of the two sequential groups this
+            // path belongs to.
+            const groupT = MARK_FADE_GROUP_1_INDICES.has(i)
+              ? fadeGroup1T
+              : MARK_FADE_GROUP_2_INDICES.has(i)
+                ? fadeGroup2T
+                : 0; // unexpected: neither group nor real — stays fully visible rather than guessing
+            pathEl.style.opacity = String(1 - groupT);
+          }
+        });
+      } else if (window.matchMedia(DESKTOP_QUERY).matches) {
+        // Morph data hasn't loaded yet (or failed to) — graceful
+        // fallback: leave `.hero__mark` in its plain, untransformed
+        // resting state rather than reproducing a separate, cruder
+        // mechanism. In practice this is a same-tab-session, sub-frame
+        // window (a small local asset fetch), not a lasting degradation.
+        mark.style.visibility = '';
+        if (morphSvg) morphSvg.style.opacity = '0';
+      } else {
+        // Mobile (Commitment 12 AC2): no logomark destination exists —
+        // dissolves via a reverse trace of its own entrance stroke.
+        // `.hero__mark` isn't inline SVG (see above), so realized as the
+        // exact reverse of the entrance's own center-out `clip-path`
+        // reveal (MARK_CLIP_HIDDEN/MARK_CLIP_VISIBLE above), same "drawn
+        // off" character. `.hero__mark` is never moved or repositioned
+        // on desktop anymore (only hidden — see above), so restoring it
+        // here is just clearing that visibility override and the morph
+        // SVG's own opacity, in case the viewport crossed the breakpoint
+        // mid-transformation.
+        mark.style.visibility = '';
+        if (morphSvg) morphSvg.style.opacity = '0';
+        const inset = 50 * markT;
+        mark.style.clipPath = `inset(0 ${inset}% 0 ${inset}%)`;
+      }
+    }
 
     let cancelled = false;
     let ambientControls: AnimationPlaybackControlsWithThen | undefined;
+    let unsubscribeScroll: (() => void) | undefined;
     const activeControls: AnimationPlaybackControlsWithThen[] = [];
 
     function track(controls: AnimationPlaybackControlsWithThen): AnimationPlaybackControlsWithThen {
@@ -167,8 +443,11 @@ export default function HeroEntranceIsland({ children }: Props) {
     // played flag since it applies regardless of whether this is the
     // visit's first arrival.
     if (prefersReducedMotion()) {
+      unsubscribeScroll = subscribeScrollProgress(applyScrollLinkedMotion);
       return () => {
         ambientControls?.stop();
+        unsubscribeScroll?.();
+        document.documentElement.removeAttribute('data-hero-scroll-active');
       };
     }
 
@@ -176,8 +455,11 @@ export default function HeroEntranceIsland({ children }: Props) {
     // the sequence) renders final state directly, no replay.
     if (isHeroEntrancePlayed()) {
       startAmbientDrift();
+      unsubscribeScroll = subscribeScrollProgress(applyScrollLinkedMotion);
       return () => {
         ambientControls?.stop();
+        unsubscribeScroll?.();
+        document.documentElement.removeAttribute('data-hero-scroll-active');
       };
     }
 
@@ -270,6 +552,7 @@ export default function HeroEntranceIsland({ children }: Props) {
 
       markHeroEntrancePlayed();
       startAmbientDrift();
+      unsubscribeScroll = subscribeScrollProgress(applyScrollLinkedMotion);
     }
 
     playEntrance();
@@ -278,6 +561,8 @@ export default function HeroEntranceIsland({ children }: Props) {
       cancelled = true;
       activeControls.forEach((controls) => controls.stop());
       ambientControls?.stop();
+      unsubscribeScroll?.();
+      document.documentElement.removeAttribute('data-hero-scroll-active');
     };
   }, []);
 
@@ -289,6 +574,46 @@ export default function HeroEntranceIsland({ children }: Props) {
   return (
     <div ref={containerRef} style={{ display: 'contents' }}>
       {children}
+      {/*
+        Hero Mark Transformation measurement probes (T-035) — invisible,
+        `aria-hidden` elements this island's own children (not Hero
+        Composition's or Section Navigation's markup); see
+        heroMarkMorph.scss's own header comment for why they exist.
+      */}
+      <div className="hero-mark-natural-probe" aria-hidden="true" />
+      <div className="hero-mark-target-probe" aria-hidden="true" />
+      {/*
+        Hero Mark → compact-logo morph (T-035, Commitment 12 AC1) — this
+        island's own inline SVG (never Hero Composition's own `<img>`,
+        which stays hidden but untouched on desktop), rendering the
+        exact same paths/gradients `heroMarkMorphData.ts` fetched from
+        `/ornamental-mark-morph.svg`. Its `d`/`viewBox` are set once here (the
+        markT=0 state, identical to the plain mark) and imperatively
+        thereafter, in the layout effect above — a real path-geometry
+        morph needs actual attribute access no `<img>` can provide.
+        Rendered only once the fetch resolves; `display: none` in its
+        own stylesheet otherwise.
+      */}
+      {morphData && (
+        <svg
+          ref={morphSvgRef}
+          className="hero-mark-morph"
+          viewBox={morphData.fromViewBox.join(' ')}
+          aria-hidden="true"
+        >
+          <defs dangerouslySetInnerHTML={{ __html: morphData.gradientDefsMarkup }} />
+          {morphData.paths.map((p, i) => (
+            <path
+              key={i}
+              ref={(el) => {
+                morphPathRefs.current[i] = el;
+              }}
+              fill={p.fill}
+              d={buildInterpolatedD(p.template, p.fromNumbers, p.toNumbers, 0)}
+            />
+          ))}
+        </svg>
+      )}
     </div>
   );
 }

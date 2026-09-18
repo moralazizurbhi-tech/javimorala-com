@@ -8,39 +8,33 @@
 // imported by Section Navigation's own component, which stays entirely
 // unaware of it (technical-design.md, Design Decision 1).
 //
-// 1. Compact-logomark presence transition (Commitment 3). Section
-//    Navigation mounts/unmounts the compact-mark anchor entirely
-//    (conditional JSX on `isIntroduction`, not a class/attribute toggle
-//    on an already-present node — see SectionNav.tsx), so a `transition`
-//    declared on the anchor itself can only ever animate its ENTRANCE:
-//    React removes the node from the DOM before any exit transition
-//    could run. Resolved via `:has()`: `.nav`'s own element never
-//    unmounts, so a decorative `::after` generated purely by whether
-//    `.nav` currently HAS that child transitions in both directions via
-//    `@starting-style` + `transition-behavior: allow-discrete` — the
-//    browser treats the pseudo-element's appearance/disappearance as an
-//    ordinary style recalculation it can animate, unlike a real DOM
-//    removal. The real anchor stays mounted exactly as Section
-//    Navigation renders it (still the real, hit-testable, accessible
-//    link — `aria-label="Introduction"`); only its own visual paint is
-//    handed to the decorative pseudo-element (`pointer-events: none`,
-//    `aria-hidden` by construction since generated content never enters
-//    the accessibility tree).
-// 2. The "about"/"contact" active link's font-weight swap (contributes
-//    to Commitment 4; motion-interaction/ui.md, Merged indicator
-//    (active-screen)), targeting Section Navigation's own
-//    `[aria-current='page']` attribute — the stable, semantic signal
-//    Section Navigation's Technical Design deliberately exposes for
-//    external consumption. Delayed via `transition-delay` so the swap
-//    lands during T-041's own phase-2 (travel) onset, when the
-//    indicator itself is least visually prominent.
+// The "about"/"contact" active link's font-weight swap (contributes to
+// Commitment 4; motion-interaction/ui.md, Merged indicator
+// (active-screen)), targeting Section Navigation's own
+// `[aria-current='page']` attribute — the stable, semantic signal
+// Section Navigation's Technical Design deliberately exposes for
+// external consumption. Delayed via `transition-delay` so the swap
+// lands during T-041's own phase-2 (travel) onset, when the indicator
+// itself is least visually prominent.
 //
-// Both pieces are desktop-only: the compact-logomark's conditional
-// presence is a desktop-bar concept (mobile's own compact mark renders
-// unconditionally — SectionNav.tsx), and the font-weight swap's timing
-// only matters where T-041's own flatten/travel/sprout indicator
-// exists (desktop) — the mobile overlay's indicator is a static crest,
-// nothing to camouflage a swap against.
+// Desktop-only: the swap's timing only matters where T-041's own
+// flatten/travel/sprout indicator exists (desktop) — the mobile
+// overlay's indicator is a static crest, nothing to camouflage a swap
+// against.
+//
+// This file previously also carried a compact-logomark presence
+// transition (Commitment 3) — a decorative `::after` crossfading in
+// via `:has()` + `@starting-style` once Section Navigation's own
+// conditional mounted the real anchor. Removed per post-implementation
+// developer direction: T-035's own continuous Hero-mark-to-logo morph
+// now visually occupies that arrival moment, on desktop, making a
+// second, separate crossfade of the *real* compact logo both
+// redundant and (per the T-035 developer's own live testing) an
+// awkward double-transition against the already-continuous morph.
+// Section Navigation's own conditionally-rendered anchor is left to
+// mount/unmount as it always has — instantly, no transition — which is
+// its default, un-augmented behavior with this file's own override
+// simply absent.
 
 // T-041's own total duration/phase split (motion-interaction/ui.md:
 // 250-350ms total, ~30/40/30 phase split) — this task's own chosen
@@ -51,63 +45,8 @@
 $indicator-total-duration: 300ms;
 $indicator-phase-1-duration: $indicator-total-duration * 0.3; // 90ms
 
-// Mirrors SectionNav.module.scss's own `.compactMark` sizing formula
-// ($nav-height 4.5rem, T-033's confirmed 1.8x scale of the 117:216
-// aspect ratio). Can't be shared via `@use` without also pulling in
-// that module's full compiled ruleset a second time, so duplicated
-// here as plain figures — must stay in sync by hand if that formula
-// ever changes.
-$nav-height: 4.5rem;
-$logomark-w: calc(#{$nav-height} * 1.8 * 117 / 216);
-$logomark-h: calc(#{$nav-height} * 1.8);
-
 @include mixins.desktop-up {
 	nav[aria-label='Primary'] {
-		// The real anchor: kept mounted exactly as Section Navigation
-		// renders it (real hit target, real accessible link) but its own
-		// paint is handed to the decorative pseudo-element below, except
-		// on keyboard focus — `opacity: 0` would otherwise hide a
-		// keyboard user's own focus indicator along with the icon.
-		> a[href='#introduction'][aria-label='Introduction'] {
-			opacity: 0;
-
-			&:focus-visible {
-				opacity: 1;
-			}
-		}
-
-		&::after {
-			content: '';
-			position: absolute;
-			left: 50%;
-			top: tokens.$space-xs;
-			width: $logomark-w;
-			height: $logomark-h;
-			background-image: url('/ornamental-logo.svg');
-			background-repeat: no-repeat;
-			background-position: center;
-			background-size: contain;
-			pointer-events: none;
-			display: none;
-			opacity: 0;
-			transform: translateX(-50%) scale(0.85);
-			transition:
-				opacity tokens.$transition-duration-base tokens.$transition-easing,
-				transform tokens.$transition-duration-base tokens.$transition-easing,
-				display tokens.$transition-duration-base allow-discrete;
-		}
-
-		&:has(> a[href='#introduction'][aria-label='Introduction'])::after {
-			display: block;
-			opacity: 1;
-			transform: translateX(-50%) scale(1);
-
-			@starting-style {
-				opacity: 0;
-				transform: translateX(-50%) scale(0.85);
-			}
-		}
-
 		// `transition`/`transition-delay` declared unconditionally on both
 		// links (not only the active one): a CSS transition uses the
 		// declaration in effect on the element's NEW computed style to
@@ -136,10 +75,6 @@ $logomark-h: calc(#{$nav-height} * 1.8);
 
 @media (prefers-reduced-motion: reduce) {
 	nav[aria-label='Primary'] {
-		&::after {
-			transition: none;
-		}
-
 		a[href='#personal-narrative'],
 		a[href='#connection'] {
 			transition: none;
