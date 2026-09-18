@@ -86,27 +86,17 @@ $nav-height: 4.5rem;
 		pointer-events: none;
 	}
 
-	// Holds Section Navigation's own wide ("hero-mark", 52%) divider gap
-	// open until `HeroEntranceIsland.tsx`'s own `HERO_MARK_HIDE_THRESHOLD`
-	// (currently 0.5, half of Hero's height — hand-synced with
-	// `#hero-mark-boundary`'s own `top: 50vh`, HeroComposition.astro),
-	// rather than letting Section Navigation's own `data-divider-state`
-	// fall through to its base rule's 0% ("continuous", solid bar) any
-	// earlier than that. That solid bar's own `border-bottom` cutting
-	// across the still-visible mark was a real defect a developer caught
-	// live; this override — and keeping it synced to the same threshold
-	// that fades this mark's own opacity — is what prevents it.
-	//
-	// Targets Section Navigation's own stable `data-testid="nav-divider"`
-	// hook (never its CSS-Modules-hashed class name) — the same
-	// zero-code-coupling pattern `navTransitions.scss` already uses for
-	// this exact Feature boundary. `HeroEntranceIsland.tsx` toggles
-	// `[data-hero-scroll-active]` on `<html>` for as long as its own
-	// mark stays visible; specificity here (one type + two attribute
-	// selectors) already beats every one of `.navBackdrop`'s own rules
-	// (a bare class, or a class plus one attribute), so this wins
-	// regardless of source order, with no `!important` needed.
-	html[data-hero-scroll-active] [data-testid='nav-divider'] {
-		--divider-gap: 52%;
-	}
+	// Section Navigation's own divider gap (Commitment 8) — held open,
+	// then closed continuously as Hero scrolls, then handed back — is no
+	// longer driven from CSS here. `HeroEntranceIsland.tsx`'s own
+	// `applyScrollLinkedMotion` sets `--divider-gap` directly as an
+	// inline style on Section Navigation's `[data-testid="nav-divider"]`
+	// hook, tracking scroll 1:1 (a CSS transition can't do that without
+	// lagging a per-frame value) — see that function's own header
+	// comment. This file previously held the gap open via a boolean
+	// `html[data-hero-scroll-active] [data-testid='nav-divider'] {
+	// --divider-gap: 52% }` override; removed once the divider's own
+	// close became a continuous scroll-driven value rather than a single
+	// on/off flip, per direct developer feedback ("close it slowly till
+	// reaches the about").
 }
