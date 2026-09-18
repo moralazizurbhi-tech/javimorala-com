@@ -198,12 +198,47 @@ describe('AboutNarrativeRevealIsland (motion-interaction/contract.md Commitment 
   });
 });
 
+// Controllable requestAnimationFrame/cancelAnimationFrame pair — the
+// tilt follower (post-implementation correction: exponential smoothing
+// replacing the original direct-apply-on-pointermove, which flashed on
+// entry) needs deterministic, manually-steppable frames rather than
+// real timing.
+let rafCallbacks = new Map<number, FrameRequestCallback>();
+let nextRafId = 1;
+
+function rafMock(cb: FrameRequestCallback): number {
+  const id = nextRafId++;
+  rafCallbacks.set(id, cb);
+  return id;
+}
+
+function cafMock(id: number): void {
+  rafCallbacks.delete(id);
+}
+
+function flushFrames(count: number): void {
+  for (let i = 0; i < count; i++) {
+    const due = Array.from(rafCallbacks.values());
+    rafCallbacks.clear();
+    due.forEach((cb) => cb(performance.now()));
+  }
+}
+
+function tiltDegreeOf(transform: string): number {
+  const match = /rotate\(([-\d.]+)deg\)/.exec(transform);
+  return match ? Number(match[1]) : NaN;
+}
+
 describe('AboutNarrativeRevealIsland — Photo Tilt (motion-interaction/contract.md Commitment 13)', () => {
   beforeEach(() => {
     animateCalls.length = 0;
     observerInstances = [];
+    rafCallbacks = new Map();
+    nextRafId = 1;
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
     vi.stubGlobal('sessionStorage', undefined);
+    vi.stubGlobal('requestAnimationFrame', rafMock);
+    vi.stubGlobal('cancelAnimationFrame', cafMock);
     window.location.hash = '';
   });
 
@@ -211,6 +246,7 @@ describe('AboutNarrativeRevealIsland — Photo Tilt (motion-interaction/contract
     cleanup();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    vi.useRealTimers();
     window.location.hash = '';
     Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
   });
@@ -224,10 +260,34 @@ describe('AboutNarrativeRevealIsland — Photo Tilt (motion-interaction/contract
     mockRect(landscape, { left: 0, width: 100 });
 
     landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+    flushFrames(60);
     expect(landscape.style.transform).toContain('rotate(4deg)');
 
     landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 0 }));
+    flushFrames(60);
     expect(landscape.style.transform).toContain('rotate(-4deg)');
+  });
+
+  it("post-implementation correction: entering the photo doesn't flash straight to the target — the first frame is a small, partial step", () => {
+    vi.stubGlobal('matchMedia', matchMediaMockFor({ '(hover: hover) and (pointer: fine)': true }));
+    vi.spyOn(motionPlaybackStore, 'getRevealedPieceIds').mockReturnValue(['about-photo-landscape']);
+
+    const { container } = render(<AboutNarrativeRevealIsland>{narrativeStaticMarkup()}</AboutNarrativeRevealIsland>);
+    const landscape = container.querySelector<HTMLElement>('.narrative__photo--landscape')!;
+    mockRect(landscape, { left: 0, width: 100 });
+
+    // Cursor enters already at the far edge — the worst case for a flash.
+    landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+    // No frame has run yet: nothing was applied synchronously.
+    expect(landscape.style.transform).toBe('');
+
+    flushFrames(1);
+    const afterOneFrame = tiltDegreeOf(landscape.style.transform);
+    expect(afterOneFrame).toBeGreaterThan(0);
+    expect(afterOneFrame).toBeLessThan(2); // well short of the 4° target — a partial step, not a jump.
+
+    flushFrames(60);
+    expect(landscape.style.transform).toContain('rotate(4deg)'); // still converges to the full target.
   });
 
   it("doesn't tilt a photo that hasn't been revealed yet", () => {
@@ -239,11 +299,12 @@ describe('AboutNarrativeRevealIsland — Photo Tilt (motion-interaction/contract
     mockRect(landscape, { left: 0, width: 100 });
 
     landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+    flushFrames(60);
 
     expect(landscape.style.transform).toBe('');
   });
 
-  it('AC2 (desktop): leaving the photo schedules an eased return to rest rather than an instant snap', () => {
+  it('AC2 (desktop): leaving the photo eases the tilt back to rest rather than an instant snap', () => {
     vi.stubGlobal('matchMedia', matchMediaMockFor({ '(hover: hover) and (pointer: fine)': true }));
     vi.spyOn(motionPlaybackStore, 'getRevealedPieceIds').mockReturnValue(['about-photo-landscape']);
 
@@ -252,17 +313,23 @@ describe('AboutNarrativeRevealIsland — Photo Tilt (motion-interaction/contract
     mockRect(landscape, { left: 0, width: 100 });
 
     landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
-    landscape.dispatchEvent(new PointerEvent('pointerleave'));
+    flushFrames(60);
+    expect(landscape.style.transform).toContain('rotate(4deg)');
 
-    const resetCall = animateCalls.find((c) => typeof c.target === 'number');
-    expect(resetCall).toBeDefined();
-    expect(resetCall?.target).toBe(4);
-    expect(resetCall?.keyframes).toBe(0);
-    expect(resetCall?.options.duration).toBe(0.4);
-    expect(resetCall?.options.ease).toBe('easeOut');
+    landscape.dispatchEvent(new PointerEvent('pointerleave'));
+    expect(landscape.style.transform).toContain('rotate(4deg)'); // unchanged until the next frame runs.
+
+    flushFrames(1);
+    const afterOneFrame = tiltDegreeOf(landscape.style.transform);
+    expect(afterOneFrame).toBeLessThan(4);
+    expect(afterOneFrame).toBeGreaterThan(0); // still easing, not an instant snap to 0.
+
+    flushFrames(60);
+    expect(landscape.style.transform).toContain('rotate(0deg)');
   });
 
-  it('AC3 (mobile): tilt derives from scroll velocity and applies only to already-revealed photos, with no device-motion permission involved', () => {
+  it('AC3 (mobile): tilt derives from scroll velocity, applies only to already-revealed photos, and eases back once scrolling stops', () => {
+    vi.useFakeTimers();
     vi.stubGlobal('matchMedia', matchMediaMockFor({})); // hover/pointer-fine false -> mobile path
     vi.spyOn(motionPlaybackStore, 'getRevealedPieceIds').mockReturnValue(['about-photo-landscape']);
 
@@ -272,9 +339,15 @@ describe('AboutNarrativeRevealIsland — Photo Tilt (motion-interaction/contract
 
     Object.defineProperty(window, 'scrollY', { value: 50, configurable: true });
     window.dispatchEvent(new Event('scroll'));
+    flushFrames(60);
 
-    expect(landscape.style.transform).toMatch(/rotate\((?!0deg)-?\d/);
+    expect(tiltDegreeOf(landscape.style.transform)).not.toBe(0);
     expect(portrait.style.transform).toBe(''); // not yet revealed -> untouched
+
+    // Past the idle window with no further `scroll` events: eases back to rest.
+    vi.advanceTimersByTime(500);
+    flushFrames(120);
+    expect(tiltDegreeOf(landscape.style.transform)).toBeCloseTo(0, 1);
   });
 
   it('Commitment 16 AC10: under reduced motion, photo tilt is disabled entirely', () => {
@@ -288,6 +361,7 @@ describe('AboutNarrativeRevealIsland — Photo Tilt (motion-interaction/contract
     mockRect(landscape, { left: 0, width: 100 });
 
     landscape.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+    flushFrames(60);
 
     expect(landscape.style.transform).toBe('');
   });

@@ -103,13 +103,28 @@ const PHOTO_TINT_DURATION = 0.7; // longer than the blur, so it clears a touch a
 // pattern of not reacting to breakpoint changes at runtime.
 
 const MAX_TILT_DEG = 4; // Commitment 13 AC1's own stated ceiling.
-const TILT_RESET_DURATION = 0.4; // AC2: eases back, doesn't snap.
 // Mobile has no prescribed numeric formula (Commitment 13 AC3 only
 // names "scroll direction/velocity") — Implementation Detail, tuned so
 // a brisk scroll (~1px/ms) reads as a clearly visible, not extreme,
-// tilt, decaying back toward rest once scrolling stops.
+// tilt.
 const SCROLL_TILT_SENSITIVITY = 1.5; // deg per (px/ms) of scroll velocity.
-const SCROLL_TILT_DECAY = 0.85; // multiplier applied per animation frame at rest.
+// Once scrolling stops producing new `scroll` events, the tilt target
+// returns to rest after this idle window (Implementation Detail — no
+// numeric mobile formula is prescribed either way).
+const SCROLL_IDLE_MS = 150;
+// Fraction of the remaining distance-to-target closed per animation
+// frame (~60fps) by the follower below — post-implementation
+// correction: applying the target degree directly on every
+// pointermove (the original implementation) produced a visible "flash"
+// jump whenever the cursor entered the photo already away from its
+// center, since the very first frame had no previous position to ease
+// from. AC2 already requires the leave-to-rest transition to ease
+// rather than snap; this follower applies that same "eases, never
+// snaps" quality to entry and continuous tracking too, not only exit,
+// by always chasing a live target through exponential smoothing
+// instead of ever assigning the degree outright.
+const TILT_FOLLOW_RATE = 0.2;
+const TILT_SETTLE_EPSILON = 0.02; // deg — close enough to stop the loop.
 
 interface BaseTransform {
   rotateDeg: number;
@@ -143,6 +158,43 @@ function clampTilt(deg: number): number {
 
 function applyTiltTransform(el: HTMLElement, base: BaseTransform, tiltDeg: number): void {
   el.style.transform = `translateX(${base.xPx}px) rotate(${base.rotateDeg + tiltDeg}deg)`;
+}
+
+interface TiltFollower {
+  /** Retargets the eased value; the follower keeps chasing it every frame until settled. */
+  setTarget(deg: number): void;
+  stop(): void;
+}
+
+// Drives one photo's applied tilt toward a live target via exponential
+// smoothing (a fraction of the remaining distance closed each frame),
+// rather than ever assigning the target degree outright — the fix for
+// the entry "flash" described in this file's own header comment above.
+// `setTarget` is safe to call repeatedly (every pointermove/scroll
+// tick); the loop self-stops once settled and restarts lazily on the
+// next retarget.
+function createTiltFollower(el: HTMLElement, base: BaseTransform): TiltFollower {
+  let targetDeg = 0;
+  let smoothedDeg = 0;
+  let frame: number | undefined;
+
+  function tick(): void {
+    smoothedDeg += (targetDeg - smoothedDeg) * TILT_FOLLOW_RATE;
+    if (Math.abs(targetDeg - smoothedDeg) < TILT_SETTLE_EPSILON) smoothedDeg = targetDeg;
+    applyTiltTransform(el, base, smoothedDeg);
+    frame = smoothedDeg !== targetDeg ? window.requestAnimationFrame(tick) : undefined;
+  }
+
+  return {
+    setTarget(deg: number): void {
+      targetDeg = deg;
+      if (frame === undefined) frame = window.requestAnimationFrame(tick);
+    },
+    stop(): void {
+      if (frame !== undefined) window.cancelAnimationFrame(frame);
+      frame = undefined;
+    },
+  };
 }
 
 function prefersFinePointerHover(): boolean {
@@ -324,36 +376,26 @@ export default function AboutNarrativeRevealIsland({ children }: Props) {
     const tiltCleanups: Array<() => void> = [];
 
     if (prefersFinePointerHover()) {
-      // Desktop (AC1/AC2): cursor position relative to the photo drives
-      // rotation directly while hovered (continuous following, no
-      // easing mid-hover); leaving eases back to rest instead of
-      // snapping.
+      // Desktop (AC1/AC2): cursor position relative to the photo
+      // retargets the follower, which eases toward it every frame —
+      // continuous while hovered, and never an instant jump on entry
+      // either (see the follower's own header comment). Leaving
+      // retargets to 0, the same mechanism, satisfying "eases back to
+      // rest rather than snapping."
       for (const piece of photoPieces) {
         const el = piece.el;
         const base = baseTransforms.get(el) ?? IDENTITY_BASE;
-        let currentDeg = 0;
-        let resetControls: AnimationPlaybackControlsWithThen | undefined;
+        const follower = createTiltFollower(el, base);
 
         function onPointerMove(event: PointerEvent): void {
           if (!revealedIds.has(piece.id)) return;
-          resetControls?.stop();
           const rect = el.getBoundingClientRect();
           const nx = rect.width > 0 ? ((event.clientX - rect.left) / rect.width) * 2 - 1 : 0;
-          currentDeg = clampTilt(nx * MAX_TILT_DEG);
-          applyTiltTransform(el, base, currentDeg);
+          follower.setTarget(clampTilt(nx * MAX_TILT_DEG));
         }
 
         function onPointerLeave(): void {
-          resetControls?.stop();
-          resetControls = animate(currentDeg, 0, {
-            duration: TILT_RESET_DURATION,
-            ease: 'easeOut',
-            onUpdate: (deg) => {
-              currentDeg = deg;
-              applyTiltTransform(el, base, deg);
-            },
-          });
-          track([resetControls]);
+          follower.setTarget(0);
         }
 
         el.addEventListener('pointermove', onPointerMove);
@@ -361,37 +403,28 @@ export default function AboutNarrativeRevealIsland({ children }: Props) {
         tiltCleanups.push(() => {
           el.removeEventListener('pointermove', onPointerMove);
           el.removeEventListener('pointerleave', onPointerLeave);
-          resetControls?.stop();
+          follower.stop();
         });
       }
     } else if (photoPieces.length > 0) {
-      // Mobile (AC3): one shared scroll-velocity-derived tilt, applied
-      // identically to every currently-Revealed photo — no device
-      // orientation/motion permission requested or required. Decays
-      // back toward rest once scrolling stops, rather than sticking at
-      // the last value.
+      // Mobile (AC3): one follower per photo, all retargeted
+      // identically from a single shared scroll-velocity reading —
+      // no device orientation/motion permission requested or
+      // required. Once scrolling stops producing new `scroll` events
+      // for `SCROLL_IDLE_MS`, every follower retargets to 0 and eases
+      // back to rest, rather than sticking at the last value.
+      const followers = new Map(
+        photoPieces.map((piece) => [piece.el, createTiltFollower(piece.el, baseTransforms.get(piece.el) ?? IDENTITY_BASE)]),
+      );
       let lastY = window.scrollY;
       let lastTime = performance.now();
-      let currentDeg = 0;
-      let decayFrame: number | undefined;
+      let idleTimer: ReturnType<typeof setTimeout> | undefined;
 
-      function applyToRevealed(deg: number): void {
+      function setAllTargets(deg: number): void {
         for (const piece of photoPieces) {
           if (!revealedIds.has(piece.id)) continue;
-          applyTiltTransform(piece.el, baseTransforms.get(piece.el) ?? IDENTITY_BASE, deg);
+          followers.get(piece.el)?.setTarget(deg);
         }
-      }
-
-      function stepDecay(): void {
-        currentDeg *= SCROLL_TILT_DECAY;
-        if (Math.abs(currentDeg) < 0.05) {
-          currentDeg = 0;
-          applyToRevealed(0);
-          decayFrame = undefined;
-          return;
-        }
-        applyToRevealed(currentDeg);
-        decayFrame = window.requestAnimationFrame(stepDecay);
       }
 
       function onScroll(): void {
@@ -401,15 +434,17 @@ export default function AboutNarrativeRevealIsland({ children }: Props) {
         lastY = window.scrollY;
         lastTime = now;
 
-        currentDeg = clampTilt((dy / dt) * SCROLL_TILT_SENSITIVITY);
-        applyToRevealed(currentDeg);
-        if (decayFrame === undefined) decayFrame = window.requestAnimationFrame(stepDecay);
+        setAllTargets(clampTilt((dy / dt) * SCROLL_TILT_SENSITIVITY));
+
+        if (idleTimer !== undefined) clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => setAllTargets(0), SCROLL_IDLE_MS);
       }
 
       window.addEventListener('scroll', onScroll, { passive: true });
       tiltCleanups.push(() => {
         window.removeEventListener('scroll', onScroll);
-        if (decayFrame !== undefined) window.cancelAnimationFrame(decayFrame);
+        if (idleTimer !== undefined) clearTimeout(idleTimer);
+        followers.forEach((follower) => follower.stop());
       });
     }
 
