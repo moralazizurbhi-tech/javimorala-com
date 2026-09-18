@@ -1,0 +1,63 @@
+@use '../../styles/tokens' as tokens;
+@use '../../styles/mixins' as mixins;
+
+// Nav Active Indicator Transition Island (T-041,
+// motion-interaction/technical-design.md) — geometry/colour for the
+// crest NavActiveIndicatorIsland.tsx renders, a wholly separate island
+// from Section Navigation's own component tree, per that file's own
+// header comment. `@use`d from `styles/global.scss` (Root Layout
+// level), the same zero-code-coupling pattern navTransitions.scss and
+// heroMarkMorph.scss already use.
+//
+// Every value below is a hand-kept-in-sync duplicate of
+// SectionNav.module.scss's own already-built T-040 crest geometry
+// ($crest-crop-w/-h, $crest-scale, $crest-w/-h, mask position/size,
+// $nav-height, the gradient/filter treatment) — not a shared token,
+// since that geometry was never promoted to one (this task's own
+// Constraint: must not import or reference Section Navigation's own
+// component/module code). Desktop-only, matching `.nav`'s own
+// `display: none` below the desktop breakpoint and T-021's own
+// desktop-only scope note ("the mobile overlay's indicator is a static
+// crest, nothing to camouflage a swap against").
+
+$nav-height: 4.5rem; // hand-synced with SectionNav.module.scss's own $nav-height
+
+$crest-crop-w: 805;
+$crest-crop-h: 599;
+$crest-scale: calc(75 / $crest-crop-w);
+$crest-w: 75px; // hand-synced with NavActiveIndicatorIsland.tsx's own CREST_WIDTH_PX
+$crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
+
+.nav-active-indicator {
+	display: none;
+	position: fixed;
+	inset: 0 0 auto 0;
+	height: $nav-height;
+	// Above Section Navigation's own `.nav` (z-index 10) and its own
+	// `.activeCrest` (z-index -1 within that context) so this island's
+	// own crest is what's visually perceived once hydrated — Section
+	// Navigation's own static crest remains present underneath as the
+	// pre-hydration/no-JS fallback (this component's own file-top
+	// comment), simply covered once this island takes over.
+	z-index: 11;
+	pointer-events: none;
+
+	@include mixins.desktop-up {
+		display: block;
+	}
+}
+
+.nav-active-indicator__crest {
+	position: absolute;
+	bottom: calc(-248px * #{$crest-scale});
+	width: $crest-w;
+	height: $crest-h;
+	transform-origin: center;
+	pointer-events: none;
+	mask-image: url('/nav-active-crest.svg');
+	mask-repeat: no-repeat;
+	mask-size: calc(1342px * #{$crest-scale}) calc(784px * #{$crest-scale});
+	mask-position: calc(-270px * #{$crest-scale}) calc(-103px * #{$crest-scale});
+	background: radial-gradient(closest-side at center, tokens.$color-accent, tokens.$color-nav-divider);
+	filter: drop-shadow(0 0 6px rgba(tokens.$color-nav-divider, 0.7));
+}

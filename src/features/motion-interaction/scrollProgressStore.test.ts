@@ -21,6 +21,24 @@ function stubHero(rect: Partial<DOMRect>) {
   return hero;
 }
 
+function stubSection(id: string, top: number) {
+  const el = document.createElement('div');
+  el.id = id;
+  document.body.appendChild(el);
+  vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
+    top,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    toJSON: () => ({}),
+  } as DOMRect);
+  return el;
+}
+
 describe('Shared Scroll Progress Store (motion-interaction/technical-design.md, Shared Scroll Progress Store)', () => {
   afterEach(() => {
     document.body.innerHTML = '';
@@ -28,8 +46,8 @@ describe('Shared Scroll Progress Store (motion-interaction/technical-design.md, 
     vi.unstubAllGlobals();
   });
 
-  it('defaults both progress values to 0 with no `.hero` element and no scroll', () => {
-    expect(getScrollProgress()).toEqual({ heroProgress: 0, pageProgress: 0 });
+  it('defaults both progress values to 0 and activeNavSection to null with no `.hero`/section elements and no scroll', () => {
+    expect(getScrollProgress()).toEqual({ heroProgress: 0, pageProgress: 0, activeNavSection: null });
   });
 
   it('computes heroProgress as -rect.top / rect.height, clamped to 0-1', () => {
@@ -118,5 +136,54 @@ describe('Shared Scroll Progress Store (motion-interaction/technical-design.md, 
 
     expect(listener).toHaveBeenCalledTimes(1);
     unsubscribe();
+  });
+
+  describe('activeNavSection (T-041)', () => {
+    beforeEach(() => {
+      vi.stubGlobal('innerHeight', 1000);
+    });
+
+    it('is null while only Introduction has crossed the ~30%-from-top threshold', () => {
+      stubSection('introduction', 0);
+      stubSection('personal-narrative', 800); // below the 300px threshold line
+      stubSection('connection', 1600);
+
+      expect(getScrollProgress().activeNavSection).toBeNull();
+    });
+
+    it("is 'about' once Personal Narrative's top edge crosses the threshold", () => {
+      stubSection('introduction', -800);
+      stubSection('personal-narrative', 200); // above the 300px threshold line
+      stubSection('connection', 1200);
+
+      expect(getScrollProgress().activeNavSection).toBe('about');
+    });
+
+    it("is 'contact' once Connection's top edge also crosses the threshold (last section in document order wins)", () => {
+      stubSection('introduction', -1600);
+      stubSection('personal-narrative', -800);
+      stubSection('connection', 100); // above the 300px threshold line
+
+      expect(getScrollProgress().activeNavSection).toBe('contact');
+    });
+
+    it('tolerates a missing section element, computing from whichever sections exist', () => {
+      stubSection('personal-narrative', 200); // above the 300px threshold line
+      // no #introduction, no #connection
+
+      expect(getScrollProgress().activeNavSection).toBe('about');
+    });
+
+    it('is included in the snapshot subscribers receive', () => {
+      stubSection('introduction', -800);
+      stubSection('personal-narrative', -200);
+      stubSection('connection', 900);
+      const listener = vi.fn();
+
+      const unsubscribe = subscribeScrollProgress(listener);
+
+      expect(listener.mock.calls[0][0].activeNavSection).toBe('about');
+      unsubscribe();
+    });
   });
 });

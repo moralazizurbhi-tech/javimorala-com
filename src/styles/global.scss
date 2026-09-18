@@ -8,6 +8,10 @@
 // Hero Mark Transformation measurement probes (T-035) — see
 // heroMarkMorph.scss's own header comment.
 @use '../features/motion-interaction/heroMarkMorph';
+// Nav Active Indicator Transition Island (T-041) — geometry/colour for
+// NavActiveIndicatorIsland.tsx's own crest; see that file's and this
+// partial's own header comments.
+@use '../features/motion-interaction/navActiveIndicator';
 
 // Self-hosted @font-face declarations (T-002) — fixes a pre-existing gap
 // where the font tokens named a family whose @font-face was never

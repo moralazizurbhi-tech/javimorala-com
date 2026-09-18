@@ -4,6 +4,7 @@ import SectionNav from '../features/section-navigation/SectionNav';
 import PresenceLinkGroup from '../features/presence-links/PresenceLinkGroup.astro';
 import HeroEntranceIsland from '../features/motion-interaction/HeroEntranceIsland';
 import AboutNarrativeRevealIsland from '../features/motion-interaction/AboutNarrativeRevealIsland';
+import NavActiveIndicatorIsland from '../features/motion-interaction/NavActiveIndicatorIsland';
 import type { SupportedLocale } from '../features/content-localization/localeResolution';
 
 interface Props {
@@ -25,6 +26,15 @@ const { title, description, lang, wordmark, navLabelAbout, navLabelContact } = A
 		navLabelAbout={navLabelAbout}
 		navLabelContact={navLabelContact}
 	/>
+	<!--
+		Nav Active Indicator Transition Island (T-041;
+		motion-interaction/technical-design.md) — a wholly separate island,
+		never composed inside Section Navigation's own component tree
+		(that file's own header comment; Design Decision 1). Rendered here,
+		as SectionNav's own sibling, the same integration point
+		HeroEntranceIsland/AboutNarrativeRevealIsland already use.
+	-->
+	<NavActiveIndicatorIsland client:load />
 	<main>
 		<section id="introduction" class="introduction">
 			<!--
