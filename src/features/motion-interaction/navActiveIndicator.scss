@@ -34,17 +34,32 @@ $crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
 	inset: 0 0 auto 0;
 	height: $nav-height;
 	// Above Section Navigation's own `.nav` (z-index 10) and its own
-	// `.activeCrest` (z-index -1 within that context) so this island's
-	// own crest is what's visually perceived once hydrated — Section
-	// Navigation's own static crest remains present underneath as the
-	// pre-hydration/no-JS fallback (this component's own file-top
-	// comment), simply covered once this island takes over.
+	// `.activeCrest` (z-index -1 within that context) — belt-and-braces
+	// alongside the `visibility: hidden` rule below, which is what
+	// actually prevents the double-crest (NavActiveIndicatorIsland.tsx's
+	// own header comment, post-implementation correction).
 	z-index: 11;
 	pointer-events: none;
 
 	@include mixins.desktop-up {
 		display: block;
 	}
+}
+
+// Post-implementation correction (NavActiveIndicatorIsland.tsx's own
+// header comment): Section Navigation's own static T-040 crest snaps to
+// its new position instantly on its own, separately-thresholded
+// scrollspy, while this island's own crest is still travelling from the
+// old position — visibly TWO crests during every transition unless the
+// static one is hidden once this island has actually taken over.
+// `html.js-nav-active-indicator-mounted` is added only by
+// NavActiveIndicatorIsland.tsx's own script, so Section Navigation's own
+// static crest remains the correct pre-hydration/no-JS fallback in every
+// case this class is absent. Targets `[data-testid='active-crest']` — a
+// stable attribute already present in SectionNav.tsx's own JSX, not its
+// hashed CSS-Module class — zero code/import coupling.
+html.js-nav-active-indicator-mounted [data-testid='active-crest'] {
+	visibility: hidden;
 }
 
 .nav-active-indicator__crest {

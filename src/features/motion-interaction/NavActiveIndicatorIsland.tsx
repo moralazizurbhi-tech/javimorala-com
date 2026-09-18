@@ -12,10 +12,22 @@ import { subscribeScrollProgress, type ActiveNavSection, type ScrollProgress } f
 // Section Navigation's own already-built static crest (T-040,
 // `.activeCrest` in SectionNav.module.scss) remains the correct
 // pre-hydration/no-JS fallback underneath in every case (this file's
-// own Constraints) — this island's own crest renders on top once
-// hydrated, at the same rest position/size, so the two are visually
-// indistinguishable except during this island's own brief transition
-// window.
+// own Constraints). Post-implementation correction: the two aren't
+// merely "visually indistinguishable at rest" in practice — Section
+// Navigation's own crest snaps to its new position instantly (its own,
+// separately-thresholded scrollspy), while this island's own crest is
+// still travelling from the old position, producing a genuine visible
+// double-crest during every transition (developer live-testing finding,
+// not merely a theoretical edge case). Resolved by hiding Section
+// Navigation's own static crest via CSS once this island has actually
+// mounted (`html.js-nav-active-indicator-mounted`,
+// navActiveIndicator.scss) — the same pre-hydration-guard pattern
+// RootLayout.astro/BaseLayout.astro already use for Hero's own entrance
+// (`js-hero-entrance-pending`). The class is only ever added by this
+// island's own script, so the no-JS/pre-hydration fallback this file's
+// Constraints require is untouched; targets `[data-testid='active-crest']`,
+// a stable attribute already present in SectionNav.tsx's own JSX (not a
+// hashed CSS-Module class), zero code/import coupling either way.
 //
 // Positioning/sizing constants below are hand-synced, by comment, with
 // SectionNav.module.scss's own already-built T-040 crest geometry
@@ -89,6 +101,13 @@ export default function NavActiveIndicatorIsland() {
   useIsomorphicLayoutEffect(() => {
     const crest = crestRef.current;
     if (!crest) return;
+
+    // Post-implementation correction — see this file's own header
+    // comment: supersedes Section Navigation's own static T-040 crest
+    // (hidden via navActiveIndicator.scss) once this island has
+    // actually mounted, avoiding the double-crest this class's absence
+    // otherwise produces during every transition.
+    document.documentElement.classList.add('js-nav-active-indicator-mounted');
 
     function applyStatic(section: ActiveNavSection, left: number | null): void {
       if (section === null || left === null) {

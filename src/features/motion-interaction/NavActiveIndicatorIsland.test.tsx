@@ -80,6 +80,7 @@ describe('NavActiveIndicatorIsland (motion-interaction/contract.md Commitment 4)
   afterEach(() => {
     cleanup();
     document.body.innerHTML = '';
+    document.documentElement.classList.remove('js-nav-active-indicator-mounted');
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
@@ -91,6 +92,16 @@ describe('NavActiveIndicatorIsland (motion-interaction/contract.md Commitment 4)
 
     const crest = container.querySelector<HTMLElement>('.nav-active-indicator__crest')!;
     expect(crest.style.opacity).toBe('0');
+  });
+
+  it('post-implementation correction: marks <html> once mounted, so Section Navigation\'s own static T-040 crest can be hidden via CSS (avoids a double-crest during transitions)', () => {
+    vi.stubGlobal('matchMedia', matchMediaMock(false));
+    stubNav();
+    expect(document.documentElement.classList.contains('js-nav-active-indicator-mounted')).toBe(false);
+
+    render(<NavActiveIndicatorIsland />);
+
+    expect(document.documentElement.classList.contains('js-nav-active-indicator-mounted')).toBe(true);
   });
 
   it('resolves the first-ever snapshot directly, with no animated phases', () => {
