@@ -525,7 +525,7 @@ Rationale).
     - Under reduced-motion, both segment fills still reflect accurate progress without smoothed interpolation.
     - Never imports or reads Section Navigation's own component internals — alignment via shared Styling System tokens only.
   realizesCommitments: motion-interaction Commitment 4 (progress component only); contributes to 14, 16
-  readiness: Partially Pending. Desktop scope is Ready once T-035 establishes Shared Scroll Progress Store. Mobile treatment is Pending — owning artifact `motion-interaction/ui.md` (not `section-navigation`) — resolvable within this Feature's own UI refinement.
+  readiness: Deferred — developer decision (2026-09-18) to deprioritize this task for now, independent of its dependencies. T-035 is complete, so desktop scope would otherwise be Ready; mobile treatment remains separately Pending in `motion-interaction/ui.md`. Not to be picked up until explicitly reprioritized.
 
 - id: T-041
   name: Nav Active Indicator Transition Island

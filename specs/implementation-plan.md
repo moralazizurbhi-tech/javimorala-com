@@ -224,10 +224,10 @@ transition) into its own new task, T-041, which depends on both T-040
 Scroll Progress Store with a new active-nav-section value, widening that
 store's own previously-narrower scope.
 
-Nav Progress Overlay has two separate blockers of its own, unrelated to
-the above: its desktop scope needs Hero — Scroll-Linked Content Exit &
-Mark Transformation (Task Catalog) to establish the Shared Scroll
-Progress Store first, and its mobile treatment remains Pending in
+Nav Progress Overlay's dependency blocker is resolved — T-035 established
+the Shared Scroll Progress Store. It remains unscheduled by explicit
+developer decision (Task Catalog readiness, 2026-09-18), independent of
+that; its mobile treatment also remains separately Pending in
 `motion-interaction/ui.md`'s own UI refinement (not `section-navigation`).
 
 The other 8 `motion-interaction` Task Catalog tasks and all of
