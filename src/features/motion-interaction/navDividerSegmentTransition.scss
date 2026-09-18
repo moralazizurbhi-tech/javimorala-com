@@ -12,19 +12,28 @@
 // establish).
 //
 // Section Navigation's own SectionNav.module.scss (private, CSS-Modules
-// scoped) reads a `--divider-gap` custom property off the very element
-// this file targets (`[data-divider-state]`, i.e. `.navBackdrop`) to
-// size its two segment plates via `calc((100% - var(--divider-gap)) /
-// 2)`. A plain `transition` can't animate a custom property's raw value
-// — the browser only interpolates a registered property's computed
-// value between frames — so `@property` registers it here as a
-// `<percentage>`, letting both plates extend/retract smoothly as a
-// side effect of that single interpolated value, without this file
-// ever needing to target — or even know the hashed name of — Section
-// Navigation's own private plate classes.
+// scoped) sets a `--divider-gap` custom property on the element this
+// file targets (`[data-divider-state]`, i.e. `.navBackdrop`) and reads
+// it back on that element's own CHILDREN — the two segment plates — via
+// `calc((100% - var(--divider-gap)) / 2)`, relying on ordinary custom-
+// property inheritance to reach them. A plain `transition` can't animate
+// a custom property's raw value — the browser only interpolates a
+// registered property's computed value between frames — so `@property`
+// registers it here as a `<percentage>`, letting both plates extend/
+// retract smoothly as a side effect of that single interpolated value,
+// without this file ever needing to target — or even know the hashed
+// name of — Section Navigation's own private plate classes.
+// `inherits: true` is load-bearing, not the registration syntax's
+// default assumption: an unregistered custom property always behaves as
+// inheriting, so registering this one with `inherits: false` would
+// silently break the plates' own inheritance-based read of it — each
+// child would fall back to `initial-value` instead of the parent's
+// actual value (live-verified: the divider rendered permanently
+// continuous, gap stuck at 0%, once the property was registered
+// non-inheriting).
 @property --divider-gap {
 	syntax: '<percentage>';
-	inherits: false;
+	inherits: true;
 	initial-value: 0%;
 }
 
