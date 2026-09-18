@@ -123,3 +123,119 @@
 		animation: none;
 	}
 }
+
+// CTA Discoverability Motion (T-038, motion-interaction/technical-
+// design.md, "CTA Interaction Motion — discoverability responsibilities"
+// — Contract Commitment 15; contributes 16) — the underline draw-on, tap
+// scale-down, and icon flourish, added onto the same `.contact__cta`/
+// `.contact__cta-icon` targets this file already owns for T-023, in the
+// same file rather than a new one (same Technical Design component, an
+// incremental addition — the same "extend the existing file" precedent
+// DirectContactComposition.astro's own T-015/T-016 split already uses).
+//
+// Pure CSS (`:hover`/`:focus-visible`/`:active`), no JS island: unlike
+// T-023's sweep (which needs JS specifically to distinguish a sustained
+// hover from a momentary touch tap, since a single looping animation
+// mustn't keep looping on a touch "sticky hover"), hover/focus/tap here
+// are each already discrete, unambiguous native CSS states — the same
+// reasoning secondaryInteractionFeedback.scss (T-024) already applies for
+// its own hover-plus-momentary-tap feedback via a bare `:active` (no
+// pointerType detection needed), reused here for consistency.
+
+// Underline draw-on (Commitment 15 AC1): `scaleX` 0→1 from
+// `transform-origin: left` on hover/focus, reversing symmetrically on
+// hover/focus-out via the same transition running in reverse (a single
+// declared end-state, not separate enter/leave rules). Spans the
+// anchor's full width (text + icon), not text-only: Direct Contact's own
+// composition never wraps the CTA's text in its own element, and T-038
+// doesn't add one there (Direct Contact Composition stays untouched —
+// this file's own outputs are "layered onto T-023's island", never onto
+// Direct Contact's own markup), so a single full-width `::after` beneath
+// the whole anchor is the available mechanism (Implementation Detail —
+// the observable "underline draws beneath the CTA" behaviour is
+// unaffected by exactly which box the line spans).
+//
+// Reuses the same lilac-to-purple accent gradient as the sweep/nav-link
+// fill (ui.md, Colour Application: "no new colour token"), and a hand-
+// picked, slower duration to read as "leisurely... not the nav's quick
+// pacing" (ui.md) — the same "Implementation Detail duration" precedent
+// as the sweep's own bespoke `cta-sweep` timings above, since
+// `tokens/_motion.scss` only fixes the fast/base shared interaction-state
+// convention, not a one-shot draw like this.
+.contact__cta {
+	position: relative;
+	transform: scale(1);
+	transition: transform tokens.$transition-duration-fast tokens.$transition-easing;
+}
+
+.contact__cta::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -0.08em;
+	height: 0.045em;
+	background-image: linear-gradient(90deg, tokens.$color-gradient-start, tokens.$color-gradient-end);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 450ms tokens.$transition-easing;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.contact__cta:hover::after {
+		transform: scaleX(1);
+	}
+}
+
+.contact__cta:focus-visible::after {
+	transform: scaleX(1);
+}
+
+// Tap scale-down (Commitment 15 AC2): `:active` covers "tapping/clicking"
+// on any input (mouse press or touch tap) — the same unmedia-gated
+// mechanism secondaryInteractionFeedback.scss already uses for its own
+// momentary-tap feedback (Design Decisions). Reuses the shared
+// `$transition-duration-fast` token (150ms, close to ui.md's own
+// "~100ms") rather than a new bespoke value, since this — unlike the
+// underline draw-on above — is exactly the "shared interaction-state
+// convention" `_motion.scss` describes.
+.contact__cta:active {
+	transform: scale(0.97);
+}
+
+// Icon flourish (Commitment 15 AC4): the icon's own "flight" (ui.md: "a
+// slight upward translation combined with a small rotation, as if taking
+// off, settling back immediately after"), declared on the icon's own
+// stable class hook (T-034's `.contact__cta-icon`) rather than on
+// `.contact__cta` itself — a distinct, separately-owned treatment
+// (Owned Concepts: "the icon-flourish trigger and its targeting of
+// Direct Contact's exposed class hook"), targeting that hook only, never
+// Direct Contact's own component code in either direction. Declares the
+// icon's own complete rest/active transform (not a delta on top of the
+// anchor's scale-down above) — a child element's own `transform`
+// determines its rendering completely, so this is unaffected by
+// `.contact__cta:active`'s simultaneous scale-down other than rendering
+// within that already-scaled box, which reads as part of the same
+// coordinated "flourish" moment rather than a conflict.
+.contact__cta-icon {
+	transform: translateY(0) rotate(0deg);
+	transition: transform tokens.$transition-duration-fast tokens.$transition-easing;
+}
+
+.contact__cta:active .contact__cta-icon {
+	transform: translateY(-0.15em) rotate(-10deg);
+}
+
+// Commitment 16 AC8: under reduced motion, all three (underline, tap
+// scale-down, icon flourish) resolve to their final state without the
+// draw-on/scale/flourish motion — an instant, non-animated change on
+// hover/focus/active rather than no change at all — consistent with the
+// existing hover-feedback pattern above (the sweep's own belt-and-braces
+// block).
+@media (prefers-reduced-motion: reduce) {
+	.contact__cta,
+	.contact__cta::after,
+	.contact__cta-icon {
+		transition: none;
+	}
+}
