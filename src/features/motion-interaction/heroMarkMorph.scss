@@ -87,14 +87,15 @@ $nav-height: 4.5rem;
 	}
 
 	// Holds Section Navigation's own wide ("hero-mark", 52%) divider gap
-	// open for the entire Hero scroll (developer direction), rather than
-	// letting Section Navigation's own `data-divider-state` fall through
-	// to its base rule's 0% ("continuous", solid bar) once its own
-	// `#hero-mark-boundary` sentinel clears (~70-75% of Hero height) —
-	// well before this Feature's own mark-transformation/hide window
-	// ends. That solid bar's own `border-bottom` was cutting across the
-	// still-visible, still-transforming mark (a real defect a developer
-	// caught live).
+	// open until `HeroEntranceIsland.tsx`'s own `HERO_MARK_HIDE_THRESHOLD`
+	// (currently 0.5, half of Hero's height — hand-synced with
+	// `#hero-mark-boundary`'s own `top: 50vh`, HeroComposition.astro),
+	// rather than letting Section Navigation's own `data-divider-state`
+	// fall through to its base rule's 0% ("continuous", solid bar) any
+	// earlier than that. That solid bar's own `border-bottom` cutting
+	// across the still-visible mark was a real defect a developer caught
+	// live; this override — and keeping it synced to the same threshold
+	// that fades this mark's own opacity — is what prevents it.
 	//
 	// Targets Section Navigation's own stable `data-testid="nav-divider"`
 	// hook (never its CSS-Modules-hashed class name) — the same

@@ -231,31 +231,35 @@ export default function HeroEntranceIsland({ children }: Props) {
     const naturalProbe = container.querySelector<HTMLElement>('.hero-mark-natural-probe');
     const targetProbe = container.querySelector<HTMLElement>('.hero-mark-target-probe');
 
-    // Once fully docked (heroProgress reaches 1 — scrolled a full Hero
-    // height), Section Navigation's own compact-logo mechanism
-    // (`navTransitions.scss`'s `::after`, a separate, already-approved
-    // element realizing a different task) is expected to take over the
-    // same visual role; without hiding this element then, the two
-    // otherwise double up at the identical position — a real defect a
-    // live Chrome check caught. `heroProgress` alone is used, not a
-    // separate sentinel observation, because Section Navigation's own
-    // `isIntroduction` flip is itself driven by `#introduction`'s own
-    // bottom edge leaving the viewport — the same physical event
-    // `heroProgress` reaching 1 already tracks (`#introduction` and
-    // `.hero` share the same box height), keeping the two thresholds as
-    // close as this Feature's own zero-code-dependency constraint
-    // allows. Post-implementation developer direction: an earlier
-    // version hid at `#hero-mark-boundary` clearing instead (~70-75% of
-    // Hero height) — a different, narrower-purpose sentinel (Section
-    // Navigation's own divider-fill state, Commitment 8) that cleared
-    // well before Section Navigation's own compact-logo actually
-    // appears, leaving a visible gap where neither showed. This doesn't
-    // guarantee zero gap either (the two are still independently
-    // computed, per Shared Scroll Progress Store's own Constraints —
-    // consistency with Section Navigation "by construction," not a
-    // shared value), but narrows it to whatever slack remains between
-    // the two components' own scroll-position observations.
-    const HERO_MARK_HIDE_THRESHOLD = 1;
+    // Governs both this mark's own opacity fade-out AND (via
+    // `[data-hero-scroll-active]`, toggled below) how long
+    // heroMarkMorph.scss forces Section Navigation's divider open —
+    // the two are kept coupled on purpose, so the divider never closes
+    // (a continuous line) while this mark is still visibly sitting in
+    // its gap (which would visually cut the line across it).
+    // Previously 1 (a full Hero height): once fully docked at that
+    // point, Section Navigation's own compact-logo mechanism
+    // (`navTransitions.scss`'s `::after`) was expected to take over the
+    // same visual role at (approximately) the same moment, since its
+    // own `isIntroduction` flip is driven by `#introduction`'s bottom
+    // edge leaving the viewport — the same physical event `heroProgress`
+    // reaching 1 tracks (`#introduction`/`.hero` share the same box
+    // height).
+    // Lowered to 0.5 (half of Hero's height) per direct developer
+    // feedback, numerically synced by hand with `#hero-mark-boundary`'s
+    // own `top: 50vh` (HeroComposition.astro) — kept in sync the same
+    // way this file's other hand-copied figures already are (see e.g.
+    // `.hero-mark-target-probe`'s own header comment). Known, accepted
+    // trade-off (explicit product-owner choice, not rediscovered blind):
+    // Section Navigation's own compact-logo/`isIntroduction` threshold
+    // stays at ~1, so there's now a real ~50%-of-Hero-height stretch
+    // where neither this mark nor the compact logo shows in the
+    // divider's gap — previously flagged as a defect at a narrower
+    // ~70-75%/100% gap and fixed by raising this same threshold to 1;
+    // deliberately reopened, wider, at the product owner's explicit
+    // request rather than also moving Section Navigation's own
+    // already-Realized active-section trigger to close it.
+    const HERO_MARK_HIDE_THRESHOLD = 0.5;
 
     // Hero Scroll-Linked Content Exit & Mark Transformation (Commitments
     // 11, 12) — reads Shared Scroll Progress Store's Hero-relative value

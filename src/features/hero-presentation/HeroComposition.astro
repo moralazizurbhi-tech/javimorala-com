@@ -227,25 +227,28 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 	}
 
 	// Mark-visibility sentinel (technical-design.md, Collaborations) — a
-	// passive marker at the Ornamental Mark's own effective lower
-	// boundary. Positioned to track `.hero__mark`'s own box bottom edge
-	// on each device class (top offset + height), so it stays accurate
-	// even though desktop now carries a small top offset mobile doesn't.
-	// Section Navigation observes this the same way it already observes
-	// Domain Section boundaries, to drive its own divider-line
-	// segmented/continuous state (section-navigation Contract Commitment
-	// 8) — this component has no knowledge of, or dependency on, that
-	// consumer.
+	// passive marker. Section Navigation observes this the same way it
+	// already observes Domain Section boundaries, to drive its own
+	// divider-line segmented/continuous state (section-navigation
+	// Contract Commitment 8) — this component has no knowledge of, or
+	// dependency on, that consumer.
+	// Originally tracked `.hero__mark`'s own box bottom edge (~70vh);
+	// moved to 50vh (half of Hero's own height) per direct developer
+	// feedback — the divider/mark hand-off (see HeroEntranceIsland.tsx's
+	// own `HERO_MARK_HIDE_THRESHOLD`, kept numerically in sync with this
+	// value by hand) was starting too late. No longer literally tracks
+	// the mark's own geometry — a deliberate, developer-directed trigger
+	// point instead.
 	.hero__mark-boundary {
 		position: absolute;
-		top: 70vh;
+		top: 50vh;
 		left: 0;
 		width: 100%;
 		height: 1px;
 		pointer-events: none;
 
 		@include mixins.desktop-up {
-			top: calc(#{tokens.$space-md} + 70vh);
+			top: calc(#{tokens.$space-md} + 50vh);
 		}
 	}
 
