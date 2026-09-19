@@ -27,6 +27,17 @@ $crest-crop-h: 599;
 $crest-scale: calc(75 / $crest-crop-w);
 $crest-w: 75px; // hand-synced with NavActiveIndicatorIsland.tsx's own CREST_WIDTH_PX
 $crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
+// Full source asset dimensions (viewBox 0 0 1342 784), the crop window's
+// offset into it, and the asset's own spine offset — hand-synced with
+// SectionNav.module.scss's own identically-named crest variables (see
+// that file's crop-window/alignment comments for the full derivation).
+// Named so mask-size/-position/bottom below read as "source × scale" /
+// "crop offset × scale" instead of unlabeled magic numbers.
+$crest-source-w: 1342px;
+$crest-source-h: 784px;
+$crest-crop-x: -270px;
+$crest-crop-y: -103px;
+$crest-spine-offset: -248px;
 
 .nav-active-indicator {
 	display: none;
@@ -64,15 +75,15 @@ html.js-nav-active-indicator-mounted [data-testid='active-crest'] {
 
 .nav-active-indicator__crest {
 	position: absolute;
-	bottom: calc(-248px * #{$crest-scale});
+	bottom: calc(#{$crest-spine-offset} * #{$crest-scale});
 	width: $crest-w;
 	height: $crest-h;
 	transform-origin: center;
 	pointer-events: none;
 	mask-image: url('/nav-active-crest.svg');
 	mask-repeat: no-repeat;
-	mask-size: calc(1342px * #{$crest-scale}) calc(784px * #{$crest-scale});
-	mask-position: calc(-270px * #{$crest-scale}) calc(-103px * #{$crest-scale});
+	mask-size: calc(#{$crest-source-w} * #{$crest-scale}) calc(#{$crest-source-h} * #{$crest-scale});
+	mask-position: calc(#{$crest-crop-x} * #{$crest-scale}) calc(#{$crest-crop-y} * #{$crest-scale});
 	background: radial-gradient(closest-side at center, tokens.$color-accent, tokens.$color-nav-divider);
 	filter: drop-shadow(0 0 6px rgba(tokens.$color-nav-divider, 0.7));
 }

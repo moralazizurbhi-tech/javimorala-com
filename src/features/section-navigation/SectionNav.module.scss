@@ -99,13 +99,20 @@ $mobile-nav-height: 3rem;
 // by a small breathing margin instead of sitting flush at the row's own
 // top, so the growth extends downward, under the nav and over the page
 // content beneath it (ui.md, Spacing and Layout — Desktop).
+// Named so the height/width formulas below read as "row height × scale"
+// and "× native aspect ratio" rather than unlabeled inline arithmetic.
+// Reused by `.mobileCompactMark` further down (same asset, same ratio).
+$compact-mark-scale: 1.8; // T-033's confirmed uniform scale factor
+$logomark-aspect-w: 117; // logomark's native width:height ratio terms
+$logomark-aspect-h: 216;
+
 .compactMark {
 	position: absolute;
 	left: 50%;
 	top: tokens.$space-xs;
 	transform: translateX(-50%);
-	height: calc(#{$nav-height} * 1.8);
-	width: calc(#{$nav-height} * 1.8 * 117 / 216);
+	height: calc(#{$nav-height} * #{$compact-mark-scale});
+	width: calc(#{$nav-height} * #{$compact-mark-scale} * #{$logomark-aspect-w} / #{$logomark-aspect-h});
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -186,6 +193,15 @@ $crest-w: 75px;
 // actually visible) — distinct from `mask-size` below, which scales the
 // full 1342x784 source image the crop is a window into.
 $crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
+// Full source asset dimensions (viewBox 0 0 1342 784) and the crop
+// window's offset into it (x 270-1075, y 103-702 — see the crop-window
+// comment above) — named so `mask-size`/`mask-position` below read as
+// "source × scale" / "crop offset × scale" instead of unlabeled magic
+// numbers. Reused by the mobile overlay crest further down (same asset).
+$crest-source-w: 1342px;
+$crest-source-h: 784px;
+$crest-crop-x: -270px;
+$crest-crop-y: -103px;
 
 .activeCrest {
 	position: absolute;
@@ -209,15 +225,16 @@ $crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
 	// points" should match the border's height). Negative because the
 	// spine sits below the crop's own top edge by more than half its
 	// height (crop bottom 702 minus edge-spine ≈454, scaled).
-	bottom: calc(-248px * #{$crest-scale});
+	$crest-spine-offset: -248px;
+	bottom: calc(#{$crest-spine-offset} * #{$crest-scale});
 	width: $crest-w;
 	height: $crest-h;
 	transform: translateX(-50%);
 	pointer-events: none;
 	mask-image: url('/nav-active-crest.svg');
 	mask-repeat: no-repeat;
-	mask-size: calc(1342px * #{$crest-scale}) calc(784px * #{$crest-scale});
-	mask-position: calc(-270px * #{$crest-scale}) calc(-103px * #{$crest-scale});
+	mask-size: calc(#{$crest-source-w} * #{$crest-scale}) calc(#{$crest-source-h} * #{$crest-scale});
+	mask-position: calc(#{$crest-crop-x} * #{$crest-scale}) calc(#{$crest-crop-y} * #{$crest-scale});
 	// A small internal gradient, per the reference image: the site's
 	// vivid lilac accent at the crest's own center fading to the divider
 	// line's own colour at its edge, so the shape reads as a lit-up core
@@ -303,12 +320,13 @@ $crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
 // bar itself doesn't need to grow (ui.md left that free if it did).
 // Renders unconditionally, independent of active-section state — unlike
 // desktop's compact mark.
+$mobile-compact-mark-scale: 1.6; // empirical enlargement over $font-size-caption
 .mobileCompactMark {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: calc(#{tokens.$font-size-caption} * 1.6);
-	width: calc(#{tokens.$font-size-caption} * 1.6 * 117 / 216);
+	height: calc(#{tokens.$font-size-caption} * #{$mobile-compact-mark-scale});
+	width: calc(#{tokens.$font-size-caption} * #{$mobile-compact-mark-scale} * #{$logomark-aspect-w} / #{$logomark-aspect-h});
 
 	img {
 		display: block;
@@ -353,15 +371,16 @@ $crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
 
 // Same top-right position as the closed bar's toggle — a state-swap of
 // the same control, not a separate element (ui.md, Component Anatomy).
+$close-icon-height: 1.4375rem; // matches the close icon's own svg height below
 .closeButton {
 	position: absolute;
-	top: calc((#{$mobile-nav-height} - 1.4375rem) / 2);
+	top: calc((#{$mobile-nav-height} - #{$close-icon-height}) / 2);
 	right: tokens.$space-sm;
 	color: tokens.$color-base-fg;
 
 	svg {
 		width: 1.4rem;
-		height: 1.4375rem;
+		height: $close-icon-height;
 	}
 }
 
@@ -413,14 +432,16 @@ $crest-h: calc(#{$crest-crop-h} * 1px * #{$crest-scale});
 		// center — the standard "position then rotate" composition, so
 		// the rotation doesn't also shift the element off-target.
 		top: 50%;
+		// calc(-1 * …), not a leading "-": $space-md resolves to a fluid
+		// clamp() token, and CSS can't negate a function call directly.
 		left: calc(-1 * #{tokens.$space-md});
 		width: $crest-mobile-w;
 		height: $crest-mobile-h;
 		transform: translate(-50%, -50%) rotate(90deg);
 		mask-image: url('/nav-active-crest.svg');
 		mask-repeat: no-repeat;
-		mask-size: calc(1342px * #{$crest-mobile-scale}) calc(784px * #{$crest-mobile-scale});
-		mask-position: calc(-270px * #{$crest-mobile-scale}) calc(-103px * #{$crest-mobile-scale});
+		mask-size: calc(#{$crest-source-w} * #{$crest-mobile-scale}) calc(#{$crest-source-h} * #{$crest-mobile-scale});
+		mask-position: calc(#{$crest-crop-x} * #{$crest-mobile-scale}) calc(#{$crest-crop-y} * #{$crest-mobile-scale});
 		background: radial-gradient(closest-side at center, tokens.$color-accent, tokens.$color-nav-divider);
 		filter: drop-shadow(0 0 6px rgba(tokens.$color-nav-divider, 0.7));
 	}

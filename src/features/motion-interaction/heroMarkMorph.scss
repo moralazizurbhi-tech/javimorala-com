@@ -31,6 +31,13 @@
 // `::after`; kept in sync by hand across all three, per that file's own
 // precedent.
 $nav-height: 4.5rem;
+// Hand-synced with SectionNav.module.scss's own $compact-mark-scale /
+// $logomark-aspect-w / $logomark-aspect-h (T-033) — named here too so
+// the target-probe's width/height formula below reads as "row height ×
+// scale × native aspect ratio" rather than unlabeled inline arithmetic.
+$compact-mark-scale: 1.8;
+$logomark-aspect-w: 117;
+$logomark-aspect-h: 216;
 
 .hero-mark-natural-probe,
 .hero-mark-target-probe,
@@ -58,8 +65,8 @@ $nav-height: 4.5rem;
 	.hero-mark-target-probe {
 		position: fixed;
 		top: tokens.$space-xs;
-		width: calc(#{$nav-height} * 1.8 * 117 / 216);
-		height: calc(#{$nav-height} * 1.8);
+		width: calc(#{$nav-height} * #{$compact-mark-scale} * #{$logomark-aspect-w} / #{$logomark-aspect-h});
+		height: calc(#{$nav-height} * #{$compact-mark-scale});
 	}
 
 	// Hero Mark → compact-logo morph (Commitment 12 AC1) — this
