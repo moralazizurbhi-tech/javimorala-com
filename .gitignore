@@ -443,3 +443,6 @@ FodyWeavers.xsd
 .claude
 CLAUDE.md
 raw_inputs/
+graphify-out/
+.wrangler/
+.vscode/
