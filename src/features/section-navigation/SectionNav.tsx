@@ -124,6 +124,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, a
 	const navRef = useRef<HTMLElement>(null);
 	const aboutLinkRef = useRef<HTMLAnchorElement>(null);
 	const contactLinkRef = useRef<HTMLAnchorElement>(null);
+	const pendingNavigationRef = useRef<SectionId | null>(null);
 	const [crestLeft, setCrestLeft] = useState<number | null>(null);
 
 	useEffect(() => {
@@ -192,11 +193,22 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, a
 				for (const entry of entries) {
 					const id = entry.target.id as SectionId;
 					if (entry.isIntersecting) {
+						if (id === 'introduction') {
+							withinBand.clear();
+						}
 						withinBand.add(id);
 					} else {
 						withinBand.delete(id);
 					}
 				}
+
+				const pendingNavigation = pendingNavigationRef.current;
+				if (pendingNavigation) {
+					pendingNavigationRef.current = null;
+					setActiveSection(pendingNavigation);
+					return;
+				}
+
 				setActiveSection(ACTIVE_SECTION_PRIORITY.find((id) => withinBand.has(id)) ?? 'introduction');
 			},
 			{ rootMargin: '0px 0px -80% 0px', threshold: 0 },
@@ -225,6 +237,13 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, a
 	// row (Introduction, scroll-derived); Continuous only once neither
 	// holds (Introduction, mark scrolled past).
 	const dividerState = isIntroduction ? (heroMarkVisible ? 'hero-mark' : 'continuous') : 'logo';
+
+	function handleSectionLinkClick(section: SectionId) {
+		return () => {
+			pendingNavigationRef.current = section;
+			setActiveSection(section);
+		};
+	}
 
 	return (
 		<>
@@ -256,6 +275,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, a
 								ref={aboutLinkRef}
 								href="#personal-narrative"
 								className={styles.link}
+								onClick={handleSectionLinkClick('personal-narrative')}
 								aria-current={activeSection === 'personal-narrative' ? 'page' : undefined}
 							>
 								{navLabelAbout}
@@ -266,6 +286,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, a
 								ref={contactLinkRef}
 								href="#connection"
 								className={styles.link}
+								onClick={handleSectionLinkClick('connection')}
 								aria-current={activeSection === 'connection' ? 'page' : undefined}
 							>
 								{navLabelContact}
@@ -317,6 +338,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, a
 									<a
 										href="#personal-narrative"
 										className={styles.overlayLink}
+										onClick={handleSectionLinkClick('personal-narrative')}
 										aria-current={activeSection === 'personal-narrative' ? 'page' : undefined}
 									>
 										{navLabelAbout}
@@ -328,6 +350,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, a
 									<a
 										href="#connection"
 										className={styles.overlayLink}
+										onClick={handleSectionLinkClick('connection')}
 										aria-current={activeSection === 'connection' ? 'page' : undefined}
 									>
 										{navLabelContact}

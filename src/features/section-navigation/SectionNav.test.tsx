@@ -103,6 +103,24 @@ describe('SectionNav (section-navigation/contract.md Commitments 1-5)', () => {
     expect(screen.getByRole('link', { name: 'contact' }).getAttribute('href')).toBe('#connection');
   });
 
+  it('updates the active indicator immediately when a nav link is activated', () => {
+    renderNav();
+
+    fireEvent.click(screen.getByRole('link', { name: 'about' }));
+
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBe('page');
+    expect(screen.getByRole('link', { name: 'contact' }).getAttribute('aria-current')).toBeNull();
+  });
+
+  it('keeps the clicked destination active while the old section is still intersecting', () => {
+    renderNav();
+
+    fireEvent.click(screen.getByRole('link', { name: 'about' }));
+    triggerIntersectionChange(['introduction']);
+
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBe('page');
+  });
+
   it('Commitment 4 AC1 & 5 AC1: Introduction is active and the desktop compact logomark is absent on initial render', () => {
     renderNav();
     expect(desktopNav().queryByRole('link', { name: 'Introduction' })).toBeNull();
@@ -166,6 +184,18 @@ describe('SectionNav (section-navigation/contract.md Commitments 1-5)', () => {
     triggerIntersectionChange(['introduction'], ['personal-narrative']);
 
     expect(desktopNav().queryByRole('link', { name: 'Introduction' })).toBeNull();
+  });
+
+  it('clears the contact indicator when scrolling back into the Hero', () => {
+    renderNav();
+    triggerIntersectionChange(['personal-narrative'], ['introduction']);
+    triggerIntersectionChange(['connection'], ['personal-narrative']);
+    expect(screen.getByRole('link', { name: 'contact' }).getAttribute('aria-current')).toBe('page');
+
+    triggerIntersectionChange(['introduction']);
+
+    expect(screen.getByRole('link', { name: 'about' }).getAttribute('aria-current')).toBeNull();
+    expect(screen.getByRole('link', { name: 'contact' }).getAttribute('aria-current')).toBeNull();
   });
 });
 
