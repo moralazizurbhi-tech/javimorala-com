@@ -1,4 +1,8 @@
 @use 'reset';
+// Focus-Visible Style Module (T-026) — universal, automatic
+// `:focus-visible` ring for every interactive element site-wide; see
+// this partial's own header comment.
+@use '../features/accessibility/focusVisibleStyle';
 // Nav Transition Styles (T-021) — a CSS-only, zero-code-coupling
 // stylesheet targeting `section-navigation`'s already-public DOM
 // contract; wired in here (Root Layout level, matching where Section

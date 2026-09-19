@@ -1,0 +1,30 @@
+@use '../../styles/mixins' as mixins;
+
+// Focus-Visible Style Module (T-026, accessibility/technical-design.md)
+// — the one new component this Feature contributes (Commitment 2;
+// contributes to Commitment 3 via Styling System's fixed token values).
+// `@use`d from `styles/global.scss` at Root Layout level, the same
+// zero-opt-in pattern motion-interaction's own Nav Transition Styles
+// already establish (technical-design.md, Collaborations): no Feature's
+// own component imports or references this file.
+//
+// Universal selector, not a per-component list (Owned Concepts: "the
+// focus-visible selector strategy and its universal, zero-opt-in
+// application rule") — `:focus-visible` only ever matches an element the
+// browser itself determines is keyboard-focused, so this single rule
+// covers every current and future interactive element (native,
+// Radix-primitive-based, or otherwise) without enumerating any of them.
+//
+// `:focus-visible` rather than `:focus` (Design Decision 1): shows the
+// ring for keyboard interaction without over-triggering on mouse click.
+//
+// Colour/offset come from the shared `focus-ring` mixin T-002 already
+// fixed (styles/mixins/_interaction.scss). Radius intentionally left
+// unset here too, mirroring that mixin's own note: modern browsers clip
+// `outline` to the focused element's own `border-radius` automatically,
+// satisfying ui.md's "radius matches whatever radius the focused element
+// itself already has" without this module needing to know any element's
+// individual radius.
+:focus-visible {
+  @include mixins.focus-ring;
+}
