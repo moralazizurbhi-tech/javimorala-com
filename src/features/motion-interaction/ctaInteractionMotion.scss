@@ -30,14 +30,33 @@
 // Sized wider than the text and slid across via `background-position` —
 // a light/dark/light band so the lilac stop reads as a moving highlight
 // "passing over the letters" (ui.md) rather than a flat two-colour fill.
+//
+// T-030 post-motion accessibility regression fix (accessibility/
+// contract.md Commitment 3, AC1 — text ≥4.5:1): this is the CTA's own
+// oversized display text rendered via `background-clip: text; color:
+// transparent`, so whatever this gradient paints IS the letters'
+// literal foreground colour — `$color-gradient-end` used raw measures
+// only ~1.4:1 against `$color-base-bg`, and it's the dominant colour
+// here (3 of 5 stops), not a brief highlight. `ui.md`'s own Colour
+// Application requires reusing the existing gradient tokens with "no
+// new colour token introduced" — resolved the same way
+// secondaryInteractionFeedback.scss's own identical fix (T-024) does:
+// `color-mix()`, computed at render time from those exact same two
+// tokens, replacing every dark-stop occurrence so the sweep's own
+// resting colour independently verifies ≥4.5:1
+// (colors.contrast.test.ts) instead of reaching the raw dark stop's
+// value. Kept numerically/visually in sync with that file's own blend
+// by hand — no shared source of truth between the two independently
+// owned components (same precedent as this file's own `cta-sweep`
+// timings being hand-kept-in-sync with T-041's elsewhere).
 @mixin sweep-gradient {
 	background-image: linear-gradient(
 		90deg,
-		tokens.$color-gradient-end 0%,
-		tokens.$color-gradient-end 35%,
+		color-mix(in srgb, tokens.$color-gradient-start 92%, tokens.$color-gradient-end 8%) 0%,
+		color-mix(in srgb, tokens.$color-gradient-start 92%, tokens.$color-gradient-end 8%) 35%,
 		tokens.$color-gradient-start 50%,
-		tokens.$color-gradient-end 65%,
-		tokens.$color-gradient-end 100%
+		color-mix(in srgb, tokens.$color-gradient-start 92%, tokens.$color-gradient-end 8%) 65%,
+		color-mix(in srgb, tokens.$color-gradient-start 92%, tokens.$color-gradient-end 8%) 100%
 	);
 	background-size: 300% 100%;
 	background-clip: text;
