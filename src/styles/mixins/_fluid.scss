@@ -9,6 +9,10 @@
 @function fluid-size($min, $max, $min-vw: 24.375rem, $max-vw: 108rem) {
   $slope: math.div($max - $min, $max-vw - $min-vw);
   $intercept: $min - $slope * $min-vw;
+  // Linear interpolation's viewport-scaled term (y = intercept + slope*vw)
+  // — named separately so the calc() below reads as "intercept + scaled
+  // viewport width" rather than an inline multiplication.
+  $viewport-term: $slope * 100vw;
 
-  @return clamp(#{$min}, calc(#{$intercept} + #{$slope * 100vw}), #{$max});
+  @return clamp(#{$min}, calc(#{$intercept} + #{$viewport-term}), #{$max});
 }
