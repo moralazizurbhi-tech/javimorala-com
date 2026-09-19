@@ -70,12 +70,17 @@ one-task-per-Feature default.
   entirely** — both revise/extend already-`Realized` Feature output
   (T-011's and T-015/T-016's) rather than reopening those tasks'
   identities, preserving their completion history.
-- **`accessibility`'s two new components are split by dependency, not
-  bundled** — Focus-Visible Style Module (T-026) needs only Styling
-  System tokens (Ready as soon as T-002 fixes their values); Nav
-  Current-State AT Exposure (T-027) needs Section Navigation's
-  active-section signal (T-011). Bundling them would falsely gate the
-  earlier-ready one.
+- **`accessibility`'s Nav Current-State AT Exposure task (formerly
+  T-027) has been removed** — `section-navigation`'s Technical Design
+  (Design Decision 8, built at T-040) now exposes the active nav link's
+  current-state via the native `aria-current="page"` attribute,
+  resolving Contract Commitment 5 as existing architecture rather than a
+  dedicated mirroring component (`accessibility`'s own Technical Design
+  revised accordingly). Commitment 5 is now verified at T-028/T-030
+  alongside Commitments 1, 3, 4, and 6 — the same treatment already
+  given to Commitment 4's heading/landmark authoring below. Focus-Visible
+  Style Module (T-026) is unaffected and remains `accessibility`'s one
+  dedicated implementation task.
 - **Content-localization's i18n/Routing Layer is one task (T-006), not
   split into route-generation and root-bootstrap-redirect halves** —
   unlike per-component decomposition elsewhere, these two halves are only
@@ -268,7 +273,7 @@ one-task-per-Feature default.
   references: section-navigation/technical-design.md (Section Navigation Composition); section-navigation/contract.md (Commitments 1–5)
   dependencies: T-004, T-006
   inputs: i18n/Routing Layer's resolved nav-label/wordmark text
-  outputs: Section Navigation's core component tree and active-section state, rendered at Root Layout level; rendered as a navigable list/landmark (accessibility Commitment 4, AC1 — verified at T-028)
+  outputs: Section Navigation's core component tree and active-section state, rendered at Root Layout level; rendered as a navigable list/landmark (accessibility Commitment 5, AC2 — verified at T-028)
   acceptanceCriteria:
     - The nav bar is rendered and visible on every screen; no visitor action removes it (Commitment 1).
     - Activating "about"/"contact" moves the page position to the correct anchor without a full reload (Commitment 2).
@@ -433,15 +438,15 @@ Rationale).
   name: Section Navigation — Active-Indicator Pill & Mobile Logomark
   type: implementation
   objective: Add the Active Screen Indicator's static background-pill styling, the mobile closed bar's unconditional compact logomark, and the active nav link's aria-current attribute exposure — revising T-011's already-Realized output without reopening its identity.
-  references: section-navigation/ui.md (Active Screen Indicator; Mobile logomark addition); section-navigation/technical-design.md (aria-current Design Decision 8; device-split logomark); section-navigation/contract.md (Commitment 4 AC3; Commitment 5)
+  references: section-navigation/ui.md (Active Screen Indicator; Mobile logomark addition); section-navigation/technical-design.md (aria-current Design Decision 8; device-split logomark); section-navigation/contract.md (Commitment 4 AC3; Commitment 5); accessibility/technical-design.md (Commitment 5 realized by existing architecture); accessibility/contract.md (Commitment 5 AC1)
   dependencies: T-011
   inputs: Section Navigation's existing active-section state and compact-logomark rendering (T-011)
   outputs: active-link aria-current attribute; static (non-animated) Active Screen Indicator pill; mobile closed-bar compact logomark
   acceptanceCriteria:
-    - The active "about"/"contact" link carries aria-current="page"; the inactive one does not (Commitment 5).
+    - The active "about"/"contact" link carries aria-current="page"; the inactive one does not (section-navigation Commitment 5; accessibility Commitment 5 AC1 — verified at T-028).
     - A background pill (fully rounded, ~15% opacity accent) renders behind the active link's text, desktop and inside the mobile overlay; the wordmark never carries it; Introduction shows none.
     - Mobile's closed bar renders the compact logomark unconditionally, before the wordmark, on every screen including Introduction (Commitment 4 AC3). Desktop's existing per-screen behavior (AC1/AC2) is unchanged.
-  realizesCommitments: section-navigation Commitment 4 AC3 (new); contributes to Commitment 5's visual realization
+  realizesCommitments: section-navigation Commitment 4 AC3 (new); contributes to Commitment 5's visual realization; contributes to accessibility Commitment 5 AC1
   readiness: Ready — Solution, Contract, UI, and Technical Design are all Approved with this exact content.
 
 ### Implementation — Motion & Interaction
@@ -656,37 +661,23 @@ Rationale).
   realizesCommitments: accessibility Commitment 2; contributes to 3
   readiness: Ready — the Styling System token values this depends on are already fixed by T-002.
 
-- id: T-027
-  name: Nav Current-State AT Exposure
-  type: implementation
-  objective: Mirror Section Navigation's existing active-section signal into an AT-current-state attribute on the corresponding nav link.
-  references: accessibility/technical-design.md (Nav Current-State AT Exposure); accessibility/contract.md (Commitment 5)
-  dependencies: T-011
-  inputs: Section Navigation's active-section DOM/class signal (read-only)
-  outputs: Nav Current-State AT Exposure island
-  acceptanceCriteria:
-    - Assistive technology can determine which section the nav currently indicates as active at any time, updating on change.
-    - Before hydration, no current-state attribute is set (an eventually-consistent fallback), rather than an incorrect guess.
-    - Introduces no second, independently-tracked active-section state.
-  realizesCommitments: accessibility Commitment 5
-  readiness: Ready. Flagged, not resolved here: section-navigation/technical-design.md now specifies the active nav link carries `aria-current="page"` natively (Design Decision 8, added resolving T-040) — this task's own mirroring mechanism may be redundant. Not deprecated pending a decision in `accessibility`'s own Technical Design (still commits to Commitment 5 via this mechanism); a Feature Development or feature-set-review pass on `accessibility` should resolve whether this task is still needed before it's built.
-
 ### Verification — Motion & Accessibility (Phase 6)
 
 - id: T-028
   name: Accessibility Verification Pass
   type: verification
   objective: Verify, across everything built in Phases 1–5, the accessibility commitments that rely on already-existing mechanisms rather than a dedicated component.
-  references: accessibility/contract.md (Commitments 1, 3, 4, 6); accessibility/technical-design.md (Commitments Realized by Existing Architecture)
-  dependencies: T-002, T-006, T-008, T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016
+  references: accessibility/contract.md (Commitments 1, 3, 4, 5, 6); accessibility/technical-design.md (Commitments Realized by Existing Architecture)
+  dependencies: T-002, T-006, T-008, T-009, T-010, T-011, T-012, T-013, T-014, T-015, T-016, T-040
   inputs: the full set of Features built in Phases 1–5
   outputs: a verification record (pass/fail per commitment, with fixes applied where needed)
   acceptanceCriteria:
     - Every interactive element is Tab/Shift+Tab reachable and keyboard-activatable, in visual/reading order (Commitment 1).
     - Rendered text/UI contrast meets ≥4.5:1 (body) / ≥3:1 (large text, meaningful UI) using T-002's fixed token values, in all three locales (Commitment 3).
     - Heading/landmark structure and alt-text/decorative-hiding are correct across every Domain Section's authored markup (per T-009/T-011/T-013/T-015's own acceptance items), and non-interactive elements are never exposed as focusable (Commitment 4).
+    - The active nav link exposes `aria-current="page"` matching the actual current section at every scroll position, and the nav's link set is exposed as a navigable list/landmark (Commitment 5).
     - `html lang` matches the active language immediately after a Language Override switch, with no code path producing a mismatch (Commitment 6).
-  validatesCommitments: accessibility Commitments 1, 3, 4, 6
+  validatesCommitments: accessibility Commitments 1, 3, 4, 5, 6
   readiness: Ready once all listed dependencies are complete.
 
 ### Verification — Application-Level Validation (Phase 7)
@@ -708,13 +699,13 @@ Rationale).
   name: Whole-Experience Accessibility Regression (Post-Motion)
   type: verification
   objective: Re-verify T-028's commitments hold once Phase 6's motion layer is composed in, and confirm motion doesn't introduce a new accessibility defect.
-  references: accessibility/contract.md (Commitments 1, 2, 3, 4, 6)
-  dependencies: T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-027, T-028, T-033, T-034, T-035, T-036, T-037, T-038, T-040
+  references: accessibility/contract.md (Commitments 1, 2, 3, 4, 5, 6)
+  dependencies: T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-028, T-033, T-034, T-035, T-036, T-037, T-038, T-040
   inputs: the fully composed, motion-enabled experience
   outputs: a verification record
   acceptanceCriteria:
-    - Keyboard operability, contrast, focus visibility, AT compatibility, and document-language sync all still hold with motion active.
-  validatesCommitments: accessibility Commitments 1, 2, 3, 4, 6
+    - Keyboard operability, contrast, focus visibility, AT compatibility, nav current-state AT exposure, and document-language sync all still hold with motion active.
+  validatesCommitments: accessibility Commitments 1, 2, 3, 4, 5, 6
   readiness: Ready once all listed dependencies are complete.
 
 - id: T-031

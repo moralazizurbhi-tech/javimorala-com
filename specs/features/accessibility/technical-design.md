@@ -58,71 +58,6 @@ Styling System fixes its token value.
 - Commitment 2 (primary); contributes to Commitment 3 once Styling
   System's token value is fixed.
 
-### Nav Current-State AT Exposure
-
-**Purpose**
-
-Expose Section Navigation's existing "active section" state to
-assistive technology (Commitment 5 — closes Context Gap 1), without
-requiring Section Navigation's own component to change.
-
-**Responsibilities**
-
-- Hydrate as a thin client-side island observing Section Navigation's
-  existing, already-public active-section DOM/class signal — the same
-  signal `motion-interaction`'s own Nav Transition Styles component
-  already targets externally.
-- Whenever that signal changes, mirror it into an AT-current-state
-  attribute on the corresponding nav link, and remove it from the
-  previously-current one.
-- Derive this purely from Section Navigation's already-owned state —
-  introduces no second, independently-tracked "active section" concept
-  (avoiding the desync risk Section Navigation's own Technical Design
-  already flagged for its compact-logomark condition).
-- If Section Navigation's signal is not yet available (not hydrated),
-  set no current-state attribute until it is — an eventually-consistent
-  fallback rather than an error state.
-
-**Owned Concepts**
-
-- The DOM-signal-to-AT-attribute mirroring logic.
-
-**Collaborations**
-
-- Section Navigation Composition (external, `section-navigation`) —
-  targets its existing, already-public active-section DOM/class contract
-  from outside; Section Navigation's own component remains unaware of
-  this island, consistent with its own Technical Design's "no dependency
-  on motion-interaction" precedent, extended here.
-
-**Dependencies**
-
-- Section Navigation Composition's active-section DOM/class contract —
-  external, read-only.
-
-**Constraints**
-
-- Must not alter Section Navigation's own defined content or links —
-  attribute mirroring only.
-- Must not introduce a second, independently-tracked active-section
-  state.
-
-**Design Decisions**
-
-1. A self-contained external island (mirroring the state) rather than
-   requiring Section Navigation's own Technical Design to add this
-   responsibility. Rationale: Section Navigation's Technical Design is
-   already Approved; imposing a retroactive interface on it would
-   require reopening a closed artifact this phase has no authority to
-   modify. A self-contained island observing its already-public signal
-   achieves Commitment 5 with zero coupling in either direction,
-   following the exact pattern `motion-interaction`'s Nav Transition
-   Styles already established and this project already accepted.
-
-**Contract Traceability**
-
-- Commitment 5.
-
 ## Commitments Realized by Existing Architecture (No New Component)
 
 - **Commitment 1 (Keyboard Operability)** — realized by the Accessible
@@ -145,6 +80,16 @@ requiring Section Navigation's own component to change.
   Feature Solution's existing Rule that structure must reflect actual
   content organization. AC3 (Hero's scroll cue non-focusable) is already
   committed in `hero-presentation`'s own Contract.
+- **Commitment 5 (Section Navigation Current-State AT Exposure)** — AC1
+  (current-section determinable by AT) realized by `section-navigation`'s
+  own Technical Design, which marks the active nav link with the native
+  `aria-current="page"` attribute (Design Decision 8) — natively
+  understood by assistive technology, requiring no separate mirroring
+  component. AC2 (nav structure exposed as a navigable list/landmark)
+  realized directly within Section Navigation's own semantic markup,
+  authored as part of that Feature's own component, consistent with how
+  Commitment 4's heading/landmark structure is authored per Feature
+  above. No new component required.
 - **Commitment 6 (Document Language Sync)** — already fully realized by
   the combination of `content-localization`'s i18n/Routing Layer
   (generates each static route with its correct `html lang` from the
@@ -159,15 +104,11 @@ requiring Section Navigation's own component to change.
 
 - Focus-Visible Style Module → Styling System (external): consumes
   colour/radius tokens; no reverse dependency.
-- Nav Current-State AT Exposure → Section Navigation Composition
-  (external): reads its public active-section signal only; Section
-  Navigation has no dependency back, consistent with its own Technical
-  Design.
-- Neither new component depends on the Motion Layer or introduces any
+- This component does not depend on the Motion Layer or introduce any
   new persisted state.
 
-No circular dependencies: both new components depend outward only on
-already-existing, external architecture; nothing depends back on them.
+No circular dependencies: the one new component depends outward only on
+already-existing, external architecture; nothing depends back on it.
 
 ---
 

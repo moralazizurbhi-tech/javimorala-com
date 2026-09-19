@@ -176,11 +176,17 @@ interactive pieces are already built on Radix UI primitives from the
 start, not retrofitted here.
 
 - `accessibility`: the Focus-Visible Style Module (global CSS, build-once,
-  applies everywhere automatically); the Nav Current-State AT Exposure
-  bridge (needs `section-navigation`'s active-section signal from Phase
-  2); and its whole-experience verification obligations (contrast ratios
-  against Phase 0's final token values, heading/landmark structure, alt
-  text, document-language sync) across everything built in Phases 1–5.
+  applies everywhere automatically); and its whole-experience
+  verification obligations (contrast ratios against Phase 0's final
+  token values, heading/landmark structure, alt text, nav current-state
+  AT exposure, document-language sync) across everything built in
+  Phases 1–5. Its former dedicated Nav Current-State AT Exposure task
+  (T-027) has been removed — `section-navigation`'s Technical Design
+  (Design Decision 8, built in Phase 2 at T-040) now exposes the active
+  nav link's current-state via the native `aria-current="page"`
+  attribute, resolving Commitment 5 as existing architecture rather than
+  a dedicated component; verified alongside Commitments 1, 3, 4, and 6 at
+  T-028/T-030.
 - `motion-interaction`: 9 Technical Design components as of this Plan's
   latest refinement (up from an original 7 — Nav Divider Segment
   Transition, then Nav Active Indicator Transition Island, were each
@@ -333,8 +339,10 @@ tasks — that belongs to Task Catalog.
   No consuming Feature depends back — stated explicitly in every one of
   `motion-interaction`'s own component entries.
 - `accessibility`'s Focus-Visible Style Module → Styling System only. Its
-  Nav Current-State AT Exposure → `section-navigation`'s signal. Its
-  remaining commitments are verification-only across everything else.
+  remaining commitments, including Section Navigation Current-State AT
+  Exposure (realized by `section-navigation`'s own native `aria-current`
+  output, not a dedicated component), are verification-only across
+  everything else.
 
 **Derived infrastructure**:
 
