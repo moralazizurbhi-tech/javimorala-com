@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog, VisuallyHidden } from 'radix-ui';
 import LanguageSwitcher from '../language-override/LanguageSwitcher';
+import type { SupportedLocale } from '../language-override/overrideStore';
 import styles from './SectionNav.module.scss';
 
 // Section Navigation Composition — core desktop bar & active-section
@@ -101,9 +102,14 @@ interface Props {
 	wordmark: string;
 	navLabelAbout: string;
 	navLabelContact: string;
+	// The current page's own resolved locale — forwarded to LanguageSwitcher
+	// so its closed-trigger label falls back to the actual active language
+	// rather than always English when no override is set yet (T-032 post-
+	// implementation correction; see LanguageSwitcher.tsx's own comment).
+	activeLocale?: SupportedLocale;
 }
 
-export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }: Props) {
+export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, activeLocale }: Props) {
 	const [activeSection, setActiveSection] = useState<SectionId>('introduction');
 	const [overlayOpen, setOverlayOpen] = useState(false);
 	// Default true: a visitor's first paint is at scroll 0, where Hero's
@@ -267,7 +273,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 						</li>
 					</ul>
 					<div className={styles.languageSlot}>
-						<LanguageSwitcher />
+						<LanguageSwitcher activeLocale={activeLocale} />
 					</div>
 				</div>
 			</nav>
@@ -330,7 +336,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact }:
 							</li>
 						</ul>
 						<div className={styles.overlayLanguageSlot}>
-							<LanguageSwitcher />
+							<LanguageSwitcher activeLocale={activeLocale} />
 						</div>
 					</Dialog.Content>
 				</Dialog.Portal>

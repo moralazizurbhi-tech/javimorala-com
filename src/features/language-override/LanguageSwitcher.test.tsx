@@ -71,4 +71,20 @@ describe('LanguageSwitcher (language-override/contract.md Commitments 1, 2; cont
 
     expect(items.map((item) => item.getAttribute('href')).sort()).toEqual(['/en/', '/es/', '/eu/']);
   });
+
+  it('T-032 post-implementation correction: with no override set, the closed trigger falls back to the current page\'s own active locale, not always English', () => {
+    vi.spyOn(overrideStore, 'readOverride').mockReturnValue('unset');
+
+    render(<LanguageSwitcher activeLocale="eu" />);
+
+    expect(screen.getByRole('button').textContent).toBe('EU');
+  });
+
+  it('an explicit override still wins over the current page\'s active locale', () => {
+    vi.spyOn(overrideStore, 'readOverride').mockReturnValue('es');
+
+    render(<LanguageSwitcher activeLocale="eu" />);
+
+    expect(screen.getByRole('button').textContent).toBe('ES');
+  });
 });

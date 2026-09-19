@@ -21,7 +21,21 @@ const LOCALE_LABELS: Record<SupportedLocale, string> = {
   eu: 'EU',
 };
 
-export default function LanguageSwitcher() {
+interface Props {
+  // The current page's own resolved locale (content-localization's
+  // routing) — used only as the closed trigger's fallback label when no
+  // override is set yet (T-032 post-implementation correction: the
+  // trigger previously hardcoded 'en' regardless of which locale route
+  // was actually being viewed, showing "EN" on the es/eu routes for any
+  // visitor without a persisted override — ui.md's own Component Anatomy
+  // requires the trigger show the "current language label", not always
+  // English). Optional/defaulted to 'en' so existing call sites (and
+  // this component's own tests) that don't know the current route's
+  // locale keep their prior behaviour unchanged.
+  activeLocale?: SupportedLocale;
+}
+
+export default function LanguageSwitcher({ activeLocale = 'en' }: Props) {
   const activeOverride = readOverride();
 
   function handleSelect(locale: SupportedLocale) {
@@ -42,7 +56,7 @@ export default function LanguageSwitcher() {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger className={styles.trigger}>
-        {activeOverride === 'unset' ? LOCALE_LABELS.en : LOCALE_LABELS[activeOverride]}
+        {activeOverride === 'unset' ? LOCALE_LABELS[activeLocale] : LOCALE_LABELS[activeOverride]}
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content>
