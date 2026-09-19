@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import LanguageSwitcher from './LanguageSwitcher';
+import styles from './LanguageSwitcher.module.scss';
 import * as overrideStore from './overrideStore';
 
 afterEach(() => {
@@ -72,6 +73,31 @@ describe('LanguageSwitcher (language-override/contract.md Commitments 1, 2; cont
     expect(items.map((item) => item.getAttribute('href')).sort()).toEqual(['/en/', '/es/', '/eu/']);
   });
 
+  it('keeps the compact picker layout contract on narrow viewports', async () => {
+    vi.spyOn(overrideStore, 'readOverride').mockReturnValue('en');
+
+    render(<LanguageSwitcher />);
+    const trigger = screen.getByRole('button');
+    const items = await openDropdown();
+    const menu = items[0].closest('[role="menu"]');
+
+    expect(trigger.className).toContain(styles.trigger);
+    expect(menu?.className).toContain(styles.content);
+    expect(menu?.getAttribute('data-side')).toBe('bottom');
+    expect(menu?.getAttribute('data-align')).toBe('end');
+    expect(items).toHaveLength(3);
+  });
+
+  it('does not lock the page scroll while the picker is open', async () => {
+    vi.spyOn(overrideStore, 'readOverride').mockReturnValue('en');
+
+    render(<LanguageSwitcher />);
+    await openDropdown();
+
+    expect(document.body.getAttribute('data-scroll-locked')).toBeNull();
+    expect(document.body.style.pointerEvents).toBe('');
+  });
+
   it('T-032 post-implementation correction: with no override set, the closed trigger falls back to the current page\'s own active locale, not always English', () => {
     vi.spyOn(overrideStore, 'readOverride').mockReturnValue('unset');
 
@@ -86,5 +112,17 @@ describe('LanguageSwitcher (language-override/contract.md Commitments 1, 2; cont
     render(<LanguageSwitcher activeLocale="eu" />);
 
     expect(screen.getByRole('button').textContent).toBe('ES');
+  });
+
+  it('renders compact inline options for the mobile overlay variant', () => {
+    vi.spyOn(overrideStore, 'readOverride').mockReturnValue('unset');
+
+    render(<LanguageSwitcher activeLocale="es" variant="mobile" />);
+
+    const group = screen.getByRole('group', { name: 'Language' });
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.getAllByRole('link').map((link) => link.textContent)).toEqual(['EN', 'ES', 'EU']);
+    expect(group.querySelector('[aria-current="page"]')?.textContent).toBe('ES');
+    expect(group.querySelector('[aria-current="page"]')?.className).toContain(styles.itemActive);
   });
 });

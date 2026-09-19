@@ -19,18 +19,20 @@ Specializes Project UX's "Switch language" flow (switching mechanism
 itself) and continues `section-navigation`'s "Switch language
 (nav-hosting only)" flow from the point of activation.
 
-- Visitor activates the language control (reachable per
-  `section-navigation`'s hosting) → dropdown opens, listing the supported
-  languages with the current active language indicated → visitor selects
-  a different language → dropdown closes → navigation to that language's
-  URL, content renders in the new language (Contract Commitment 1) →
-  choice persisted for future visits (Contract Commitment 4).
+- Desktop: visitor activates the language control (reachable per
+`section-navigation`'s hosting) → dropdown opens, listing the supported
+languages with the current active language indicated. Mobile: the overlay
+presents the three supported languages inline, with the current language
+indicated. In either form, the visitor selects a different language →
+navigation to that language's URL, content renders in the new language
+(Contract Commitment 1) → choice persisted for future visits (Contract
+Commitment 4).
 
 ### Select the already-active language (no-op)
 
-- Visitor opens the dropdown → selects the language already active →
-  dropdown closes → no navigation, no persisted-state change (Contract
-  Commitment 2).
+- Desktop: visitor opens the dropdown; mobile: visitor views the inline
+options → selects the language already active → no navigation, no
+persisted-state change (Contract Commitment 2).
 
 ### Return with a previously set language
 
@@ -48,11 +50,13 @@ to a different language" on each.
 
 ## Interaction States
 
-- **Dropdown:** `Closed` (default/rest state) → `Open` (lists the
-  languages); closes on selection or dismissal.
+- **Desktop Dropdown:** `Closed` (default/rest state) → `Open` (lists
+the languages); closes on selection or dismissal.
+- **Mobile Inline Options:** visible whenever the mobile overlay is open;
+no additional open/close state applies.
 - **Current-Language Indicator:** the active language is visually
-  distinguished within the open list at all times when open; exact
-  visual treatment Pending, left to Feature UI.
+distinguished in both responsive forms; its concrete treatment is
+defined by Feature UI.
 - No loading, empty, or error state applies — this Feature is a static
   list with a client-side switch, with no data-fetch or fallible
   operation.
@@ -60,18 +64,20 @@ to a different language" on each.
 ## Feature Components
 
 - **Language Switcher** — existing identity, Project UX UI Components
-  ("manual locale override, available from both nav forms on every
-  screen"). This Feature's realization: a dropdown/menu trigger plus a
-  list of the supported languages with the current one indicated,
-  embedded within `section-navigation`'s desktop bar and mobile overlay
-  forms (hosting/placement is `section-navigation`'s own UX).
+("manual locale override, available from both nav forms on every
+screen"). This Feature's realization: a desktop dropdown/menu trigger
+plus list, and a mobile inline group of the three language options, with
+the current one indicated. Both forms are embedded within
+`section-navigation`'s desktop bar and mobile overlay (hosting/placement
+is `section-navigation`'s own UX).
 
 ## Content and Assets
 
-- **Language option display labels** — Pending: exact display strings
-  for each of the three languages (e.g., full names vs. codes).
-- **Trigger's closed-state displayed value** — Pending: what the closed
-  dropdown trigger shows (current language code/name/icon) — Feature UI.
+- **Language option display labels** — Confirmed: the desktop dropdown
+  uses `English`, `Castellano`, and `Euskara`; the mobile inline group
+  uses the compact codes `EN`, `ES`, and `EU`.
+- **Trigger's closed-state displayed value** — Confirmed: the desktop
+  trigger uses the active language's compact code (`EN`, `ES`, or `EU`).
 
 ## UX Constraints
 

@@ -206,9 +206,10 @@ describe('SectionNav mobile overlay (section-navigation/contract.md Commitment 6
     expect(dialog).not.toBeNull();
     expect(screen.getAllByRole('link', { name: 'about' }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('link', { name: 'contact' }).length).toBeGreaterThan(0);
-    // The language control is hosted, not owned, here — its own trigger
-    // renders inside the open dialog (Commitment 7, AC2).
-    expect(screen.getAllByRole('button', { name: 'EN' }).length).toBeGreaterThan(0);
+    // The language control is hosted, not owned, here — its mobile inline
+    // option group renders inside the open dialog (Commitment 7, AC2).
+    const languageGroup = within(dialog).getByRole('group', { name: 'Language' });
+    expect(within(languageGroup).getAllByRole('link').map((link) => link.textContent)).toEqual(['EN', 'ES', 'EU']);
   });
 
   it('applies the Active Screen Indicator identically inside the open overlay (ui.md, Component Anatomy)', () => {

@@ -4,8 +4,8 @@
 
 ## UI Scope
 
-Realizes Feature UX's Language Switcher dropdown (trigger + open list,
-current-language indication), informed by an explicitly-provided Figma
+Realizes Feature UX's responsive Language Switcher (desktop trigger + open
+list; mobile inline options; current-language indication), informed by an explicitly-provided Figma
 reference (file `CCwye9dUj8Sy4f2lgy6i9f`, node `15:3`) — evidence of the
 site's flat, chrome-free, typography-driven treatment; no dropdown-
 specific frame exists in that file, so most values below are
@@ -31,26 +31,31 @@ placement/hosting (`section-navigation`), locale detection/rendering
   link list (mobile), alongside "about"/"contact," matching
   `section-navigation`'s existing link spacing/gap.
 - Open dropdown list: appears directly below the trigger (desktop) or
-  inline within the overlay (mobile), vertically stacked list items,
-  using the same generous, uncluttered spacing rhythm used elsewhere on
-  the site.
+  inline within the overlay (mobile), vertically stacked list items, using
+  the same generous, uncluttered spacing rhythm used elsewhere on the
+  site.
+- Mobile inline options: `EN`, `ES`, and `EU` appear in one horizontal
+  group inside the open overlay, with consistent spacing between options.
 
 ## Component Anatomy and Variants
 
-- **Language Switcher Trigger:** plain text (current language label —
-  exact copy Pending, per Feature UX), no button chrome, border, icon, or
+- **Language Switcher Trigger:** plain text using the active language's
+  compact code (`EN`, `ES`, or `EU`), no button chrome, border, icon, or
   pill shape — consistent with the site's chrome-free, typography-driven
   aesthetic.
 - **Language Switcher Dropdown List (open state):** plain stacked text
-  list, no background surface, border, or shadow — fully chrome-free,
-  mirroring `section-navigation`'s Mobile Navigation Overlay ("full-screen
-  flat surface, same background as rest of site, no button chrome") and
-  `direct-contact`'s/`about-narrative`'s "no bordered/surfaced elements"
-  precedent. Separation between items relies on spacing and the
-  active-item weight distinction alone.
+  list on the same near-black base, with a restrained divider border and
+  soft shadow so the desktop menu is legible against the page without
+  becoming a card. Separation between items relies on spacing and the
+  active-item weight distinction.
 - **Active Language Indicator (within the open list):** bold weight on
   the matching list item — extends the bold/regular pairing pattern
   already used for Direct Contact's farewell lines.
+- **Mobile Language Options:** three plain text buttons (`EN`, `ES`,
+  `EU`) in a horizontal group; the active option uses the same bold-weight
+  distinction as the desktop active item.
+- Desktop dropdown labels are `English`, `Castellano`, and `Euskara`, in
+  that order.
 
 ## Colour Application
 
@@ -62,9 +67,10 @@ placement/hosting (`section-navigation`), locale detection/rendering
 
 ## Borders, Radii, Shadows, Surfaces
 
-None — no bordered/surfaced elements anywhere in this component,
-consistent with the site's chrome-free style and the explicit direction
-to keep the same feel as the rest of the site.
+- Desktop dropdown: no radius; a restrained divider border and soft shadow
+  provide separation from the page while preserving the near-black base.
+- Mobile inline option group: no independent surface, border, or shadow;
+  it remains part of the flat overlay composition.
 
 ## Iconography
 
@@ -74,14 +80,15 @@ precedent from `section-navigation`.
 
 ## Visual States and Responsive Layout
 
-- Dropdown `Closed` / `Open`: `Closed` shows only the trigger; `Open`
-  reveals the stacked list beneath/within it, both realized as plain text
-  with no surface change beyond the list appearing.
-- Active-item bold weight is the single concrete realization of Feature
-  UX's "current active language indicated" requirement.
-- Desktop vs. mobile: same anatomy and treatment; the control inherits
-  its host's (`section-navigation`) layout context in each case — no
-  materially distinct mobile variant of the control itself.
+- Desktop dropdown `Closed` / `Open`: `Closed` shows only the trigger;
+  `Open` reveals the stacked list beneath it.
+- Mobile overlay: the inline options are visible while the overlay is
+  open and disappear with it; there is no separate dropdown trigger.
+- Active-item bold weight is the concrete realization of Feature UX's
+  "current active language indicated" requirement in both forms.
+- Desktop vs. mobile: two responsive presentations of the same control,
+  with the desktop dropdown and mobile inline option group preserving the
+  same language order and selection semantics.
 
 ---
 

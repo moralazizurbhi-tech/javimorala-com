@@ -336,7 +336,7 @@ export default function SectionNav({ wordmark, navLabelAbout, navLabelContact, a
 							</li>
 						</ul>
 						<div className={styles.overlayLanguageSlot}>
-							<LanguageSwitcher activeLocale={activeLocale} />
+							<LanguageSwitcher activeLocale={activeLocale} variant="mobile" />
 						</div>
 					</Dialog.Content>
 				</Dialog.Portal>

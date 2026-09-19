@@ -8,16 +8,16 @@
 
 **Purpose**
 
-Realize the visible dropdown (trigger + list) per Feature UX/UI; on
-explicit selection, write the override and navigate to the target
-language's route.
+Realize the responsive language control (desktop dropdown; mobile inline
+option group) per Feature UX/UI; on explicit selection, write the override
+and navigate to the target language's route.
 
 **Responsibilities**
 
-- Render a dropdown (trigger + list) hosted within `section-navigation`'s
-  nav bar/mobile overlay (placement itself is `section-navigation`'s own
-  responsibility; this component provides only the interactive element
-  embedded there).
+- Render the desktop dropdown or mobile inline option group hosted within
+  `section-navigation`'s nav bar/mobile overlay (placement itself is
+  `section-navigation`'s own responsibility; this component provides only
+  the interactive element embedded there).
 - On selecting a different language: invoke Override Store's write, then
   navigate to that language's route.
 - On selecting the currently active language: no-op — no write, no

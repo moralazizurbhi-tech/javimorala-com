@@ -7,13 +7,67 @@
 .trigger,
 .item {
 	font-family: tokens.$font-family-body;
-	font-size: tokens.$font-size-label;
+	font-size: tokens.$font-size-caption;
 	font-weight: tokens.$font-weight-label;
 	color: tokens.$color-base-fg;
+	line-height: 1;
+}
+
+.trigger {
+	display: inline-flex;
+	align-items: center;
+	min-width: 2.25rem;
+	position: relative;
+	top: 0.12em;
+}
+
+.content {
+	z-index: 30;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	min-width: 4.5rem;
+	max-width: calc(100vw - 1rem);
+	max-height: calc(100dvh - 1rem);
+	padding: tokens.$space-xs 0;
+	background-color: tokens.$color-base-bg;
+	border: 1px solid tokens.$color-nav-divider;
+	box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.28);
+	overflow-y: auto;
+	outline: none;
+}
+
+.item {
+	display: block;
+	width: 100%;
+	padding: calc(tokens.$space-xs / 2) tokens.$space-sm;
+	white-space: nowrap;
 }
 
 // Active Language Indicator — bold weight distinguishes the active item,
 // never colour (ui.md, Colour Application).
 .itemActive {
 	font-weight: tokens.$font-weight-display;
+}
+
+.mobileOptions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: tokens.$space-sm;
+}
+
+.mobileOption {
+	font-family: tokens.$font-family-body;
+	font-size: tokens.$font-size-caption;
+	font-weight: tokens.$font-weight-label;
+	line-height: 1;
+	color: tokens.$color-base-fg;
+}
+
+.mobileOption[aria-current='page'] {
+	font-weight: tokens.$font-weight-display;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.2em;
 }

@@ -109,11 +109,11 @@ motion/transition treatment (`motion-interaction`).
   the full-screen overlay at their full size (measured 46, unchanged
   from desktop), stacked with a large gap between them — no wordmark or
   compact logomark observed within the open overlay in this reference.
-- The language control's placement within either mobile form isn't
-  observed in this Figma reference (older exploration, predates the
-  confirmed `language-override` addition) — its concrete position is
-  Pending, to be resolved when `language-override`'s own UI is defined
-  or this Definition is next refined.
+- The language control is hosted within the open overlay's centered
+  content grouping, beneath the "about"/"contact" links. Its mobile
+  realization is the `language-override` Feature's horizontal `EN`, `ES`,
+  `EU` option group; this Feature owns only that hosting position, not the
+  options' selection behavior or active-state styling.
 
 ## Component Anatomy and Variants
 

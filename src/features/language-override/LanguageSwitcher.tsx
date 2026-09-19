@@ -10,15 +10,17 @@ import styles from './LanguageSwitcher.module.scss';
 
 const SUPPORTED_LOCALES: readonly SupportedLocale[] = ['en', 'es', 'eu'];
 
-// Display labels and the closed-trigger's displayed value are Pending in
-// language-override/ux.md and ui.md ("exact display strings... Pending").
-// Locale codes stand in as an Implementation Placeholder so the
-// functional mechanism (Commitments 1, 2; contributes to 4) is fully
-// verifiable now, without inventing the final copy decision.
-const LOCALE_LABELS: Record<SupportedLocale, string> = {
+const LOCALE_CODES: Record<SupportedLocale, string> = {
   en: 'EN',
   es: 'ES',
   eu: 'EU',
+};
+
+// Full display labels used by the open options.
+const LOCALE_LABELS: Record<SupportedLocale, string> = {
+  en: 'English',
+  es: 'Castellano',
+  eu: 'Euskara',
 };
 
 interface Props {
@@ -33,14 +35,16 @@ interface Props {
   // this component's own tests) that don't know the current route's
   // locale keep their prior behaviour unchanged.
   activeLocale?: SupportedLocale;
+	variant?: 'desktop' | 'mobile';
 }
 
-export default function LanguageSwitcher({ activeLocale = 'en' }: Props) {
+export default function LanguageSwitcher({ activeLocale = 'en', variant = 'desktop' }: Props) {
   const activeOverride = readOverride();
+  const selectedLocale = activeOverride === 'unset' ? activeLocale : activeOverride;
 
   function handleSelect(locale: SupportedLocale) {
     return (event: React.MouseEvent<HTMLAnchorElement>) => {
-      if (locale === activeOverride) {
+      if (locale === selectedLocale) {
         // Commitment 2: reselecting the active language is a no-op — no
         // write, no navigation.
         event.preventDefault();
@@ -53,19 +57,43 @@ export default function LanguageSwitcher({ activeLocale = 'en' }: Props) {
     };
   }
 
+  if (variant === 'mobile') {
+    return (
+      <div className={styles.mobileOptions} role="group" aria-label="Language">
+        {SUPPORTED_LOCALES.map((locale) => (
+          <a
+            key={locale}
+            href={`/${locale}/`}
+            onClick={handleSelect(locale)}
+            className={locale === selectedLocale ? `${styles.mobileOption} ${styles.itemActive}` : styles.mobileOption}
+            aria-current={locale === selectedLocale ? 'page' : undefined}
+          >
+            {LOCALE_CODES[locale]}
+          </a>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <DropdownMenu.Root>
+    <DropdownMenu.Root modal={false}>
       <DropdownMenu.Trigger className={styles.trigger}>
-        {activeOverride === 'unset' ? LOCALE_LABELS[activeLocale] : LOCALE_LABELS[activeOverride]}
+        {activeOverride === 'unset' ? LOCALE_CODES[activeLocale] : LOCALE_CODES[activeOverride]}
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content>
+        <DropdownMenu.Content
+          className={styles.content}
+          side="bottom"
+          align="end"
+          sideOffset={8}
+          collisionPadding={8}
+        >
           {SUPPORTED_LOCALES.map((locale) => (
             <DropdownMenu.Item key={locale} asChild>
               <a
                 href={`/${locale}/`}
                 onClick={handleSelect(locale)}
-                className={locale === activeOverride ? `${styles.item} ${styles.itemActive}` : styles.item}
+					className={locale === selectedLocale ? `${styles.item} ${styles.itemActive}` : styles.item}
               >
                 {LOCALE_LABELS[locale]}
               </a>
