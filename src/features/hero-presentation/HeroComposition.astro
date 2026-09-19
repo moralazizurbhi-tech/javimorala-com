@@ -55,14 +55,12 @@ const { headlinePrimary, headlineSecondaryLine1, headlineSecondaryLine2, scrollC
 		// design (ui.md, Mobile; Figma's own mobile frame) — contains that
 		// bleed instead of letting it force horizontal page scroll.
 		overflow: hidden;
-		// `100dvh` (falls back to `100vh` on browsers that don't support
-		// it) — plain `100vh` resolves against mobile browsers' *large*
-		// viewport (address bar hidden), which is taller than what's
-		// actually visible on first paint (address bar shown), pushing the
-		// bottom `auto` grid row (scroll cue) below the real visible fold —
-		// developer visual review finding on a real device.
+		// `100svh` (falls back to `100vh` on browsers that don't support
+		// it) keeps the Hero height stable while mobile browser chrome
+		// appears or disappears; unlike `100dvh`, it does not reflow the
+		// composition when the visual viewport changes.
 		min-height: 100vh;
-		min-height: 100dvh;
+		min-height: 100svh;
 		padding: tokens.$space-lg tokens.$space-md;
 		display: grid;
 		grid-template-columns: 1fr;
