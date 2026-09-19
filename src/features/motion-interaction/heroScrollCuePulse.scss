@@ -1,0 +1,42 @@
+// T-019 — compositor-driven breathing motion for the Hero scroll cue.
+// The class is toggled only after the entrance settles by
+// HeroEntranceIsland.tsx; keeping interpolation in CSS avoids competing
+// JavaScript transform updates with the entrance and scroll-linked motion.
+
+@keyframes hero-scroll-cue-pulse {
+	from {
+		transform: translateY(0) scale(1);
+	}
+	to {
+		transform: translateY(-4px) scale(1.02);
+	}
+}
+
+@keyframes hero-scroll-cue-content-pulse {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0.55;
+	}
+}
+
+.hero__scroll-cue--pulsing {
+	transform-origin: center;
+	will-change: transform;
+	animation: hero-scroll-cue-pulse 2.4s ease-in-out infinite alternate;
+}
+
+.hero__scroll-cue--pulsing > * {
+	animation: hero-scroll-cue-content-pulse 2.4s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero__scroll-cue--pulsing {
+		animation: none;
+	}
+
+	.hero__scroll-cue--pulsing > * {
+		animation: none;
+	}
+}

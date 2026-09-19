@@ -33,9 +33,22 @@
 $nav-height: 4.5rem;
 
 .hero-mark-natural-probe,
-.hero-mark-target-probe,
-.hero-mark-morph {
+.hero-mark-target-probe {
 	display: none;
+}
+
+.hero-mark-morph {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: -30%;
+	width: 127vw;
+	height: auto;
+	aspect-ratio: 1216 / 780;
+	transform: rotate(45deg);
+	z-index: -1;
+	opacity: 0;
+	pointer-events: none;
 }
 
 @include mixins.desktop-up {
@@ -77,7 +90,6 @@ $nav-height: 4.5rem;
 	// should visually overlap the bar rather than be hidden by it — the
 	// overflow ui.md's own Component Anatomy already describes).
 	.hero-mark-morph {
-		display: block;
 		position: fixed;
 		left: 50%;
 		transform: translateX(-50%);

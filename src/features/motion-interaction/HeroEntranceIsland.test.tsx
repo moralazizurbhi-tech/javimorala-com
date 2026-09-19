@@ -149,7 +149,7 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
 
   it('reduced motion: resolves directly to end-state with no animation and never starts ambient drift', () => {
     vi.stubGlobal('matchMedia', matchMediaMock(true));
-    render(<HeroEntranceIsland>{heroStaticMarkup()}</HeroEntranceIsland>);
+    const { container } = render(<HeroEntranceIsland>{heroStaticMarkup()}</HeroEntranceIsland>);
 
     vi.advanceTimersByTime(30_000);
 
@@ -161,11 +161,13 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
     vi.spyOn(motionPlaybackStore, 'isHeroEntrancePlayed').mockReturnValue(true);
     const markPlayedSpy = vi.spyOn(motionPlaybackStore, 'markHeroEntrancePlayed');
 
-    render(<HeroEntranceIsland>{heroStaticMarkup()}</HeroEntranceIsland>);
+    const { container } = render(<HeroEntranceIsland>{heroStaticMarkup()}</HeroEntranceIsland>);
 
     expect(animateCalls).toHaveLength(1);
     expect((animateCalls[0].target as Element).className).toContain('hero__mark');
     expect(animateCalls[0].options.repeat).toBe(Infinity);
+    expect(container.querySelector('.hero__scroll-cue')?.classList.contains('hero__scroll-cue--pulsing')).toBe(true);
+    expect(container.querySelector<HTMLElement>('.hero__scroll-cue')?.style.opacity).toBe('1');
     expect(markPlayedSpy).not.toHaveBeenCalled();
   });
 
@@ -208,6 +210,19 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
     expect(lastCall.options.repeat).toBe(Infinity);
   });
 
+  it('starts a slow scroll-cue pulse only after the entrance settles', async () => {
+    vi.stubGlobal('matchMedia', matchMediaMock(false));
+    vi.spyOn(motionPlaybackStore, 'isHeroEntrancePlayed').mockReturnValue(false);
+    vi.spyOn(motionPlaybackStore, 'markHeroEntrancePlayed').mockImplementation(() => {});
+
+    const { container } = render(<HeroEntranceIsland>{heroStaticMarkup()}</HeroEntranceIsland>);
+    expect(animateCalls.some((call) => (call.target as Element).className.includes('hero__scroll-cue'))).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(3000);
+
+    expect(container.querySelector('.hero__scroll-cue')?.classList.contains('hero__scroll-cue--pulsing')).toBe(true);
+  });
+
   it('never animates `transform` on elements whose existing transform must be preserved (mark, headline primary)', async () => {
     vi.stubGlobal('matchMedia', matchMediaMock(false));
     vi.spyOn(motionPlaybackStore, 'isHeroEntrancePlayed').mockReturnValue(false);
@@ -242,8 +257,9 @@ describe('HeroEntranceIsland (motion-interaction/contract.md Commitment 2, 16)',
       'hero__scroll-cue',
       'introduction__presence-links',
     ];
-    const offsetCalls = animateCalls.filter((call) =>
-      offsetTargetClasses.some((cls) => (call.target as Element).className.includes(cls)),
+    const offsetCalls = animateCalls.filter(
+      (call) =>
+        call.keyframes.y && !call.keyframes.scale && offsetTargetClasses.some((cls) => (call.target as Element).className.includes(cls)),
     );
 
     expect(offsetCalls).toHaveLength(4);
@@ -507,16 +523,43 @@ describe('HeroEntranceIsland — Hero Scroll-Linked Content Exit & Mark Transfor
     expect(container.querySelector('.hero-mark-morph')).toBeNull();
   });
 
-  it('mobile: dissolves `.hero__mark` via a reverse trace of its own entrance stroke (clip-path), never overriding its position (Commitment 12 AC2)', () => {
+  it('mobile: dissolves the mark paths from the outside inward, never overriding the mark position (Commitment 12 AC2)', async () => {
     const { container } = renderReducedMotion(false);
     const mark = container.querySelector<HTMLElement>('.hero__mark')!;
+    await waitFor(() => expect(container.querySelector('.hero-mark-morph')).not.toBeNull());
+    const morphSvg = container.querySelector<SVGSVGElement>('.hero-mark-morph')!;
+    const paths = morphSvg.querySelectorAll('path');
 
     setHeroProgress(container, 0);
-    expect(mark.style.clipPath).toBe('inset(0 0% 0 0%)');
+    expect(mark.style.visibility).toBe('');
+    expect(morphSvg.style.opacity).toBe('0');
+    expect(paths[0].style.opacity).toBe('1');
+    expect(paths[4].style.opacity).toBe('1');
+    expect(paths[3].style.opacity).toBe('1');
     expect(mark.style.position).toBe('');
 
+    setHeroProgress(container, 0.35 / 6);
+    expect(paths[0].style.opacity).toBe('0.5');
+    expect(paths[4].style.opacity).toBe('1');
+    expect(paths[3].style.opacity).toBe('1');
+
+    setHeroProgress(container, 0.35 / 2);
+    expect(paths[0].style.opacity).toBe('0');
+    expect(paths[4].style.opacity).toBe('0.5');
+    expect(paths[3].style.opacity).toBe('1');
+
+    setHeroProgress(container, 0.35 * (5 / 6));
+    expect(paths[0].style.opacity).toBe('0');
+    expect(paths[4].style.opacity).toBe('0');
+    expect(Number(paths[3].style.opacity)).toBeCloseTo(0.5);
+
     setHeroProgress(container, 0.35);
-    expect(mark.style.clipPath).toBe('inset(0 50% 0 50%)');
+    expect(paths[3].style.opacity).toBe('0');
+
+    setHeroProgress(container, 0);
+    expect(mark.style.visibility).toBe('');
+    expect(morphSvg.style.opacity).toBe('0');
+    expect(paths[0].style.opacity).toBe('1');
     expect(mark.style.position).toBe('');
   });
 });

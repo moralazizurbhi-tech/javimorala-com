@@ -1,5 +1,6 @@
 import { useLayoutEffect, useEffect, useRef, useState, type ReactNode } from 'react';
 import { animate, type AnimationPlaybackControlsWithThen } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { isHeroEntrancePlayed, markHeroEntrancePlayed } from './motionPlaybackStore';
 import { subscribeScrollProgress, type ScrollProgress } from './scrollProgressStore';
 import { buildInterpolatedD, loadHeroMarkMorphData, type MorphData } from './heroMarkMorphData';
@@ -112,6 +113,7 @@ const ENTRANCE_Y_OFFSET = 12; // px
 
 const AMBIENT_DRIFT_DURATION = 18;
 const AMBIENT_HUE_SHIFT_DEG = 10;
+const SCROLL_CUE_PULSE_CLASS = 'hero__scroll-cue--pulsing';
 
 // Hero Scroll-Linked Content Exit & Mark Transformation (T-035,
 // motion-interaction/technical-design.md; Commitments 11, 12) — both
@@ -154,6 +156,7 @@ const MARK_TRANSFORM_END = 0.35;
 // path geometry the way `isReal` itself is.
 const MARK_FADE_GROUP_1_INDICES = new Set([0, 1, 2]);
 const MARK_FADE_GROUP_2_INDICES = new Set([4, 5, 6]);
+const MARK_FADE_GROUP_3_INDICES = new Set([3, 7, 8]);
 
 // Mirrors `styles/tokens/_breakpoints.scss`'s own `$breakpoint-desktop`
 // — that file's own comment already treats this exact value as an
@@ -183,6 +186,12 @@ export default function HeroEntranceIsland({ children }: Props) {
   // below, which would otherwise close over a stale `null` forever).
   const [morphData, setMorphData] = useState<MorphData | null>(null);
   const morphDataRef = useRef<MorphData | null>(null);
+  const [mobileMorphHost, setMobileMorphHost] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (window.matchMedia(DESKTOP_QUERY).matches) return;
+    setMobileMorphHost(containerRef.current?.querySelector<HTMLElement>('.hero__display') ?? null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -432,19 +441,40 @@ export default function HeroEntranceIsland({ children }: Props) {
         if (morphSvg) morphSvg.style.opacity = '0';
       } else {
         // Mobile (Commitment 12 AC2): no logomark destination exists —
-        // dissolves via a reverse trace of its own entrance stroke.
-        // `.hero__mark` isn't inline SVG (see above), so realized as the
-        // exact reverse of the entrance's own center-out `clip-path`
-        // reveal (MARK_CLIP_HIDDEN/MARK_CLIP_VISIBLE above), same "drawn
-        // off" character. `.hero__mark` is never moved or repositioned
-        // on desktop anymore (only hidden — see above), so restoring it
-        // here is just clearing that visibility override and the morph
-        // SVG's own opacity, in case the viewport crossed the breakpoint
-        // mid-transformation.
-        mark.style.visibility = '';
-        if (morphSvg) morphSvg.style.opacity = '0';
-        const inset = 50 * markT;
-        mark.style.clipPath = `inset(0 ${inset}% 0 ${inset}%)`;
+        // dissolve the mark's own paths from the outside inward. The
+        // same path data as the desktop morph is reused, but its geometry
+        // and viewBox stay fixed: only opacity changes in three ordered
+        // groups, so the effect reads as the ornamentation disappearing
+        // into the center rather than shrinking or morphing into a logo.
+        const mobileFadeGroup1T = clamp01(markT * 3);
+        const mobileFadeGroup2T = clamp01(markT * 3 - 1);
+        const mobileFadeGroup3T = clamp01(markT * 3 - 2);
+
+        if (markT === 0) {
+          mark.style.visibility = '';
+          mark.style.clipPath = MARK_CLIP_VISIBLE;
+        } else {
+          mark.style.visibility = 'hidden';
+          mark.style.clipPath = '';
+        }
+
+        if (morphSvg && morphData) {
+          morphSvg.style.opacity = markT === 0 ? '0' : '1';
+          morphSvg.setAttribute('viewBox', morphData.fromViewBox.join(' '));
+          morphData.paths.forEach((p, i) => {
+            const pathEl = morphPathRefs.current[i];
+            if (!pathEl) return;
+            pathEl.setAttribute('d', buildInterpolatedD(p.template, p.fromNumbers, p.fromNumbers, 0));
+            const groupT = MARK_FADE_GROUP_1_INDICES.has(i)
+              ? mobileFadeGroup1T
+              : MARK_FADE_GROUP_2_INDICES.has(i)
+                ? mobileFadeGroup2T
+                : MARK_FADE_GROUP_3_INDICES.has(i)
+                  ? mobileFadeGroup3T
+                  : 0;
+            pathEl.style.opacity = String(1 - groupT);
+          });
+        }
       }
     }
 
@@ -459,6 +489,8 @@ export default function HeroEntranceIsland({ children }: Props) {
     }
 
     function startAmbientDrift() {
+      const scrollCue = container.querySelector<HTMLElement>('.hero__scroll-cue');
+      scrollCue?.classList.add(SCROLL_CUE_PULSE_CLASS);
       if (!mark) return;
       ambientControls = animate(
         mark,
@@ -475,6 +507,20 @@ export default function HeroEntranceIsland({ children }: Props) {
       );
     }
 
+    function settleHeroElements() {
+      mark?.style.setProperty('opacity', '1');
+      mark?.style.setProperty('clip-path', MARK_CLIP_VISIBLE);
+      headlinePrimary?.style.setProperty('opacity', '1');
+      secondaryHeadlineEls.forEach((el) => {
+        el.style.opacity = '1';
+        el.style.transform = '';
+      });
+      finalBeatEls.forEach((el) => {
+        el.style.opacity = '1';
+        el.style.transform = '';
+      });
+    }
+
     // Commitment 16 AC2: reduced-motion resolves directly to the
     // end-state and the ambient drift never begins — checked before the
     // played flag since it applies regardless of whether this is the
@@ -483,6 +529,7 @@ export default function HeroEntranceIsland({ children }: Props) {
       unsubscribeScroll = subscribeScrollProgress(applyScrollLinkedMotion);
       return () => {
         ambientControls?.stop();
+        container.querySelector<HTMLElement>('.hero__scroll-cue')?.classList.remove(SCROLL_CUE_PULSE_CLASS);
         unsubscribeScroll?.();
         clearDividerOverride();
       };
@@ -491,10 +538,12 @@ export default function HeroEntranceIsland({ children }: Props) {
     // Commitment 2 AC2: any settled visit (this session already played
     // the sequence) renders final state directly, no replay.
     if (isHeroEntrancePlayed()) {
+      settleHeroElements();
       startAmbientDrift();
       unsubscribeScroll = subscribeScrollProgress(applyScrollLinkedMotion);
       return () => {
         ambientControls?.stop();
+        container.querySelector<HTMLElement>('.hero__scroll-cue')?.classList.remove(SCROLL_CUE_PULSE_CLASS);
         unsubscribeScroll?.();
         clearDividerOverride();
       };
@@ -598,6 +647,7 @@ export default function HeroEntranceIsland({ children }: Props) {
       cancelled = true;
       activeControls.forEach((controls) => controls.stop());
       ambientControls?.stop();
+      container.querySelector<HTMLElement>('.hero__scroll-cue')?.classList.remove(SCROLL_CUE_PULSE_CLASS);
       unsubscribeScroll?.();
       clearDividerOverride();
     };
@@ -631,26 +681,30 @@ export default function HeroEntranceIsland({ children }: Props) {
         Rendered only once the fetch resolves; `display: none` in its
         own stylesheet otherwise.
       */}
-      {morphData && (
-        <svg
-          ref={morphSvgRef}
-          className="hero-mark-morph"
-          viewBox={morphData.fromViewBox.join(' ')}
-          aria-hidden="true"
-        >
-          <defs dangerouslySetInnerHTML={{ __html: morphData.gradientDefsMarkup }} />
-          {morphData.paths.map((p, i) => (
-            <path
-              key={i}
-              ref={(el) => {
-                morphPathRefs.current[i] = el;
-              }}
-              fill={p.fill}
-              d={buildInterpolatedD(p.template, p.fromNumbers, p.toNumbers, 0)}
-            />
-          ))}
-        </svg>
-      )}
+      {morphData &&
+        (() => {
+          const morphElement = (
+            <svg
+              ref={morphSvgRef}
+              className="hero-mark-morph"
+              viewBox={morphData.fromViewBox.join(' ')}
+              aria-hidden="true"
+            >
+              <defs dangerouslySetInnerHTML={{ __html: morphData.gradientDefsMarkup }} />
+              {morphData.paths.map((p, i) => (
+                <path
+                  key={i}
+                  ref={(el) => {
+                    morphPathRefs.current[i] = el;
+                  }}
+                  fill={p.fill}
+                  d={buildInterpolatedD(p.template, p.fromNumbers, p.toNumbers, 0)}
+                />
+              ))}
+            </svg>
+          );
+          return mobileMorphHost ? createPortal(morphElement, mobileMorphHost) : morphElement;
+        })()}
     </div>
   );
 }

@@ -24,6 +24,7 @@
 // CtaInteractionMotionIsland.tsx's own hover/tap-triggered classes; see
 // that file's and this partial's own header comments.
 @use '../features/motion-interaction/ctaInteractionMotion';
+@use '../features/motion-interaction/heroScrollCuePulse';
 // Secondary Interaction Feedback Styles (T-024) — shared hover/focus/
 // touch gradient-fill treatment for Section Navigation's nav links,
 // Presence Links, and the Language Switcher; see this partial's own
