@@ -21,13 +21,19 @@ describe('nextMorphVisible', () => {
     expect(nextMorphVisible(false, 0.97)).toBe(true);
   });
 
-  it('oscillating inside the band does not change visibility', () => {
-    let visible = true;
-    for (const progress of [0.99, 1, 0.985, 0.99, 0.981, 1]) {
-      visible = nextMorphVisible(visible, progress);
-      expect(visible).toBe(false);
+  it('oscillating inside the band does not change visibility, on either side', () => {
+    // Hidden side: reach hidden by crossing the hide threshold, then oscillate in the band.
+    let hidden = nextMorphVisible(true, 1);
+    expect(hidden).toBe(false);
+    for (const progress of [0.99, 1, 0.985, 0.99, 0.981, 0.999]) {
+      hidden = nextMorphVisible(hidden, progress);
+      expect(hidden).toBe(false);
     }
-    // Hidden-side oscillation inside the band also keeps it hidden.
-    expect(nextMorphVisible(false, 0.99)).toBe(false);
+    // Visible side: stay visible while oscillating in the band.
+    let visible = true;
+    for (const progress of [0.985, 0.99, 0.981, 0.999, 0.98]) {
+      visible = nextMorphVisible(visible, progress);
+      expect(visible).toBe(true);
+    }
   });
 });
