@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { isHeroEntrancePlayed, markHeroEntrancePlayed } from './motionPlaybackStore';
 import { subscribeScrollProgress, type ScrollProgress } from './scrollProgressStore';
 import { buildInterpolatedD, loadHeroMarkMorphData, type MorphData } from './heroMarkMorphData';
+import { nextMorphVisible } from './heroMarkVisibility';
 
 // Hero Entrance & Ambient Motion Island (T-019) —
 // motion-interaction/technical-design.md, "Hero Entrance & Ambient
@@ -255,7 +256,10 @@ export default function HeroEntranceIsland({ children }: Props) {
     // `heroProgress` reaching 1 tracks (`#introduction`/`.hero` share
     // the same box height). Per direct developer feedback ("keep the
     // morphed mark till the about also").
-    const HERO_MARK_HIDE_THRESHOLD = 1;
+    // Hysteresis band (Commitment 12, AC4): the decision lives in
+    // heroMarkVisibility.ts, which needs the previous visibility to
+    // avoid flicker near the boundary.
+    let morphVisible = true;
 
     // Nav Divider gap (Section Navigation's own Commitment 8 state,
     // read/written here only through its public `data-testid` hook —
@@ -392,7 +396,8 @@ export default function HeroEntranceIsland({ children }: Props) {
         morphSvg.style.top = `${lerp(naturalTopSource, target.top, markT)}px`;
         morphSvg.style.width = `${lerp(naturalRect.width, target.width, markT)}px`;
         morphSvg.style.height = `${lerp(naturalRect.height, target.height, markT)}px`;
-        morphSvg.style.opacity = progress.heroProgress < HERO_MARK_HIDE_THRESHOLD ? '1' : '0';
+        morphVisible = nextMorphVisible(morphVisible, progress.heroProgress);
+        morphSvg.style.opacity = morphVisible ? '1' : '0';
 
         // Developer direction: three *sequential* phases within the
         // same markT window (not concurrent) — fade group 1, then fade
